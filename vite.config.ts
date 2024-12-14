@@ -33,33 +33,7 @@ const devConfig = {
 	},
 };
 
-const prodConfig = {
-	server: {
-		port: 8080,
-		cors: true,
-		proxy: {
-			"/api": {
-				target: import.meta.env.VITE_RAILWAY_PUBLIC_API_URL,
-				changeOrigin: true,
-				secure: false,
-				ws: true,
-				configure: (proxy: any, _options: any) => {
-					proxy.on("error", (err: any, _req: any, _res: any) => {
-						console.log("proxy error", err);
-					});
-					proxy.on("proxyReq", (proxyReq: any, req: any, _res: any) => {
-						console.log("Sending Request to the Target:", req.method, req.url);
-					});
-					proxy.on("proxyRes", (proxyRes: any, req: any, _res: any) => {
-						console.log("Received Response from the Target:", proxyRes.statusCode, req.url);
-					});
-				},
-			},
-		},
-	},
-};
-
-const config = process.env.DEV === "production" ? devConfig : prodConfig;
+const config = process.env.DEV ? devConfig : {};
 
 export default defineConfig({
 	css: {
