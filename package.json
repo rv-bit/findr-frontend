@@ -2,12 +2,14 @@
 	"name": "findr-6cs007-frontend",
 	"version": "0.0.1",
 	"description": "Frontend for the Findr project",
+	"author": "rv-bit",
+	"license": "MIT",
 	"private": true,
 	"type": "module",
 	"scripts": {
 		"build": "cross-env NODE_ENV=production react-router build",
-		"dev": "react-router dev",
 		"start": "cross-env NODE_ENV=production react-router-serve ./build/client/index.js",
+		"dev": "react-router dev",
 		"typecheck": "react-router typegen && tsc"
 	},
 	"dependencies": {
