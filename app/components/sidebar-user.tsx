@@ -33,8 +33,9 @@ export function NavUser(props: NavProps) {
 					<div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
 						<button
 							onClick={async () => {
-								await authClient.signIn.social({
-									provider: "github",
+								await authClient.signIn.email({
+									email: "test@gmail.com",
+									password: "password",
 								});
 							}}
 							type="button"
