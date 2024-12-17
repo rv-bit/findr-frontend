@@ -30,7 +30,23 @@ export function NavUser(props: NavProps) {
 		<SidebarMenu>
 			<SidebarMenuItem>
 				{!props.user ? (
-					<div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+					<div className="flex flex-col items-center justify-start gap-2 px-1 py-1.5 text-left text-sm">
+						<button
+							onClick={async () => {
+								await authClient.signIn.social({
+									provider: "github",
+								});
+							}}
+							type="button"
+							className="flex w-full items-center gap-2 p-1.5 text-left text-sm"
+						>
+							<Avatar className="h-8 w-8 rounded-lg">
+								<AvatarFallback className="rounded-lg">CN</AvatarFallback>
+							</Avatar>
+							<div className="grid flex-1 text-left text-sm leading-tight">
+								<span className="truncate font-semibold">Sign in with github</span>
+							</div>
+						</button>
 						<button
 							onClick={async () => {
 								await authClient.signIn.email({
@@ -45,7 +61,25 @@ export function NavUser(props: NavProps) {
 								<AvatarFallback className="rounded-lg">CN</AvatarFallback>
 							</Avatar>
 							<div className="grid flex-1 text-left text-sm leading-tight">
-								<span className="truncate font-semibold">Sign in with github</span>
+								<span className="truncate font-semibold">Sign in with email</span>
+							</div>
+						</button>
+						<button
+							onClick={async () => {
+								await authClient.signUp.email({
+									name: "test",
+									email: "test@gmail.com",
+									password: "test123",
+								});
+							}}
+							type="button"
+							className="flex w-full items-center gap-2 p-1.5 text-left text-sm"
+						>
+							<Avatar className="h-8 w-8 rounded-lg">
+								<AvatarFallback className="rounded-lg">CN</AvatarFallback>
+							</Avatar>
+							<div className="grid flex-1 text-left text-sm leading-tight">
+								<span className="truncate font-semibold">Sign up</span>
 							</div>
 						</button>
 					</div>
