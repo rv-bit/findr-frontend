@@ -33,7 +33,7 @@ const devConfig = {
 	},
 };
 
-const config = process.env.DEV ? devConfig : {};
+const config = process.env.NODE_ENV === "development" ? devConfig : {};
 
 export default defineConfig({
 	css: {
