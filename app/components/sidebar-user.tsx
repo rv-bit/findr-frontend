@@ -113,8 +113,16 @@ export function NavUser(props: NavProps) {
 							</DropdownMenuLabel>
 							<DropdownMenuSeparator />
 							<DropdownMenuItem>
-								<LogOut />
-								Log out
+								<button
+									onClick={() => {
+										authClient.signOut();
+									}}
+									type="button"
+									className="flex w-full items-center gap-2 p-1.5 text-left text-sm"
+								>
+									<LogOut />
+									Log out
+								</button>
 							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>
