@@ -69,7 +69,7 @@ export function NavUser(props: NavProps) {
 								await authClient.signUp.email({
 									name: "test",
 									email: "test@gmail.com",
-									password: "test123",
+									password: "test12323221",
 								});
 							}}
 							type="button"
