@@ -5,6 +5,7 @@
 html,
 body {
   @apply bg-white dark:bg-gray-950;
+  @apply font-sans font-medium;
 
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
