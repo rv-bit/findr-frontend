@@ -3,6 +3,8 @@ import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration }
 import type { Route } from "./+types/root";
 import stylesheet from "./app.css?url";
 
+import { ThemeProvider } from "~/providers/Theme";
+
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "~/components/ui/sidebar";
 import { AppSidebar } from "~/components/sidebar-main";
 
@@ -30,15 +32,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<Links />
 			</head>
 			<body>
-				<SidebarProvider>
-					<AppSidebar />
-					<SidebarInset>
-						<main>
-							<SidebarTrigger />
-							{children}
-						</main>
-					</SidebarInset>
-				</SidebarProvider>
+				<ThemeProvider>
+					<SidebarProvider>
+						<AppSidebar />
+						<SidebarInset>
+							<main>
+								<SidebarTrigger />
+								{children}
+							</main>
+						</SidebarInset>
+					</SidebarProvider>
+				</ThemeProvider>
 
 				<ScrollRestoration />
 				<Scripts />

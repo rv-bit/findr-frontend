@@ -38,7 +38,7 @@ export function AppSidebar() {
 	const { data: session, isPending, error } = authClient.useSession();
 
 	return (
-		<Sidebar>
+		<Sidebar variant="inset" collapsible="offcanvas">
 			<SidebarContent>
 				<SidebarGroup>
 					<SidebarGroupLabel>Application</SidebarGroupLabel>
@@ -61,7 +61,7 @@ export function AppSidebar() {
 
 			<SidebarFooter>
 				<NavFooter />
-				<NavUser user={session?.user} />
+				<NavUser />
 			</SidebarFooter>
 		</Sidebar>
 	);

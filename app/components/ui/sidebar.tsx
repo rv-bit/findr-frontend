@@ -65,6 +65,7 @@ const SidebarProvider = React.forwardRef<
     },
     ref
   ) => {
+    const isClient = typeof window !== "undefined"; // Check if running on the client
     const isMobile = useIsMobile()
     const [openMobile, setOpenMobile] = React.useState(false)
 
@@ -127,6 +128,16 @@ const SidebarProvider = React.forwardRef<
       [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
     )
 
+    // This is the cookie logic to keep the sidebar state. We only run this on the client.
+    // React.useEffect(() => {
+    //   if (!isClient) return;
+
+    //   const cookieMatch = document.cookie.match(new RegExp(`(^| )${SIDEBAR_COOKIE_NAME}=([^;]+)`));
+    //   const initialState = cookieMatch ? (cookieMatch[2] === "true") : defaultOpen;
+
+    //   setOpen(initialState);
+    // }, [isClient]);
+
     return (
       <SidebarContext.Provider value={contextValue}>
         <TooltipProvider delayDuration={0}>
@@ -179,7 +190,7 @@ const Sidebar = React.forwardRef<
       return (
         <div
           className={cn(
-            "flex h-full w-[--sidebar-width] flex-col bg-sidebar text-sidebar-foreground",
+            "flex h-full w-[--sidebar-width] flex-col bg-sidebar text-sidebar-foreground font-sans",
             className
           )}
           ref={ref}
