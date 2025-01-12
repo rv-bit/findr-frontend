@@ -6,17 +6,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "~/components/ui/sidebar";
 
-type User = {
-	id: string;
-	name: string;
-	email: string;
-	emailVerified: boolean;
-	image?: string | null | undefined;
-
-	createdAt: Date;
-	updatedAt: Date;
-};
-
 export function NavUser() {
 	const { data: session, isPending, error } = authClient.useSession();
 	const { isMobile } = useSidebar();
@@ -25,25 +14,22 @@ export function NavUser() {
 		<SidebarMenu>
 			<SidebarMenuItem>
 				{!session?.user ? (
-					<div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-						<button
-							onClick={async () => {
-								await authClient.signIn.social({
-									provider: "github",
-								});
-							}}
-							type="button"
-							className="flex w-full items-center gap-2 p-1.5 text-left text-sm"
-						>
-							<Avatar className="h-8 w-8 rounded-lg">
-								<AvatarFallback className="rounded-lg">CN</AvatarFallback>
-							</Avatar>
+					<button className="flex items-center gap-2 px-1 py-1.5 text-left text-sm"
+						onClick={async () => {
+							await authClient.signIn.social({
+								provider: "github",
+							});
+						}}
+						type="button"
+					>
+						<Avatar className="h-8 w-8 rounded-lg">
+							<AvatarFallback className="rounded-lg">CN</AvatarFallback>
+						</Avatar>
 
-							<div className="grid flex-1 text-left text-sm leading-tight">
-								<span className="truncate font-semibold">Sign in with github</span>
-							</div>
-						</button>
-					</div>
+						<div className="grid flex-1 text-left text-sm leading-tight">
+							<span className="truncate font-semibold">Sign in with github</span>
+						</div>
+					</button>
 				) : (
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
@@ -73,7 +59,10 @@ export function NavUser() {
 								</div>
 							</DropdownMenuLabel>
 							<DropdownMenuSeparator />
-							<DropdownMenuItem>
+							<DropdownMenuItem onClick={(e) => {
+								e.preventDefault();
+								authClient.signOut();
+							}}>
 								<LogOut />
 								Log out
 							</DropdownMenuItem>
@@ -81,6 +70,6 @@ export function NavUser() {
 					</DropdownMenu>
 				)}
 			</SidebarMenuItem>
-		</SidebarMenu>
+		</SidebarMenu >
 	);
 }
