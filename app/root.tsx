@@ -3,10 +3,16 @@ import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration }
 import type { Route } from "./+types/root";
 import stylesheet from "./app.css?url";
 
+import {
+	QueryClient,
+	QueryClientProvider,
+} from '@tanstack/react-query'
 import { ThemeProvider } from "~/providers/Theme";
 
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "~/components/ui/sidebar";
 import { AppSidebar } from "~/components/sidebar-main";
+
+const queryClient = new QueryClient()
 
 export const links: Route.LinksFunction = () => [
 	{ rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -33,15 +39,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
 			</head>
 			<body>
 				<ThemeProvider>
-					<SidebarProvider>
-						<AppSidebar />
-						<SidebarInset>
-							<main>
-								<SidebarTrigger />
-								{children}
-							</main>
-						</SidebarInset>
-					</SidebarProvider>
+					<QueryClientProvider client={queryClient}>
+						<SidebarProvider>
+							<AppSidebar />
+							<SidebarInset>
+								<main>
+									<SidebarTrigger />
+									{children}
+								</main>
+							</SidebarInset>
+						</SidebarProvider>
+					</QueryClientProvider>
 				</ThemeProvider>
 
 				<ScrollRestoration />

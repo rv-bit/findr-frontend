@@ -41,7 +41,6 @@ export function AppSidebar() {
 		<Sidebar variant="inset" collapsible="offcanvas">
 			<SidebarContent>
 				<SidebarGroup>
-					<SidebarGroupLabel>Application</SidebarGroupLabel>
 					<SidebarGroupContent>
 						<SidebarMenu>
 							{items.map((item) => (
