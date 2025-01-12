@@ -4,7 +4,6 @@
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
   @apply font-sans font-medium;
 
   @media (prefers-color-scheme: dark) {
@@ -14,6 +13,7 @@ body {
 
 @layer base {
   :root {
+    --primary: 240 5.9% 10%;
     --radius: 0.5rem;
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -25,6 +25,7 @@ body {
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
   .dark {
+    --primary: 240 6% 8%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
