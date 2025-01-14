@@ -38,7 +38,7 @@ export function AppSidebar() {
 	const { data: session, isPending, error } = authClient.useSession();
 
 	return (
-		<Sidebar variant="inset" collapsible="offcanvas">
+		<Sidebar variant="inset" collapsible="icon">
 			<SidebarContent>
 				<SidebarGroup>
 					<SidebarGroupContent>
