@@ -1,12 +1,15 @@
 import React from "react";
-import { Link, useSearchParams } from "react-router";
-import { type LucideIcon, ChevronDown, CircleArrowOutUpRight, Home } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router";
 
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from "~/components/ui/collapsible"
+import { cn } from "~/lib/utils";
+
+import { type LucideIcon, ChevronDown, CircleArrowOutUpRight, Home, UsersRound } from "lucide-react";
+import { type IconType } from "react-icons";
+
+import { GoHomeFill } from "react-icons/go";
+import { RiUserCommunityLine } from "react-icons/ri";
+
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "~/components/ui/collapsible";
 
 import {
 	Sidebar,
@@ -20,7 +23,7 @@ import {
 	SidebarMenuSub,
 	SidebarMenuSubButton,
 	SidebarMenuSubItem,
-} from "~/components/ui/sidebar"
+} from "~/components/ui/sidebar";
 
 import { NavUser } from "./sidebar-user";
 import { NavFooter } from "./sidebar-footer";
@@ -28,7 +31,10 @@ import { NavFooter } from "./sidebar-footer";
 interface Actions {
 	title: string;
 	url: string;
-	icon?: LucideIcon;
+	searchQuery?: string;
+	search?: string;
+	icon?: LucideIcon | IconType;
+	iconSize?: number | string;
 	isActive?: boolean;
 	isCollapsible?: boolean;
 	items?: Actions[];
@@ -42,20 +48,34 @@ const actions: Actions[] = [
 		items: [
 			{
 				title: "Home",
-				url: "#",
-				icon: Home,
+				url: "/",
+
+				searchQuery: "feed",
+				search: "home",
+
+				icon: GoHomeFill,
+				iconSize: 24,
 			},
 			{
 				title: "Popular",
-				url: "#",
-				icon: CircleArrowOutUpRight,
+				url: "/",
+
+				searchQuery: "feed",
+				search: "popular",
+
+				icon: RiUserCommunityLine,
+				iconSize: 24,
 			},
 			{
 				title: "Explore",
-				url: "#",
-				icon: Home,
+				url: "/",
+
+				searchQuery: "feed",
+
+				search: "explore",
+				icon: UsersRound,
 			},
-		]
+		],
 	},
 	{
 		title: "Inbox",
@@ -108,28 +128,49 @@ const actions: Actions[] = [
 ];
 
 export function SidebarActions() {
+	const navigate = useNavigate();
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	return (
-		<Sidebar variant="sidebar" collapsible="icon">
+		<Sidebar variant="sidebar" collapsible="offcanvas">
 			<SidebarContent>
 				<SidebarGroup>
-					<SidebarGroupContent>
-						<SidebarMenu>
-							{actions.map((item) => (
-								!item.isCollapsible && (
+					<SidebarGroupContent className="p-2">
+						<SidebarMenu className="gap-0">
+							{actions.map(
+								(item) =>
+									!item.isCollapsible &&
 									item.items?.map((action) => (
 										<SidebarMenuItem key={action.title}>
-											<Link to={action.url}>
-												<SidebarMenuButton tooltip={action.title} size={"lg"} className="h-10">
-													{action.icon && <action.icon size={32} />}
-													<span>{action.title}</span>
-												</SidebarMenuButton>
-											</Link>
+											<SidebarMenuButton
+												onClick={() => {
+													navigate({
+														pathname: action.url,
+														search: `?${action.searchQuery}=${action.search}`,
+													});
+												}}
+												size="lg"
+												isActive={action.search && searchParams.get("feed")?.toLowerCase() === action.search.toLowerCase() ? true : false}
+												className={cn(
+													"flex h-12 items-center gap-2 px-4 hover:bg-sidebar-foreground/5 data-[active=true]:hover:bg-sidebar-foreground/10 dark:hover:bg-sidebar-accent/30 dark:data-[active=true]:hover:bg-sidebar-accent",
+												)}
+											>
+												<div className="flex size-6 items-center justify-center">
+													{action.icon && (
+														<action.icon
+															size={action.iconSize}
+															className={
+																(cn("h-full w-full transition-colors delay-75 duration-200 ease-in-out"),
+																action.search && searchParams.get("feed")?.toLowerCase() === action.search.toLowerCase() ? "fill-black dark:fill-white" : "")
+															}
+														/>
+													)}
+												</div>
+												<span>{action.title}</span>
+											</SidebarMenuButton>
 										</SidebarMenuItem>
-									))
-								)
-							))}
+									)),
+							)}
 						</SidebarMenu>
 						<hr className="w-100 my-3 border-sidebar-border"></hr>
 						<SidebarMenu className="gap-0">
@@ -137,20 +178,12 @@ export function SidebarActions() {
 								return (
 									item.isCollapsible && (
 										<React.Fragment key={index}>
-											<Collapsible
-												asChild
-												defaultOpen={item.isActive}
-												className="group/collapsible"
-											>
+											<Collapsible asChild defaultOpen={item.isActive} className="group/collapsible">
 												<SidebarMenuItem>
 													<CollapsibleTrigger asChild>
-														<SidebarMenuButton
-															tooltip={item.title}
-															size={"lg"}
-															className="h-10"
-														>
+														<SidebarMenuButton tooltip={item.title} size={"lg"} className="h-10">
 															{item.icon && <item.icon size={32} />}
-															<span className="uppercase dark:text-neutral-300">{item.title}</span>
+															<span className="text-xs uppercase tracking-wider dark:text-neutral-300">{item.title}</span>
 															<ChevronDown className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180" />
 														</SidebarMenuButton>
 													</CollapsibleTrigger>
@@ -170,9 +203,7 @@ export function SidebarActions() {
 												</SidebarMenuItem>
 											</Collapsible>
 
-											{index < actions.length - 1 && (
-												<hr className="w-100 my-3 border-sidebar-border"></hr>
-											)}
+											{index < actions.length - 1 && <hr className="w-100 my-3 border-sidebar-border"></hr>}
 										</React.Fragment>
 									)
 								);
@@ -186,6 +217,6 @@ export function SidebarActions() {
 				<NavFooter />
 				<NavUser />
 			</SidebarFooter>
-		</Sidebar >
+		</Sidebar>
 	);
 }
