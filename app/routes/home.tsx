@@ -2,60 +2,52 @@ import type { Route } from "./+types/home";
 
 import React, { useEffect } from "react";
 
-import { useInfiniteQuery } from '@tanstack/react-query'
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 import { Welcome } from "~/welcome/welcome";
 
 export default function Home() {
-	const inViewportRef = React.useRef(null)
+	const inViewportRef = React.useRef(null);
 	const fetchProjects = async ({ pageParam: pageParam = 0 }) => {
-		const res = await fetch('/api/v1/projects', {
-			method: 'POST',
+		const res = await fetch("/api/v1/projects", {
+			method: "POST",
 			body: JSON.stringify({ pageParam }),
 			headers: {
-				'Content-Type': 'application/json',
+				"Content-Type": "application/json",
 			},
-		})
-		return res.json()
-	}
+		});
+		return res.json();
+	};
 
-	const {
-		data,
-		error,
-		fetchNextPage,
-		hasNextPage,
-		isFetching,
-		isFetchingNextPage,
-		status,
-	} = useInfiniteQuery({
-		queryKey: ['projects'],
+	const { data, error, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status } = useInfiniteQuery({
+		queryKey: ["projects"],
 		queryFn: fetchProjects,
 		initialPageParam: 0,
 		getNextPageParam: (lastPage, pages) => lastPage.nextCursor,
-	})
+	});
 
 	useEffect(() => {
 		if (!inViewportRef.current) return;
 
-		if (status === 'success') {
+		if (status === "success") {
 			const observer = new IntersectionObserver(
 				(entries) => {
 					if (entries[0].isIntersecting) {
-						fetchNextPage()
+						fetchNextPage();
 					}
 				},
-				{ threshold: 1 }
-			)
-			observer.observe(inViewportRef.current)
+				{ threshold: 1 },
+			);
+			observer.observe(inViewportRef.current);
 			return () => {
-				observer.disconnect()
-			}
+				observer.disconnect();
+			};
 		}
-	}, [status, fetchNextPage, inViewportRef])
+	}, [status, fetchNextPage, inViewportRef]);
 
-	return status === 'pending' ? (
+	return status === "pending" ? (
 		<p>Loading...</p>
-	) : status === 'error' ? (
+	) : status === "error" ? (
 		<p>Error: {error.message}</p>
 	) : (
 		<>
@@ -82,5 +74,5 @@ export default function Home() {
 				)}
 			</div> */}
 		</>
-	)
+	);
 }

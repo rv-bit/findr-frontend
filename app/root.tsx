@@ -3,23 +3,17 @@ import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration }
 import type { Route } from "./+types/root";
 import stylesheet from "./app.css?url";
 
-import {
-	QueryClient,
-	QueryClientProvider,
-} from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { ThemeProvider } from "~/providers/Theme";
 
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { SidebarActions } from "~/components/sidebar-main";
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient();
 
-export function meta({ }: Route.MetaArgs) {
-	return [
-		{ title: "New React Router App" },
-		{ name: "description", content: "Welcome to React Router!" },
-	];
+export function meta({}: Route.MetaArgs) {
+	return [{ title: "New React Router App" }, { name: "description", content: "Welcome to React Router!" }];
 }
 
 export const links: Route.LinksFunction = () => [
