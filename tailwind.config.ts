@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+const plugin = require('tailwindcss/plugin');
 const { fontFamily } = require('tailwindcss/defaultTheme')
 
 export default {
@@ -20,6 +21,7 @@ export default {
 				sm: 'calc(var(--radius) - 4px)'
 			},
 			colors: {
+				accent: 'hsl(var(--accent))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))'
 				},
@@ -36,5 +38,11 @@ export default {
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+		plugins: [
+			require("tailwindcss-animate"),
+
+			plugin(function({ addVariant }: any) {
+	            addVariant('current', '&.active');
+	        })
+		],
 } satisfies Config;
