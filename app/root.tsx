@@ -7,10 +7,11 @@ import {
 	QueryClient,
 	QueryClientProvider,
 } from '@tanstack/react-query'
+
 import { ThemeProvider } from "~/providers/Theme";
 
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "~/components/ui/sidebar";
-import { AppSidebar } from "~/components/sidebar-main";
+import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
+import { SidebarActions } from "~/components/sidebar-main";
 
 const queryClient = new QueryClient()
 
@@ -39,17 +40,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
 			</head>
 			<body>
 				<ThemeProvider>
-					<QueryClientProvider client={queryClient}>
-						<SidebarProvider>
-							<AppSidebar />
+					<SidebarProvider>
+						<QueryClientProvider client={queryClient}>
+							<SidebarActions />
 							<SidebarInset>
-								<main>
-									<SidebarTrigger />
+								<main style={{ height: "100%", width: "100%" }}>
+									{/* <SidebarTrigger /> */}
 									{children}
 								</main>
 							</SidebarInset>
-						</SidebarProvider>
-					</QueryClientProvider>
+						</QueryClientProvider>
+					</SidebarProvider>
 				</ThemeProvider>
 
 				<ScrollRestoration />
