@@ -1,14 +1,10 @@
 import type { Route } from "./+types/home";
-import React, { useEffect } from "react";
-import { useInfiniteQuery } from '@tanstack/react-query'
-import { Welcome } from "~/welcome/welcome";
 
-export function meta({ }: Route.MetaArgs) {
-	return [
-		{ title: "New React Router App" },
-		{ name: "description", content: "Welcome to React Router!" },
-	];
-}
+import React, { useEffect } from "react";
+
+import { useInfiniteQuery } from '@tanstack/react-query'
+
+import { Welcome } from "~/welcome/welcome";
 
 export default function Home() {
 	const inViewportRef = React.useRef(null)
@@ -64,7 +60,7 @@ export default function Home() {
 	) : (
 		<>
 			<Welcome />
-			<div>
+			{/* <div>
 				{data?.pages.map((group, i) => (
 					<React.Fragment key={i}>
 						{group.data.map((project: any) => (
@@ -84,7 +80,7 @@ export default function Home() {
 						)}
 					</div>
 				)}
-			</div>
+			</div> */}
 		</>
 	)
 }
