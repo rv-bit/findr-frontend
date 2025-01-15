@@ -13,7 +13,7 @@ export function meta({ }: Route.MetaArgs) {
 
 export default function Login() {
     return (
-        <div className="w-full flex min-h-svh flex-col items-center justify-center px-2">
+        <div className="w-full h-full flex flex-col items-center justify-center px-2 gap-6">
             <div className="flex flex-col gap-6 max-w-lg">
                 <form>
                     <div className="flex flex-col gap-6">
@@ -73,7 +73,7 @@ export default function Login() {
                     </div>
                 </form>
                 <div className="text-balance text-center text-xs text-neutral-500 [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-neutral-900 dark:text-neutral-400 dark:hover:[&_a]:text-neutral-50">
-                    By clicking continue, you agree to our <Link to="#">Terms of Service</Link> and <Link to="#">Privacy Policy</Link>.
+                    By clicking continue, you agree to our <Link to={{ pathname: "/legal" }}>Terms of Service</Link> and <Link to={{ pathname: "/legal" }}>Privacy Policy</Link>.
                 </div>
             </div>
         </div>
