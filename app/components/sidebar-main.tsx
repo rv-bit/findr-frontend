@@ -127,7 +127,7 @@ const actions: Actions[] = [
 	},
 ];
 
-export function SidebarActions() {
+export default function SidebarActions() {
 	const navigate = useNavigate();
 	const [searchParams, setSearchParams] = useSearchParams();
 

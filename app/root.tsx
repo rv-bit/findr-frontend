@@ -8,7 +8,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "~/providers/Theme";
 
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
-import { SidebarActions } from "~/components/sidebar-main";
+import { Topbar, TopbarInset, TopbarProvider } from "~/components/ui/topbar";
+
+import SidebarActions from "~/components/sidebar-main";
+import TopbarActions from "./components/topbar-actions";
 
 const queryClient = new QueryClient();
 
@@ -40,20 +43,32 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<Links />
 			</head>
 			<body>
-				<ThemeProvider>
-					<SidebarProvider>
-						<QueryClientProvider client={queryClient}>
-							<SidebarActions />
-							<SidebarInset>
-								<main style={{ height: "100%", width: "100%" }}>
-									{/* <SidebarTrigger /> */}
-									{children}
-								</main>
-							</SidebarInset>
-						</QueryClientProvider>
-					</SidebarProvider>
-				</ThemeProvider>
-
+				<QueryClientProvider client={queryClient}>
+					<ThemeProvider>
+						<TopbarProvider>
+							<SidebarProvider>
+								<Topbar>
+									<TopbarInset>
+										<TopbarActions />
+									</TopbarInset>
+								</Topbar>
+								<SidebarActions />
+								<SidebarInset>
+									<main
+										style={{
+											height: "100%",
+											width: "100%",
+											flex: "1 1 0%",
+											overflowY: "auto",
+										}}
+									>
+										{children}
+									</main>
+								</SidebarInset>
+							</SidebarProvider>
+						</TopbarProvider>
+					</ThemeProvider>
+				</QueryClientProvider>
 				<ScrollRestoration />
 				<Scripts />
 			</body>
