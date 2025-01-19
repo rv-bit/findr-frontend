@@ -1,5 +1,7 @@
 FROM node:20-alpine AS dependencies-env
 RUN npm i -g pnpm
+# required for packages scripts to work
+RUN npm i -g cross-env
 COPY . /app
 
 ARG VITE_API_URL
