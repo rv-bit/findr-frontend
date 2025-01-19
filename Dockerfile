@@ -1,6 +1,11 @@
 FROM node:20-alpine AS dependencies-env
 RUN npm i -g pnpm
+# required for packages scripts to work
+RUN npm i -g cross-env
 COPY . /app
+
+ARG VITE_API_URL
+ENV VITE_API_URL=${VITE_API_URL}
 
 FROM dependencies-env AS development-dependencies-env
 COPY ./package.json pnpm-lock.yaml /app/

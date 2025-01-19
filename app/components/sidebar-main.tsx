@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router";
 
 import { cn } from "~/lib/utils";
 
-import { type LucideIcon, ChevronDown, CircleArrowOutUpRight, Home, UsersRound } from "lucide-react";
+import { type LucideIcon, ChevronDown, UsersRound } from "lucide-react";
 import { type IconType } from "react-icons";
 
 import { GoHomeFill } from "react-icons/go";
