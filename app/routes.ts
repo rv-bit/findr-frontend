@@ -1,7 +1,7 @@
 import { type RouteConfig, index, route, prefix } from "@react-router/dev/routes";
 
 export default [
-	index("routes/home.tsx"),
+	index("routes/index.tsx"), // This is the default route which will be the home page
 	route("legal", "routes/legal.tsx"),
 
 	...prefix("auth", [
