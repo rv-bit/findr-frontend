@@ -1,7 +1,9 @@
 FROM node:20-alpine AS dependencies-env
-ARG RAILWAY_ENVIRONMENT
 RUN npm i -g pnpm
 COPY . /app
+
+ARG VITE_API_URL
+ENV VITE_API_URL=${VITE_API_URL}
 
 FROM dependencies-env AS development-dependencies-env
 COPY ./package.json pnpm-lock.yaml /app/
