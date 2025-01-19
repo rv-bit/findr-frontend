@@ -9,8 +9,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { authClient } from "~/lib/auth";
 
-import * as constants from "~/constants/default";
-
 import { FaGithub, FaGoogle } from "react-icons/fa";
 
 import { Button } from "~/components/ui/button";
@@ -19,7 +17,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 
 export async function clientLoader() {
 	const { data: session, error } = await authClient.getSession();
-	console.log("session", session);
 	if (session) {
 		throw new Response("", { status: 302, headers: { Location: "/" } }); // Redirect to home
 	}
@@ -72,12 +69,12 @@ export default function Login() {
 			<div className="flex max-w-lg flex-col gap-6">
 				<div className="flex flex-col gap-6">
 					<div className="flex flex-col items-center gap-1">
-						<h1 className="text-center text-xl font-semibold text-neutral-500 dark:text-neutral-400">Welcome to {constants.APP_NAME}</h1>
+						<h1 className="text-center text-xl font-semibold text-neutral-500 dark:text-neutral-400">Welcome back!</h1>
 						<div className="text-balance text-center text-sm text-neutral-500 dark:text-neutral-400">
 							Don&apos;t have an account?
 							<Link
 								to={{
-									pathname: "/onboard",
+									pathname: "/auth/onboard",
 								}}
 								className="ml-1 underline underline-offset-4"
 							>
@@ -88,20 +85,18 @@ export default function Login() {
 
 					<Form {...form}>
 						<form onSubmit={form.handleSubmit(handleSubmit)}>
-							<div className="mb-2 flex flex-col gap-2">
-								<div className="text-sm text-red-500 dark:text-red-400">{error}</div>
-							</div>
-
-							<div className="flex flex-col gap-6">
+							<div className="flex flex-col gap-4">
+								<div className="flex flex-col gap-2">
+									<div className="text-sm text-red-500 dark:text-red-400">{error}</div>
+								</div>
 								<div className="flex flex-col gap-2">
 									<FormField
 										control={form.control}
 										name="email"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Email</FormLabel>
 												<FormControl>
-													<Input type="email" placeholder="m@example.com" required {...field} />
+													<Input type="email" placeholder="name@example.com" required {...field} />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -112,10 +107,19 @@ export default function Login() {
 										name="password"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Password</FormLabel>
 												<FormControl>
-													<Input type="password" required {...field} />
+													<Input type="password" placeholder="password" required {...field} />
 												</FormControl>
+												<div className="flex items-center justify-end">
+													<Link
+														to={{
+															pathname: "/auth/forgot-password",
+														}}
+														className="text-xs text-neutral-500 dark:text-neutral-400"
+													>
+														Forgot password?
+													</Link>
+												</div>
 												<FormMessage />
 											</FormItem>
 										)}

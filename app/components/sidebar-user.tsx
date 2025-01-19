@@ -29,7 +29,7 @@ export function NavUser() {
 				{!session?.user ? (
 					<Button
 						onClick={async () => {
-							navigate("/login");
+							navigate("/auth");
 						}}
 						type="button"
 						className="h-10 w-full rounded-lg"
