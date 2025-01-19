@@ -9,6 +9,7 @@ import { ThemeProvider } from "~/providers/Theme";
 
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { Topbar, TopbarInset, TopbarProvider } from "~/components/ui/topbar";
+import { Toaster } from "~/components/ui/toaster";
 
 import SidebarActions from "~/components/sidebar-main";
 import TopbarActions from "./components/topbar-actions";
@@ -64,6 +65,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 									>
 										{children}
 									</main>
+									<Toaster />
 								</SidebarInset>
 							</SidebarProvider>
 						</TopbarProvider>
