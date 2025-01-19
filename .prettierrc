@@ -2,6 +2,8 @@
     "plugins": [
         "prettier-plugin-tailwindcss"
     ],
+    "tailwindStylesheet": "./app/app.css",
+    "tailwindConfig": "./tailwind.config.ts",
     "tabWidth": 4,
     "useTabs": true,
     "printWidth": 200

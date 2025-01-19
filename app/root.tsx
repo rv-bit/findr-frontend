@@ -3,8 +3,21 @@ import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration }
 import type { Route } from "./+types/root";
 import stylesheet from "./app.css?url";
 
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "~/components/ui/sidebar";
-import { AppSidebar } from "~/components/sidebar-main";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+import { ThemeProvider } from "~/providers/Theme";
+
+import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
+import { Topbar, TopbarInset, TopbarProvider } from "~/components/ui/topbar";
+
+import SidebarActions from "~/components/sidebar-main";
+import TopbarActions from "./components/topbar-actions";
+
+const queryClient = new QueryClient();
+
+export function meta({}: Route.MetaArgs) {
+	return [{ title: "New React Router App" }, { name: "description", content: "Welcome to React Router!" }];
+}
 
 export const links: Route.LinksFunction = () => [
 	{ rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -30,16 +43,32 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<Links />
 			</head>
 			<body>
-				<SidebarProvider>
-					<AppSidebar />
-					<SidebarInset>
-						<main>
-							<SidebarTrigger />
-							{children}
-						</main>
-					</SidebarInset>
-				</SidebarProvider>
-
+				<QueryClientProvider client={queryClient}>
+					<ThemeProvider>
+						<TopbarProvider>
+							<SidebarProvider>
+								<Topbar>
+									<TopbarInset>
+										<TopbarActions />
+									</TopbarInset>
+								</Topbar>
+								<SidebarActions />
+								<SidebarInset>
+									<main
+										style={{
+											height: "100%",
+											width: "100%",
+											flex: "1 1 0%",
+											overflowY: "auto",
+										}}
+									>
+										{children}
+									</main>
+								</SidebarInset>
+							</SidebarProvider>
+						</TopbarProvider>
+					</ThemeProvider>
+				</QueryClientProvider>
 				<ScrollRestoration />
 				<Scripts />
 			</body>

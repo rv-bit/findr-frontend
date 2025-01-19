@@ -1,99 +1,52 @@
 import { useNavigate } from "react-router";
+
 import { authClient } from "~/lib/auth";
 
-import { ChevronsUpDown, LogOut } from "lucide-react";
+import { ChevronsUpDown, LogOut, Moon } from "lucide-react";
+
+import { useTheme } from "~/providers/Theme";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "~/components/ui/sidebar";
+import { Switch } from "~/components/ui/switch";
+import { Button } from "./ui/button";
 
-type User = {
-	id: string;
-	name: string;
-	email: string;
-	emailVerified: boolean;
-	image?: string | null | undefined;
-
-	createdAt: Date;
-	updatedAt: Date;
-};
-
-interface NavProps {
-	user: User | undefined;
-}
-
-export function NavUser(props: NavProps) {
+export function NavUser() {
 	const navigate = useNavigate();
+	const { theme, setTheme } = useTheme();
 	const { isMobile } = useSidebar();
+
+	const handleChangeTheme = (themeValue: "dark" | "light") => {
+		setTheme(themeValue);
+	};
+
+	const { data: session, isPending, error } = authClient.useSession();
 
 	return (
 		<SidebarMenu>
 			<SidebarMenuItem>
-				{!props.user ? (
-					<div className="flex flex-col items-center justify-start gap-2 px-1 py-1.5 text-left text-sm">
-						<button
-							onClick={async () => {
-								await authClient.signIn.social({
-									provider: "github",
-								});
-							}}
-							type="button"
-							className="flex w-full items-center gap-2 p-1.5 text-left text-sm"
-						>
-							<Avatar className="h-8 w-8 rounded-lg">
-								<AvatarFallback className="rounded-lg">CN</AvatarFallback>
-							</Avatar>
-							<div className="grid flex-1 text-left text-sm leading-tight">
-								<span className="truncate font-semibold">Sign in with github</span>
-							</div>
-						</button>
-						<button
-							onClick={async () => {
-								await authClient.signIn.email({
-									email: "test@gmail.com",
-									password: "password",
-								});
-							}}
-							type="button"
-							className="flex w-full items-center gap-2 p-1.5 text-left text-sm"
-						>
-							<Avatar className="h-8 w-8 rounded-lg">
-								<AvatarFallback className="rounded-lg">CN</AvatarFallback>
-							</Avatar>
-							<div className="grid flex-1 text-left text-sm leading-tight">
-								<span className="truncate font-semibold">Sign in with email</span>
-							</div>
-						</button>
-						<button
-							onClick={async () => {
-								await authClient.signUp.email({
-									name: "test",
-									email: "test@gmail.com",
-									password: "test12323221",
-								});
-							}}
-							type="button"
-							className="flex w-full items-center gap-2 p-1.5 text-left text-sm"
-						>
-							<Avatar className="h-8 w-8 rounded-lg">
-								<AvatarFallback className="rounded-lg">CN</AvatarFallback>
-							</Avatar>
-							<div className="grid flex-1 text-left text-sm leading-tight">
-								<span className="truncate font-semibold">Sign up</span>
-							</div>
-						</button>
-					</div>
+				{!session?.user ? (
+					<Button
+						onClick={async () => {
+							navigate("/login");
+						}}
+						type="button"
+						className="h-10 w-full rounded-lg"
+					>
+						<span className="truncate text-sm capitalize">Login</span>
+					</Button>
 				) : (
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
 								<Avatar className="h-8 w-8 rounded-lg">
-									<AvatarImage src={props.user.image ?? undefined} alt={props.user.name} />
+									{!isPending && <AvatarImage src={session?.user.image ?? undefined} alt={session?.user.name} />}
 									<AvatarFallback className="rounded-lg">CN</AvatarFallback>
 								</Avatar>
 								<div className="grid flex-1 text-left text-sm leading-tight">
-									<span className="truncate font-semibold">{props.user.name}</span>
-									<span className="truncate text-xs">{props.user.email}</span>
+									<span className="truncate font-semibold">{session?.user.name}</span>
+									<span className="truncate text-xs">{session?.user.email}</span>
 								</div>
 								<ChevronsUpDown className="ml-auto size-4" />
 							</SidebarMenuButton>
@@ -102,27 +55,40 @@ export function NavUser(props: NavProps) {
 							<DropdownMenuLabel className="p-0 font-normal">
 								<div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
 									<Avatar className="h-8 w-8 rounded-lg">
-										<AvatarImage src={props.user.image ?? undefined} alt={props.user.name} />
+										<AvatarImage src={session?.user.image ?? undefined} alt={session?.user.name} />
 										<AvatarFallback className="rounded-lg">CN</AvatarFallback>
 									</Avatar>
 									<div className="grid flex-1 text-left text-sm leading-tight">
-										<span className="truncate font-semibold">{props.user.name}</span>
-										<span className="truncate text-xs">{props.user.email}</span>
+										<span className="truncate font-semibold">{session?.user.name}</span>
+										<span className="truncate text-xs">{session?.user.email}</span>
 									</div>
 								</div>
 							</DropdownMenuLabel>
 							<DropdownMenuSeparator />
-							<DropdownMenuItem>
-								<button
-									onClick={() => {
-										authClient.signOut();
-									}}
-									type="button"
-									className="flex w-full items-center gap-2 p-1.5 text-left text-sm"
-								>
+							<DropdownMenuItem
+								onClick={(e) => {
+									e.preventDefault();
+								}}
+								className="group w-full"
+							>
+								<span className="flex w-full items-center justify-start gap-1 opacity-80 group-hover:opacity-100">
+									<Moon />
+									<h1>Dark Mode</h1>
+								</span>
+								<Switch checked={theme === "dark"} onCheckedChange={(checked) => handleChangeTheme(checked ? "dark" : "light")} />
+							</DropdownMenuItem>
+							<DropdownMenuSeparator />
+							<DropdownMenuItem
+								onClick={(e) => {
+									e.preventDefault();
+									authClient.signOut();
+								}}
+								className="group w-full hover:cursor-pointer"
+							>
+								<span className="flex w-full items-center justify-start gap-1 opacity-80 group-hover:opacity-100">
 									<LogOut />
-									Log out
-								</button>
+									<h1>Log out</h1>
+								</span>
 							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>
