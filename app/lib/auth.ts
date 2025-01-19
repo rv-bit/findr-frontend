@@ -1,7 +1,7 @@
 import { createAuthClient } from "better-auth/react"
 import { twoFactorClient, usernameClient } from "better-auth/client/plugins"
 
-console.log(import.meta.env.DEV)
+console.log(import.meta.env.MODE)
 console.log(import.meta.env.VITE_API_URL)
 console.log(import.meta.env.VITE_RAILWAY_PUBLIC_API_URL)    
 
