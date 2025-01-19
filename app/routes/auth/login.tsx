@@ -129,7 +129,7 @@ export default function Login() {
 					</Form>
 
 					<div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-neutral-200 dark:after:border-neutral-800">
-						<span className="relative z-10 bg-white px-2 text-neutral-500 dark:bg-primary dark:text-neutral-400">Or</span>
+						<span className="relative z-10 bg-sidebar px-2 text-neutral-500 dark:text-neutral-400">Or</span>
 					</div>
 					<div className="grid gap-2 sm:grid-cols-2">
 						<Button
