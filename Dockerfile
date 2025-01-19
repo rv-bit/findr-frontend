@@ -1,4 +1,5 @@
 FROM node:20-alpine AS dependencies-env
+ARG RAILWAY_ENVIRONMENT
 RUN npm i -g pnpm
 COPY . /app
 
