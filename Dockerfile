@@ -3,17 +3,17 @@ RUN npm i -g pnpm
 COPY . /app
 
 FROM dependencies-env AS development-dependencies-env
-COPY ./package.json pnpm-lock.yaml /app/
+COPY ./package.json /app/
 WORKDIR /app
 RUN pnpm i --frozen-lockfile
 
 FROM dependencies-env AS production-dependencies-env
-COPY ./package.json pnpm-lock.yaml /app/
+COPY ./package.json /app/
 WORKDIR /app
 RUN pnpm i --prod --frozen-lockfile
 
 FROM dependencies-env AS build-env
-COPY ./package.json pnpm-lock.yaml /app/
+COPY ./package.json /app/
 COPY --from=development-dependencies-env /app/node_modules /app/node_modules
 WORKDIR /app
 RUN pnpm build
