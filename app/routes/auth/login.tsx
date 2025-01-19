@@ -136,6 +136,7 @@ export default function Login() {
 							onClick={() => {
 								authClient.signIn.social({
 									provider: "github",
+									callbackURL: window.location.origin + "/", // Redirect to home page
 								});
 							}}
 							variant="outline"
@@ -148,6 +149,7 @@ export default function Login() {
 							onClick={() => {
 								authClient.signIn.social({
 									provider: "google",
+									callbackURL: window.location.origin + "/", // Redirect to home page
 								});
 							}}
 							variant="outline"
