@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 
 import { cn } from "~/lib/utils";
@@ -127,6 +127,87 @@ const actions: Actions[] = [
 	},
 ];
 
+function CollapsibleItem({ item, index }: { item: Actions; index: number }) {
+	const contentRef = useRef<HTMLUListElement | null>(null);
+	const [isOpen, setIsOpen] = useState(item.isActive);
+
+	const [overflowY, setOverflowY] = useState<string>("hidden");
+	const [height, setHeight] = useState<string>("0px");
+	const [isAnimating, setIsAnimating] = useState(false);
+
+	useEffect(() => {
+		if (!contentRef.current) return;
+
+		const contentHeight = contentRef.current.scrollHeight;
+
+		if (isOpen) {
+			// When opening
+			setHeight(`${contentHeight}px`);
+			setIsAnimating(true);
+
+			// After the animation, set height to "auto" to handle content resizing
+			const timeout = setTimeout(() => {
+				setHeight("auto");
+				setOverflowY("visible");
+				setIsAnimating(false);
+			}, 333); // Match the transition duration
+			return () => clearTimeout(timeout);
+		} else {
+			// When closing
+			setHeight(`${contentHeight}px`); // Start with current height
+			setTimeout(() => {
+				// setHeight("0px"); // Collapse to zero
+				setOverflowY("visible");
+				setIsAnimating(true);
+			}, 5); // Delay to trigger reflow and start transition
+
+			const timeout = setTimeout(() => {
+				setHeight("0px");
+				setOverflowY("hidden");
+				setIsAnimating(false);
+			}, 333); // Match the transition duration
+			return () => clearTimeout(timeout);
+		}
+	}, [isOpen]);
+
+	return (
+		<React.Fragment>
+			<Collapsible asChild defaultOpen={item.isActive} className="group/collapsible">
+				<SidebarMenuItem>
+					<CollapsibleTrigger asChild>
+						<SidebarMenuButton tooltip={item.title} size={"lg"} className="h-10" onClick={() => setIsOpen(!isOpen)}>
+							{item.icon && <item.icon size={32} />}
+							<span className="text-xs uppercase tracking-wider dark:text-neutral-300">{item.title}</span>
+							<ChevronDown className={cn("ml-auto transition-transform duration-200", isOpen ? "rotate-180" : "")} />
+						</SidebarMenuButton>
+					</CollapsibleTrigger>
+					<CollapsibleContent>
+						<SidebarMenuSub
+							ref={contentRef}
+							style={{
+								height: height,
+								overflow: overflowY,
+								transition: "height 333ms ease",
+							}}
+						>
+							{item.items?.map((subItem, subIndex) => (
+								<SidebarMenuSubItem key={subIndex}>
+									<SidebarMenuSubButton asChild size="lg">
+										<a href={subItem.url}>
+											<span>{subItem.title}</span>
+										</a>
+									</SidebarMenuSubButton>
+								</SidebarMenuSubItem>
+							))}
+						</SidebarMenuSub>
+					</CollapsibleContent>
+				</SidebarMenuItem>
+			</Collapsible>
+			{index < actions.length - 1 && <hr className="w-100 my-3 border-sidebar-border"></hr>}
+		</React.Fragment>
+	);
+}
+
 export default function SidebarActions() {
 	const navigate = useNavigate();
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -175,38 +256,7 @@ export default function SidebarActions() {
 						<hr className="w-100 my-3 border-sidebar-border"></hr>
 						<SidebarMenu className="gap-0">
 							{actions.map((item, index) => {
-								return (
-									item.isCollapsible && (
-										<React.Fragment key={index}>
-											<Collapsible asChild defaultOpen={item.isActive} className="group/collapsible">
-												<SidebarMenuItem>
-													<CollapsibleTrigger asChild>
-														<SidebarMenuButton tooltip={item.title} size={"lg"} className="h-10">
-															{item.icon && <item.icon size={32} />}
-															<span className="text-xs uppercase tracking-wider dark:text-neutral-300">{item.title}</span>
-															<ChevronDown className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180" />
-														</SidebarMenuButton>
-													</CollapsibleTrigger>
-													<CollapsibleContent>
-														<SidebarMenuSub>
-															{item.items?.map((subItem, subIndex) => (
-																<SidebarMenuSubItem key={subIndex}>
-																	<SidebarMenuSubButton asChild size="lg">
-																		<a href={subItem.url}>
-																			<span>{subItem.title}</span>
-																		</a>
-																	</SidebarMenuSubButton>
-																</SidebarMenuSubItem>
-															))}
-														</SidebarMenuSub>
-													</CollapsibleContent>
-												</SidebarMenuItem>
-											</Collapsible>
-
-											{index < actions.length - 1 && <hr className="w-100 my-3 border-sidebar-border"></hr>}
-										</React.Fragment>
-									)
-								);
+								return item.isCollapsible && <CollapsibleItem key={index} item={item} index={index} />;
 							})}
 						</SidebarMenu>
 					</SidebarGroupContent>
