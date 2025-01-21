@@ -2,7 +2,7 @@ import { useNavigate } from "react-router";
 
 import { authClient } from "~/lib/auth";
 
-import { ChevronsUpDown, LogOut, Moon } from "lucide-react";
+import { type LucideIcon, ChevronsUpDown, LogOut, Moon, Settings } from "lucide-react";
 
 import { useTheme } from "~/providers/Theme";
 
@@ -12,14 +12,42 @@ import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "~/c
 import { Switch } from "~/components/ui/switch";
 import { Button } from "./ui/button";
 
+interface Actions {
+	title: string;
+	url?: string;
+	icon?: LucideIcon;
+	component?: React.FC;
+	items?: Actions[];
+	onClick?: () => void;
+}
+
+const actions: Actions[] = [
+	{
+		title: "Other",
+		items: [
+			{
+				title: "Dark Mode",
+				component: DarkModeComponent,
+			},
+			{
+				title: "Settings",
+				url: "/settings",
+				icon: Settings,
+			},
+		],
+	},
+	{
+		title: "Log out",
+		icon: LogOut,
+		onClick: () => {
+			authClient.signOut();
+		},
+	},
+];
+
 export function NavUser() {
 	const navigate = useNavigate();
-	const { theme, setTheme } = useTheme();
-	const { isMobile } = useSidebar();
-
-	const handleChangeTheme = (themeValue: "dark" | "light") => {
-		setTheme(themeValue);
-	};
+	const { isTablet } = useSidebar();
 
 	const { data: session, isPending, error } = authClient.useSession();
 
@@ -51,7 +79,7 @@ export function NavUser() {
 								<ChevronsUpDown className="ml-auto size-4" />
 							</SidebarMenuButton>
 						</DropdownMenuTrigger>
-						<DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg" side={isMobile ? "bottom" : "right"} align="end" sideOffset={4}>
+						<DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg" side={isTablet ? "bottom" : "right"} align="end" sideOffset={4}>
 							<DropdownMenuLabel className="p-0 font-normal">
 								<div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
 									<Avatar className="h-8 w-8 rounded-lg">
@@ -65,35 +93,92 @@ export function NavUser() {
 								</div>
 							</DropdownMenuLabel>
 							<DropdownMenuSeparator />
-							<DropdownMenuItem
-								onClick={(e) => {
-									e.preventDefault();
-								}}
-								className="group w-full"
-							>
-								<span className="flex w-full items-center justify-start gap-1 opacity-80 group-hover:opacity-100">
-									<Moon />
-									<h1>Dark Mode</h1>
-								</span>
-								<Switch checked={theme === "dark"} onCheckedChange={(checked) => handleChangeTheme(checked ? "dark" : "light")} />
-							</DropdownMenuItem>
-							<DropdownMenuSeparator />
-							<DropdownMenuItem
-								onClick={(e) => {
-									e.preventDefault();
-									authClient.signOut();
-								}}
-								className="group w-full hover:cursor-pointer"
-							>
-								<span className="flex w-full items-center justify-start gap-1 opacity-80 group-hover:opacity-100">
-									<LogOut />
-									<h1>Log out</h1>
-								</span>
-							</DropdownMenuItem>
+							{actions.map((item) =>
+								item.items ? (
+									<DropdownMenuGroup key={item.title}>
+										{item.items?.map((action) => (
+											<DropdownMenuItem
+												key={action.title}
+												onClick={(e) => {
+													e.preventDefault();
+
+													if (action.url) {
+														navigate(action.url);
+														return;
+													}
+
+													if (action.onClick) {
+														action.onClick();
+													}
+												}}
+												className="group w-full hover:cursor-pointer"
+											>
+												{action.component ? (
+													<action.component />
+												) : (
+													<span className="flex w-full items-center justify-start gap-1 opacity-80 group-hover:opacity-100">
+														{action.icon && <action.icon />}
+														<h1>{action.title}</h1>
+													</span>
+												)}
+											</DropdownMenuItem>
+										))}
+
+										<DropdownMenuSeparator />
+									</DropdownMenuGroup>
+								) : (
+									<DropdownMenuGroup key={item.title}>
+										<DropdownMenuItem
+											onClick={(e) => {
+												e.preventDefault();
+
+												if (item.url) {
+													navigate(item.url);
+													return;
+												}
+
+												if (item.onClick) {
+													item.onClick();
+												}
+											}}
+											className="group w-full hover:cursor-pointer"
+										>
+											{item.component ? (
+												<item.component />
+											) : (
+												<span className="flex w-full items-center justify-start gap-1 opacity-80 group-hover:opacity-100">
+													{item.icon && <item.icon />}
+													<h1>{item.title}</h1>
+												</span>
+											)}
+										</DropdownMenuItem>
+
+										{actions.length - 1 !== actions.indexOf(item) && <DropdownMenuSeparator />}
+									</DropdownMenuGroup>
+								),
+							)}
 						</DropdownMenuContent>
 					</DropdownMenu>
 				)}
 			</SidebarMenuItem>
 		</SidebarMenu>
+	);
+}
+
+function DarkModeComponent() {
+	const { theme, setTheme } = useTheme();
+
+	const handleChangeTheme = (themeValue: "dark" | "light") => {
+		setTheme(themeValue);
+	};
+
+	return (
+		<>
+			<span className="flex w-full items-center justify-start gap-1 opacity-80 group-hover:opacity-100">
+				<Moon />
+				<h1>Dark Mode</h1>
+			</span>
+			<Switch checked={theme === "dark"} onCheckedChange={(checked) => handleChangeTheme(checked ? "dark" : "light")} />
+		</>
 	);
 }

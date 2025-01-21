@@ -4,7 +4,7 @@ import { Slot } from "@radix-ui/react-slot";
 import { type VariantProps, cva } from "class-variance-authority";
 import { PanelLeft } from "lucide-react";
 
-import { useIsMobile } from "~/hooks/use-mobile";
+import { useIsTablet } from "~/hooks/use-tablet";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -17,7 +17,7 @@ import { useTheme } from "~/providers/Theme";
 const SIDEBAR_COOKIE_NAME = "sidebar:state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 const SIDEBAR_WIDTH = "16rem";
-const SIDEBAR_WIDTH_MOBILE = "20rem";
+const SIDEBAR_WIDTH_TABLET = "20rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 
@@ -25,9 +25,9 @@ type SidebarContext = {
 	state: "expanded" | "collapsed";
 	open: boolean;
 	setOpen: (open: boolean) => void;
-	openMobile: boolean;
-	setOpenMobile: (open: boolean) => void;
-	isMobile: boolean;
+	openTablet: boolean;
+	setOpenTablet: (open: boolean) => void;
+	isTablet: boolean;
 	toggleSidebar: () => void;
 };
 
@@ -51,8 +51,8 @@ const SidebarProvider = React.forwardRef<
 	}
 >(({ defaultOpen = true, open: openProp, onOpenChange: setOpenProp, className, style, children, ...props }, ref) => {
 	const isClient = typeof window !== "undefined"; // Check if running on the client
-	const isMobile = useIsMobile();
-	const [openMobile, setOpenMobile] = React.useState(false);
+	const isTablet = useIsTablet();
+	const [openTablet, setOpenTablet] = React.useState(false);
 
 	// This is the internal state of the sidebar.
 	// We use openProp and setOpenProp for control from outside the component.
@@ -75,8 +75,8 @@ const SidebarProvider = React.forwardRef<
 
 	// Helper to toggle the sidebar.
 	const toggleSidebar = React.useCallback(() => {
-		return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
-	}, [isMobile, setOpen, setOpenMobile]);
+		return isTablet ? setOpenTablet((open) => !open) : setOpen((open) => !open);
+	}, [isTablet, setOpen, setOpenTablet]);
 
 	// Adds a keyboard shortcut to toggle the sidebar.
 	React.useEffect(() => {
@@ -100,12 +100,12 @@ const SidebarProvider = React.forwardRef<
 			state,
 			open,
 			setOpen,
-			isMobile,
-			openMobile,
-			setOpenMobile,
+			isTablet,
+			openTablet,
+			setOpenTablet,
 			toggleSidebar,
 		}),
-		[state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar],
+		[state, open, setOpen, isTablet, openTablet, setOpenTablet, toggleSidebar],
 	);
 
 	// This is the cookie logic to keep the sidebar state. We only run this on the client.
@@ -150,7 +150,7 @@ const Sidebar = React.forwardRef<
 		collapsible?: "offcanvas" | "icon" | "none";
 	}
 >(({ side = "left", variant = "sidebar", collapsible = "offcanvas", className, children, ...props }, ref) => {
-	const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
+	const { isTablet, state, openTablet, setOpenTablet } = useSidebar();
 
 	if (collapsible === "none") {
 		return (
@@ -160,16 +160,16 @@ const Sidebar = React.forwardRef<
 		);
 	}
 
-	if (isMobile) {
+	if (isTablet) {
 		return (
-			<Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
+			<Sheet open={openTablet} onOpenChange={setOpenTablet} {...props}>
 				<SheetContent
 					data-sidebar="sidebar"
 					data-mobile="true"
 					className="w-[--sidebar-width] border-r border-sidebar-border bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
 					style={
 						{
-							"--sidebar-width": SIDEBAR_WIDTH_MOBILE,
+							"--sidebar-width": SIDEBAR_WIDTH_TABLET,
 						} as React.CSSProperties
 					}
 					side={side}
@@ -411,7 +411,7 @@ const SidebarMenuButton = React.forwardRef<
 	} & VariantProps<typeof sidebarMenuButtonVariants>
 >(({ asChild = false, isActive = false, variant = "default", size = "default", tooltip, className, ...props }, ref) => {
 	const Comp = asChild ? Slot : "button";
-	const { isMobile, state } = useSidebar();
+	const { isTablet, state } = useSidebar();
 
 	const button = <Comp ref={ref} data-sidebar="menu-button" data-size={size} data-active={isActive} className={cn(sidebarMenuButtonVariants({ variant, size }), className)} {...props} />;
 
@@ -428,7 +428,7 @@ const SidebarMenuButton = React.forwardRef<
 	return (
 		<Tooltip>
 			<TooltipTrigger asChild>{button}</TooltipTrigger>
-			<TooltipContent side="right" align="center" hidden={state !== "collapsed" || isMobile} {...tooltip} />
+			<TooltipContent side="right" align="center" hidden={state !== "collapsed" || isTablet} {...tooltip} />
 		</Tooltip>
 	);
 });
