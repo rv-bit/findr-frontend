@@ -25,6 +25,9 @@ export default {
 				primary: {
 					DEFAULT: 'hsl(var(--primary))'
 				},
+				modal: {
+					DEFAULT : 'hsl(var(--modal-background))',
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
