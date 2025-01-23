@@ -32,7 +32,6 @@ export default function ForgotPassword() {
 	const [currentStep, setCurrentStep] = useState(0); // 0 = email, 1 = new password
 
 	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState<string>();
 
 	useEffect(() => {
 		const token = searchParams.get("token"); // Check if token is present
@@ -57,15 +56,19 @@ export default function ForgotPassword() {
 	});
 
 	const handleEmailSubmit = async (values: z.infer<typeof formSchema>) => {
-		const { data, error } = await authClient.forgetPassword({
-			email: values.email,
-			redirectTo: "/auth/forgot-password/",
-		});
+		setLoading(true);
 
 		toast.toast({
 			title: "Info",
 			description: "If the email exists in our system, you will receive an email with instructions to reset your password",
 		});
+
+		const { data, error } = await authClient.forgetPassword({
+			email: values.email,
+			redirectTo: "/auth/forgot-password/",
+		});
+
+		setLoading(false);
 
 		if (error) {
 			toast.toast({
@@ -85,10 +88,14 @@ export default function ForgotPassword() {
 			return;
 		}
 
+		setLoading(true);
+
 		const { data, error } = await authClient.resetPassword({
 			token: searchParams.get("token")!,
 			newPassword: values.confirmPassword,
 		});
+
+		setLoading(false);
 
 		if (error) {
 			toast.toast({
@@ -103,7 +110,7 @@ export default function ForgotPassword() {
 			description: "Password reset successfully",
 		});
 
-		navigate("/auth/login");
+		navigate("/auth");
 	};
 
 	return (
@@ -119,9 +126,6 @@ export default function ForgotPassword() {
 						<Form {...form}>
 							<form className="w-full" onSubmit={form.handleSubmit(handleEmailSubmit)}>
 								<div className="flex flex-col gap-4">
-									<div className="flex flex-col gap-2">
-										<div className="text-sm text-red-500 dark:text-red-400">{error}</div>
-									</div>
 									<div className="flex flex-col gap-2">
 										<FormField
 											control={form.control}
@@ -148,9 +152,6 @@ export default function ForgotPassword() {
 						<Form {...newPasswordForm}>
 							<form className="w-full" onSubmit={newPasswordForm.handleSubmit(handleSubmit)}>
 								<div className="flex flex-col gap-4">
-									<div className="flex flex-col gap-2">
-										<div className="text-sm text-red-500 dark:text-red-400">{error}</div>
-									</div>
 									<div className="flex flex-col gap-2">
 										<FormField
 											control={newPasswordForm.control}
