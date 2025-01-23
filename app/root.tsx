@@ -1,9 +1,12 @@
-import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
+import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useNavigation } from "react-router";
 
 import type { Route } from "./+types/root";
 import stylesheet from "./app.css?url";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+import type { LoadingBarRef } from "react-top-loading-bar";
+import LoadingBar from "react-top-loading-bar";
 
 import { ThemeProvider } from "~/providers/Theme";
 
@@ -13,6 +16,7 @@ import { Toaster } from "~/components/ui/toaster";
 
 import SidebarActions from "~/components/sidebar-main";
 import TopbarActions from "./components/topbar-actions";
+import { useEffect, useRef } from "react";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +39,19 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+	const navigation = useNavigation();
+	const loadingBarRef = useRef<LoadingBarRef>(null);
+
+	useEffect(() => {
+		if (navigation.state === "loading" || navigation.state === "submitting") {
+			loadingBarRef.current?.continuousStart();
+		}
+
+		if (navigation.state === "idle") {
+			loadingBarRef.current?.complete();
+		}
+	}, [navigation.state]);
+
 	return (
 		<html lang="en">
 			<head>
@@ -44,6 +61,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<Links />
 			</head>
 			<body>
+				<LoadingBar ref={loadingBarRef} color="#FFFFFF" shadow={false} transitionTime={100} waitingTime={300} />
+
 				<QueryClientProvider client={queryClient}>
 					<ThemeProvider>
 						<TopbarProvider>
