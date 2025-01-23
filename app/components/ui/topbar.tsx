@@ -15,7 +15,7 @@ const TopbarProvider = React.forwardRef<HTMLDivElement, React.ComponentProps<"di
 						...style,
 					} as React.CSSProperties
 				}
-				className={cn("flex min-h-svh w-full flex-col bg-sidebar", className)}
+				className={cn("min-h-svh w-full", className)}
 				ref={ref}
 				{...props}
 			>
