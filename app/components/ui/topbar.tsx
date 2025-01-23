@@ -12,6 +12,7 @@ const TopbarProvider = React.forwardRef<HTMLDivElement, React.ComponentProps<"di
 				style={
 					{
 						"--topbar-height": TOPBAR_HEIGHT,
+						overflowX: "hidden",
 						...style,
 					} as React.CSSProperties
 				}
