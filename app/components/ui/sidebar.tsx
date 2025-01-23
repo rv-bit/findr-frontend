@@ -4,6 +4,8 @@ import { Slot } from "@radix-ui/react-slot";
 import { type VariantProps, cva } from "class-variance-authority";
 import { PanelLeft } from "lucide-react";
 
+import { motion } from "motion/react";
+
 import { useIsTablet } from "~/hooks/use-tablet";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
@@ -12,6 +14,7 @@ import { Separator } from "~/components/ui/separator";
 import { Sheet, SheetContent } from "~/components/ui/sheet";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip";
+
 import { useTheme } from "~/providers/Theme";
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state";
@@ -282,8 +285,7 @@ const SidebarInset = React.forwardRef<HTMLDivElement, React.ComponentProps<"main
 	return (
 		<main
 			style={{
-				flex: "1 1 0%",
-				overflow: "auto",
+				paddingTop: "var(--topbar-height)",
 			}}
 			ref={ref}
 			className={cn(
