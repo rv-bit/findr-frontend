@@ -8,7 +8,7 @@ import { useTheme } from "~/providers/Theme";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "~/components/ui/sidebar";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "~/components/ui/sidebar";
 import { Switch } from "~/components/ui/switch";
 import { Button } from "./ui/button";
 
@@ -47,7 +47,6 @@ const actions: Actions[] = [
 
 export function NavUser() {
 	const navigate = useNavigate();
-	const { isTablet } = useSidebar();
 
 	const { data: session, isPending, error } = authClient.useSession();
 
@@ -79,7 +78,7 @@ export function NavUser() {
 								<ChevronsUpDown className="ml-auto size-4" />
 							</SidebarMenuButton>
 						</DropdownMenuTrigger>
-						<DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg" side={isTablet ? "bottom" : "right"} align="end" sideOffset={4}>
+						<DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg" side={"bottom"} align="end" sideOffset={4}>
 							<DropdownMenuLabel className="p-0 font-normal">
 								<div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
 									<Avatar className="h-8 w-8 rounded-lg">
