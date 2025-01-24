@@ -1,6 +1,6 @@
 import React from "react";
 
-import { NavLink, Outlet } from "react-router";
+import { NavLink, Outlet, useLocation } from "react-router";
 
 import { cn } from "~/lib/utils";
 
@@ -42,6 +42,8 @@ export default function Layout() {
 	const navGoRightRef = React.useRef<HTMLButtonElement>(null);
 	const navGoLeftRef = React.useRef<HTMLButtonElement>(null);
 
+	const location = useLocation(); // Hook to get current location
+
 	const handleScrollAndResize = () => {
 		if (!navRef.current || !navGoRightRef.current || !navGoLeftRef.current) return;
 
@@ -75,6 +77,13 @@ export default function Layout() {
 		};
 	}, []);
 
+	const isActive = (url: string | string[]) => {
+		if (Array.isArray(url)) {
+			return url.some((u) => location.pathname === u); // Check for exact path match in array
+		}
+		return location.pathname === url; // Check for exact path match
+	};
+
 	return (
 		<React.Fragment>
 			<div className="flex h-full w-full flex-col items-center justify-start max-md:w-screen">
@@ -86,26 +95,20 @@ export default function Layout() {
 								<NavLink
 									key={index}
 									to={typeof action.url === "string" ? action.url : action.url[1]}
-									className={({ isActive }) =>
-										cn(
-											"group relative h-auto min-w-fit flex-shrink-0 items-center justify-center px-4 py-2",
-											isActive ? "border-b-2 border-black dark:border-white" : "hover:border-b-2 hover:border-black/50 dark:hover:border-white/80",
-										)
-									}
-								>
-									{({ isActive }) => (
-										<>
-											{action.icon && <action.icon />}
-											<h1
-												className={cn(
-													"inline-flex text-black",
-													isActive ? "text-black dark:text-white" : "group-hover:text-black/50 dark:text-[#8BA2AE] dark:group-hover:text-white/80",
-												)}
-											>
-												{action.title}
-											</h1>
-										</>
+									className={cn(
+										"group relative h-auto min-w-fit flex-shrink-0 items-center justify-center px-4 py-2",
+										isActive(action.url) ? "border-b-2 border-black dark:border-white" : "hover:border-b-2 hover:border-black/50 dark:hover:border-white/80",
 									)}
+								>
+									{action.icon && <action.icon />}
+									<h1
+										className={cn(
+											"inline-flex text-black",
+											isActive(action.url) ? "text-black dark:text-white" : "group-hover:text-black/50 dark:text-[#8BA2AE] dark:group-hover:text-white/80",
+										)}
+									>
+										{action.title}
+									</h1>
 								</NavLink>
 							))}
 						</nav>
