@@ -1,12 +1,15 @@
+import { useEffect, useRef } from "react";
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useNavigation } from "react-router";
 
 import type { Route } from "./+types/root";
 import stylesheet from "./app.css?url";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 
 import type { LoadingBarRef } from "react-top-loading-bar";
 import LoadingBar from "react-top-loading-bar";
+
+import { queryClient } from "./lib/query-client";
 
 import { ThemeProvider } from "~/providers/Theme";
 
@@ -16,9 +19,6 @@ import { Toaster } from "~/components/ui/toaster";
 
 import SidebarActions from "~/components/sidebar-main";
 import TopbarActions from "./components/topbar-actions";
-import { useEffect, useRef } from "react";
-
-const queryClient = new QueryClient();
 
 export function meta({}: Route.MetaArgs) {
 	return [{ title: "New React Router App" }, { name: "description", content: "Welcome to React Router!" }];
