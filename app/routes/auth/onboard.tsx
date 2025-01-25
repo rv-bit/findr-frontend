@@ -18,7 +18,7 @@ import { Input } from "~/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 
 export async function clientLoader() {
-	const { data: session, error } = await authClient.getSession();
+	const { data: session, error } = await authClient.useSession();
 	if (session) {
 		throw new Response("", { status: 302, headers: { Location: "/" } }); // Redirect to home
 	}
