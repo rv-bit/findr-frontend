@@ -7,6 +7,6 @@ export default {
 
 	// Use this to pre render any routes at build time
 	async prerender() {
-		return ["/", "/dashboard"];
+		return ["/", "/legal"];
 	},
 } satisfies Config;
