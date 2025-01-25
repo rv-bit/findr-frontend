@@ -8,3 +8,5 @@ export const authClient = createAuthClient({
         usernameClient()
     ]
 })
+
+export type Session = typeof authClient.$Infer.Session
