@@ -1,7 +1,7 @@
 import type { Route } from "./+types/forgot-password";
 
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { useLocation, useNavigate, useSearchParams } from "react-router";
 
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -13,7 +13,7 @@ import { authClient } from "~/lib/auth";
 
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
 
 const formSchema = z.object({
 	email: z.string().email().nonempty("Email is required"),
@@ -25,12 +25,12 @@ const newPasswordSchema = z.object({
 });
 
 export default function ForgotPassword() {
+	const location = useLocation();
 	const navigate = useNavigate();
 	const toast = useToast();
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	const [currentStep, setCurrentStep] = useState(0); // 0 = email, 1 = new password
-
 	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
@@ -39,6 +39,18 @@ export default function ForgotPassword() {
 			setCurrentStep(1); // Show new password form
 		}
 	}, [searchParams]);
+
+	useEffect(() => {
+		const locationState = location.state;
+
+		if (locationState) {
+			if (locationState.from === "create-password") {
+				if (locationState.email) {
+					form.setValue("email", locationState.email);
+				}
+			}
+		}
+	}, [location]);
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
