@@ -1,27 +1,17 @@
-import type { Route } from "./+types/login";
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 import { authClient } from "~/lib/auth";
 
 import { FaGithub, FaGoogle } from "react-icons/fa";
 
 import { Button } from "~/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
-
-export async function clientLoader() {
-	const { data: session, error } = await authClient.getSession();
-	if (session) {
-		throw new Response("", { status: 302, headers: { Location: "/" } }); // Redirect to home
-	}
-	return null;
-}
 
 const formSchema = z.object({
 	email: z.string().email().nonempty("Email is required"),

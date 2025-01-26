@@ -1,11 +1,31 @@
 import React from "react";
+import type { Route } from "./+types/_layout";
 
 import { NavLink, Outlet, useLocation } from "react-router";
 
+import { authClient } from "~/lib/auth";
 import { cn } from "~/lib/utils";
 
 import { ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
 import { type IconType } from "react-icons";
+
+export async function clientLoader({ serverLoader, params }: Route.ClientLoaderArgs) {
+	const { data: session, error } = await authClient.getSession();
+	if (!session) {
+		throw new Response("", { status: 302, headers: { Location: "/auth" } }); // Redirect to login
+	}
+
+	const { data: accountLists, error: errorAccountLists } = await authClient.listAccounts();
+
+	const hasPassword = accountLists?.some((account) => account.provider === "credential");
+	const hasEmailVerified = session.user.emailVerified;
+
+	return {
+		...session,
+		hasEmailVerified: hasEmailVerified,
+		hasPassword: hasPassword,
+	};
+}
 
 interface Actions {
 	title: string;
@@ -36,7 +56,11 @@ const actions: Actions[] = [
 	},
 ];
 
-export default function Layout() {
+export function HydrateFallback() {
+	return <div>Loading...</div>;
+}
+
+export default function Layout({ loaderData }: Route.ComponentProps) {
 	const navRef = React.useRef<HTMLDivElement>(null);
 
 	const navGoRightRef = React.useRef<HTMLButtonElement>(null);
