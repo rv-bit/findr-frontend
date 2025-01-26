@@ -9,7 +9,7 @@ import { z } from "zod";
 
 import { authClient } from "~/lib/auth";
 
-import * as constants from "~/constants/default";
+import * as constants from "~/constants/app";
 
 import { FaGithub, FaGoogle } from "react-icons/fa";
 
