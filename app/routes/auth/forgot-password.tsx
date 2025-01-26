@@ -1,19 +1,17 @@
-import type { Route } from "./+types/forgot-password";
-
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useToast } from "~/hooks/use-toast";
 
 import { authClient } from "~/lib/auth";
 
 import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
+import { Input } from "~/components/ui/input";
 
 const formSchema = z.object({
 	email: z.string().email().nonempty("Email is required"),
