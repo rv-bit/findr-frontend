@@ -1,4 +1,5 @@
 import React from "react";
+
 import { cn } from "~/lib/utils";
 
 export const TOPBAR_HEIGHT = "5svh";
@@ -32,7 +33,7 @@ const Topbar = React.forwardRef<HTMLDivElement, React.ComponentProps<"div"> & {}
 			style={{
 				height: "var(--topbar-height)",
 			}}
-			className={cn("fixed z-10 w-full border-b border-sidebar-accent bg-sidebar", className)}
+			className={cn("fixed z-10 w-full border-b border-sidebar-accent bg-sidebar px-4", className)}
 			ref={ref}
 			{...props}
 		>
@@ -58,4 +59,4 @@ const TopbarInset = React.forwardRef<HTMLDivElement, React.ComponentProps<"div">
 	);
 });
 
-export { TopbarProvider, Topbar, TopbarInset };
+export { Topbar, TopbarInset, TopbarProvider };
