@@ -1,6 +1,6 @@
-import React from "react";
 import type { Route } from "./+types/_layout";
 
+import React from "react";
 import { NavLink, Outlet, useLocation } from "react-router";
 
 import { authClient } from "~/lib/auth";
