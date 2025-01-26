@@ -1,9 +1,12 @@
 import type { Route } from "./+types/account";
+
 import React from "react";
+import { useNavigate } from "react-router";
 
-import { authClient } from "~/lib/auth";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-import { Button } from "~/components/ui/button";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -15,8 +18,13 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
+import { Button } from "~/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
+import { Input } from "~/components/ui/input";
 
-import { ChevronRight, type LucideIcon } from "lucide-react";
+import WarningComponent from "~/components/warning";
+
+import { ChevronRight, TriangleAlert, type LucideIcon } from "lucide-react";
 
 interface Actions {
 	title: string;
@@ -41,26 +49,17 @@ interface Actions {
 	items?: Actions[];
 }
 
-export async function clientLoader({ params }: Route.ClientLoaderArgs) {
-	const { data: session, error } = await authClient.getSession();
-	const { data: accountLists, error: errorAccountLists } = await authClient.listAccounts();
+const newEmailSchema = z.object({
+	email: z.string().email().nonempty("Email is required"),
+	confirmPassword: z.string().min(8, "Password must be at least 8 characters long"),
+});
 
-	// if (!session) {
-	// 	throw new Response("", { status: 302, headers: { Location: "/auth/login" } }); // Redirect to login
-	// }
+export default function Account({ matches }: Route.ComponentProps) {
+	const loader = matches[1];
+	const loaderData = loader.data;
 
-	const hasPassword = accountLists?.some((account) => account.provider === "credential");
-	return {
-		email: session?.user.email,
-		hasPassword: hasPassword,
-	};
-}
+	const navigate = useNavigate();
 
-export function HydrateFallback() {
-	return <div>Loading...</div>;
-}
-
-export default function Account({ loaderData }: Route.ComponentProps) {
 	const actions: Actions[] = React.useMemo(
 		() => [
 			{
@@ -68,7 +67,7 @@ export default function Account({ loaderData }: Route.ComponentProps) {
 				items: [
 					{
 						title: "Email Address",
-						defaultValue: loaderData.email,
+						defaultValue: loaderData.user.email,
 						type: "modal",
 						icon: ChevronRight,
 						modalTitle: "Change Email Address",
@@ -82,7 +81,7 @@ export default function Account({ loaderData }: Route.ComponentProps) {
 						inputFields: {
 							type: "email",
 							placeholder: "Email Address",
-							defaultValue: loaderData.email,
+							defaultValue: loaderData.user.email,
 						},
 					},
 					{
@@ -100,36 +99,107 @@ export default function Account({ loaderData }: Route.ComponentProps) {
 					},
 				],
 			},
-			{
-				title: "Accounts",
-				items: [
-					{
-						title: "Password",
-						defaultValue: loaderData.hasPassword ? "Set" : "Not Set",
-						type: "modal",
-						icon: ChevronRight,
-						modalTitle: "Change Password",
-						modalDescription: "Update your password.",
-						modalActionOnSubmit: () => {
-							console.log("Password updated");
-						},
-						modalActionOnClickCheck: () => {
-							console.log("Password check, check for password or something");
-						},
-						inputFields: {
-							type: "password",
-							placeholder: "Password",
-						},
-					},
-				],
-			},
 		],
 		[loaderData],
 	);
 
+	const [loading, setLoading] = React.useState(false);
+	const [showModal, setShowModal] = React.useState(false);
+
+	const newEmailForm = useForm<z.infer<typeof newEmailSchema>>({
+		mode: "onChange",
+		resolver: zodResolver(newEmailSchema),
+		defaultValues: {
+			email: "",
+			confirmPassword: "",
+		},
+	});
+
+	const { formState } = newEmailForm;
+
+	const isFormIsComplete = React.useMemo(() => {
+		return formState.isValid;
+	}, [formState]);
+
+	const handleNewEmailSubmit = async (values: z.infer<typeof newEmailSchema>) => {
+		// check values
+		console.log(values);
+	};
+
 	return (
 		<React.Fragment>
 			<div className="flex h-full w-full flex-col items-start justify-center gap-2">
+				{!loaderData.hasPassword && (
+					<WarningComponent
+						open={true}
+						icon={TriangleAlert}
+						message="Password is necessary to secure your account"
+						title="Create Password"
+						description="Create a password to secure your account."
+						onContinue={(e) => {
+							navigate("/auth/forgot-password", { state: { from: "create-password", email: loaderData.user.email } });
+						}}
+					/>
+				)}
+
+				{!loaderData.hasEmailVerified && (
+					<WarningComponent
+						open={showModal}
+						onChangeState={() => setShowModal(!showModal)}
+						icon={TriangleAlert}
+						message="Email is not verified"
+						title="Verify Email"
+						description="Please verify your email to continue."
+						buttonType="submit"
+					>
+						<Form {...newEmailForm}>
+							<form className="w-full" onSubmit={newEmailForm.handleSubmit(handleNewEmailSubmit)}>
+								<div className="flex flex-col gap-4">
+									<div className="flex flex-col gap-2">
+										<FormField
+											control={newEmailForm.control}
+											name="email"
+											render={({ field }) => (
+												<FormItem>
+													<FormControl>
+														<Input type="email" placeholder="name@example.com" required {...field} />
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+										<FormField
+											control={newEmailForm.control}
+											name="confirmPassword"
+											render={({ field }) => (
+												<FormItem>
+													<FormControl>
+														<Input type="password" placeholder="current password" required {...field} />
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+									</div>
+
+									<AlertDialogFooter>
+										<Button
+											type="button"
+											className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white hover:dark:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+											onClick={() => setShowModal(false)}
+										>
+											Cancel
+										</Button>
+										<Button type="submit" className="rounded-3xl p-5 py-6" disabled={!isFormIsComplete || loading}>
+											{loading ? "Loading..." : "Continue"}
+										</Button>
+									</AlertDialogFooter>
+								</div>
+							</form>
+						</Form>
+					</WarningComponent>
+				)}
+
 				{actions.map((action) => {
 					return (
 						<React.Fragment key={action.title}>
