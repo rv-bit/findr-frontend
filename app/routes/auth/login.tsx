@@ -1,3 +1,5 @@
+import type { Route } from "./+types/login";
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 
@@ -13,8 +15,16 @@ import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 
+export async function clientLoader({ serverLoader, params }: Route.ClientLoaderArgs) {
+	const { data: session, error } = await authClient.getSession();
+	if (!session) {
+		throw new Response("", { status: 302, headers: { Location: "/auth" } }); // Redirect to login
+	}
+	return null;
+}
+
 const formSchema = z.object({
-	email: z.string().email().nonempty("Email is required"),
+	username: z.string().nonempty("Username is required"),
 	password: z.string().min(8, "Password must be at least 8 characters long"),
 });
 
@@ -27,15 +37,15 @@ export default function Login() {
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			email: "",
+			username: "",
 			password: "",
 		},
 	});
 
 	const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-		await authClient.signIn.email(
+		await authClient.signIn.username(
 			{
-				email: values.email,
+				username: values.username,
 				password: values.password,
 			},
 			{
@@ -82,11 +92,11 @@ export default function Login() {
 								<div className="flex flex-col gap-2">
 									<FormField
 										control={form.control}
-										name="email"
+										name="username"
 										render={({ field }) => (
 											<FormItem>
 												<FormControl>
-													<Input type="email" placeholder="name@example.com" required {...field} />
+													<Input type="text" placeholder="username" required {...field} />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
