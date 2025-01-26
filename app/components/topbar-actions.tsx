@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router";
 
 import { authClient } from "~/lib/auth";
@@ -12,6 +12,7 @@ import { Button } from "./ui/button";
 import { Switch } from "./ui/switch";
 
 import { type LucideIcon, LogOut, Moon, Settings } from "lucide-react";
+
 import LogoIcon from "~/icons/logo";
 
 interface Actions {
@@ -23,35 +24,41 @@ interface Actions {
 	onClick?: () => void;
 }
 
-const actions: Actions[] = [
-	{
-		title: "Other",
-		items: [
-			{
-				title: "Dark Mode",
-				component: DarkModeComponent,
-			},
-			{
-				title: "Settings",
-				url: "/settings",
-				icon: Settings,
-			},
-		],
-	},
-	{
-		title: "Log out",
-		icon: LogOut,
-		onClick: () => {
-			authClient.signOut();
-		},
-	},
-];
-
 export default function TopbarActions() {
 	const [open, setOpen] = useState(false);
 
 	const navigate = useNavigate();
 	const { data: session, isPending, error } = authClient.useSession();
+
+	const actions: Actions[] = React.useMemo(
+		() => [
+			{
+				title: "Other",
+				items: [
+					{
+						title: "Dark Mode",
+						component: DarkModeComponent,
+					},
+					{
+						title: "Settings",
+						url: "/settings",
+						icon: Settings,
+					},
+				],
+			},
+			{
+				title: "Log out",
+				icon: LogOut,
+				onClick: async () => {
+					await authClient.signOut();
+
+					navigate("/auth");
+					setOpen(false);
+				},
+			},
+		],
+		[],
+	);
 
 	return (
 		<header
@@ -86,7 +93,7 @@ export default function TopbarActions() {
 							navigate("/auth");
 						}}
 						type="button"
-						className="h-10 w-full rounded-lg"
+						className="h-10 rounded-full bg-primary-500/75 hover:bg-primary-500 dark:bg-primary-500/75 dark:hover:bg-primary-500 dark:text-white"
 					>
 						<span className="truncate text-sm capitalize">Login</span>
 					</Button>
@@ -100,7 +107,7 @@ export default function TopbarActions() {
 								</Avatar>
 							</SidebarMenuButton>
 						</DropdownMenuTrigger>
-						<DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg dark:bg-[#131617] border-none mt-3.5" side={"bottom"} align="end" sideOffset={4}>
+						<DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg dark:bg-modal border-none mt-3.5" side={"bottom"} align="end" sideOffset={4}>
 							<DropdownMenuLabel className="p-0 font-normal">
 								<Button
 									onClick={() => {
