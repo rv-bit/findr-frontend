@@ -2,7 +2,7 @@ import React from "react";
 
 import { cn } from "~/lib/utils";
 
-export const TOPBAR_HEIGHT = "5svh";
+export const TOPBAR_HEIGHT = "4rem";
 
 const TopbarContext = React.createContext<null>(null);
 
