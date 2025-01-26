@@ -103,7 +103,12 @@ export default function TopbarActions() {
 							<SidebarMenuButton variant={"link"} size="lg" className="h-auto p-1 rounded-full hover:bg-sidebar-foreground/15 dark:hover:bg-neutral-800">
 								<Avatar className="h-8 w-8 rounded-full">
 									{!isPending && <AvatarImage src={session?.user.image ?? undefined} alt={session?.user.name} />}
-									<AvatarFallback className="rounded-lg">CN</AvatarFallback>
+									<AvatarFallback className="rounded-lg">
+										{session?.user.name
+											?.split(" ")
+											.map((name) => name[0])
+											.join("")}
+									</AvatarFallback>
 								</Avatar>
 							</SidebarMenuButton>
 						</DropdownMenuTrigger>
@@ -119,11 +124,16 @@ export default function TopbarActions() {
 								>
 									<Avatar className="h-8 w-8 rounded-full">
 										<AvatarImage src={session?.user.image ?? undefined} alt={session?.user.email} />
-										<AvatarFallback className="rounded-full">CN</AvatarFallback>
+										<AvatarFallback className="rounded-full">
+											{session?.user.name
+												?.split(" ")
+												.map((name) => name[0])
+												.join("")}
+										</AvatarFallback>
 									</Avatar>
 									<div className="grid flex-1 text-left text-sm leading-tight">
 										<span className="truncate font-semibold">View Profile</span>
-										<span className="truncate text-xs">{session?.user.email!}</span>
+										<span className="truncate text-xs">{session?.user.username!}</span>
 									</div>
 								</Button>
 							</DropdownMenuLabel>
