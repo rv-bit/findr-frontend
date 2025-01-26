@@ -2,12 +2,11 @@ import * as React from "react";
 
 import { Slot } from "@radix-ui/react-slot";
 import { type VariantProps, cva } from "class-variance-authority";
-import { PanelLeft } from "lucide-react";
-
-import { motion } from "motion/react";
+import { Menu } from "lucide-react";
 
 import { useIsTablet } from "~/hooks/use-tablet";
 import { cn } from "~/lib/utils";
+
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Separator } from "~/components/ui/separator";
@@ -242,14 +241,14 @@ const SidebarTrigger = React.forwardRef<React.ElementRef<typeof Button>, React.C
 			data-sidebar="trigger"
 			variant="ghost"
 			size="icon"
-			className={cn("h-7 w-7", className)}
+			className={cn("h-10 w-10 [&_svg]:size-6", className)}
 			onClick={(event) => {
 				onClick?.(event);
 				toggleSidebar();
 			}}
 			{...props}
 		>
-			<PanelLeft color={theme === "dark" ? "#fff" : "#000"} />
+			<Menu color={theme === "dark" ? "#fff" : "#000"} size={34} />
 		</Button>
 	);
 });
@@ -390,6 +389,7 @@ const sidebarMenuButtonVariants = cva(
 				default: "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
 				outline:
 					"bg-white shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))] dark:bg-neutral-950",
+				link: "hover:bg-transparent hover:text-sidebar-accent-foreground data-[state=open]:hover:bg-none data-[state=open]:hover:text-none active:bg-transparent active:outline-none p-0 focus-visible:ring-0 focus-visible:ring-offset-0",
 			},
 			size: {
 				default: "h-8 text-sm",
