@@ -8,15 +8,16 @@ export default [
 		index("./routes/auth/login.tsx"), // This is the default route which will be the login page
 		route("onboard", "./routes/auth/onboard.tsx"),
 		route("forgot-password", "./routes/auth/forgot-password.tsx"),
-		route("verify-email", "./routes/auth/verify-email.tsx"),
 		route("two-factor", "./routes/auth/two-factor.tsx"),
+		route("verify-email", "./routes/auth/verifications/verify-email.tsx"),
+		route("verify-delete", "./routes/auth/verifications/verify-delete-account.tsx"),
 	]),
 
 	...prefix("settings", [
 		layout("./routes/settings/_layout.tsx", [
 			index("./routes/settings/account/index.tsx", { id: "index-settings" }), // This is the default route which will be the account page
 			route("account", "./routes/settings/account/index.tsx"),
-			route("profile", "./routes/settings/profile.tsx"),
+			route("profile", "./routes/settings/profile/index.tsx"),
 		]),
 	]),
 ] satisfies RouteConfig;

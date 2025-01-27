@@ -1,4 +1,4 @@
-import type { Route } from "./+types/verify-email";
+import type { Route } from "../verifications/+types/verify-email";
 
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router";
