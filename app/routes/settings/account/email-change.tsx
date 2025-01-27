@@ -16,7 +16,7 @@ const newEmailSchema = z.object({
 	newEmail: z.string().email().nonempty("Email is required"),
 });
 
-export default function EmailModal({ open, onOpenChange }: ModalProps) {
+export default function Index({ open, onOpenChange }: ModalProps) {
 	const [loading, setLoading] = React.useState(false);
 
 	const newEmailForm = useForm<z.infer<typeof newEmailSchema>>({
