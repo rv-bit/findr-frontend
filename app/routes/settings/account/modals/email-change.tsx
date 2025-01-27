@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { authClient } from "~/lib/auth";
 import type { ModalProps } from "~/lib/types/modal";
 
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "~/components/ui/alert-dialog";
@@ -31,7 +32,28 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 	const isFormIsComplete = formState.isValid;
 
 	const handleSubmit = async (values: z.infer<typeof newEmailSchema>) => {
-		console.log(values);
+		setLoading(true);
+
+		await authClient.changeEmail(
+			{
+				newEmail: values.newEmail,
+				callbackURL: "/auth/verify-email",
+			},
+			{
+				onSuccess() {
+					setLoading(false);
+					onOpenChange(false);
+				},
+
+				onError(context) {
+					setLoading(false);
+					newEmailForm.setError("newEmail", {
+						type: "manual",
+						message: context.error.message,
+					});
+				},
+			},
+		);
 	};
 
 	return (
