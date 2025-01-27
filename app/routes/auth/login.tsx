@@ -52,9 +52,16 @@ export default function Login() {
 				onRequest: () => {
 					setLoading(true);
 				},
-				onSuccess: () => {
+				async onSuccess(ctx) {
+					if (ctx.data.twoFactorRedirect) {
+						setLoading(false);
+						navigate("/auth/two-factor"); // Redirect to two-factor page
+
+						return;
+					}
+
 					setLoading(false);
-					navigate("/"); // Redirect to home page
+					navigate("/settings/"); // Redirect to home page
 				},
 				onError: (ctx) => {
 					setLoading(false);
