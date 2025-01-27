@@ -9,6 +9,7 @@ export default [
 		route("onboard", "./routes/auth/onboard.tsx"),
 		route("forgot-password", "./routes/auth/forgot-password.tsx"),
 		route("verify-email", "./routes/auth/verify-email.tsx"),
+		route("two-factor", "./routes/auth/two-factor.tsx"),
 	]),
 
 	...prefix("settings", [
