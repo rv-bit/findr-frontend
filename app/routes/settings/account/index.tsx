@@ -19,9 +19,10 @@ import { Input } from "~/components/ui/input";
 
 import WarningComponent from "~/components/warning";
 
-import { ChevronRight, TriangleAlert, type LucideIcon } from "lucide-react";
+import { ChevronRight, ExternalLink, TriangleAlert, type LucideIcon } from "lucide-react";
 
 import EmailModal from "./email-change";
+import TwoFactorEnable from "./two-factor-enable";
 
 interface Actions {
 	title: string;
@@ -29,9 +30,12 @@ interface Actions {
 	route?: string; // meaning like the url route
 	icon?: LucideIcon;
 
-	component?: React.FC<ModalProps>;
+	componentLoad?: React.FC<ModalProps>;
 
+	onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+	modalShouldContinueRender?: () => boolean;
 	modalActionOnClickCheck?: () => { success: boolean; error: string | null };
+
 	items?: Actions[];
 }
 
@@ -65,8 +69,89 @@ export default function Index({ matches }: Route.ComponentProps) {
 
 							return { success: true, error: null };
 						},
-						component: EmailModal,
+						componentLoad: EmailModal,
 					},
+					{
+						title: "Password",
+						defaultValue: loaderData.hasPassword ? "Set" : "Not Set",
+						icon: ChevronRight,
+						modalActionOnClickCheck: () => {
+							const isValid = loaderData.hasEmailVerified && loaderData.hasPassword;
+							if (!isValid) {
+								return { success: false, error: "Please verify your email and create a password" };
+							}
+
+							return { success: true, error: null };
+						},
+					},
+				],
+			},
+			{
+				title: "Account authorization",
+				items: [
+					{
+						title: "Google",
+						defaultValue: loaderData.accountLists?.some((account) => account.provider === "google") ? "Connected" : "Not Connected",
+						icon: ChevronRight,
+						onClick: async () => {
+							const hasLinked = loaderData.accountLists?.some((account) => account.provider === "google");
+
+							if (!hasLinked) {
+								await authClient.linkSocial({
+									provider: "google",
+									callbackURL: "/settings/account",
+								});
+								return;
+							}
+
+							await authClient.unlinkAccount({
+								providerId: "google",
+							});
+						},
+					},
+					{
+						title: "Github",
+						defaultValue: loaderData.accountLists?.some((account) => account.provider === "github") ? "Connected" : "Not Connected",
+						icon: ChevronRight,
+						onClick: async () => {
+							const hasLinked = loaderData.accountLists?.some((account) => account.provider === "github");
+
+							if (!hasLinked) {
+								await authClient.linkSocial({
+									provider: "github",
+									callbackURL: "/settings/account",
+								});
+								return;
+							}
+
+							await authClient.unlinkAccount({
+								providerId: "github",
+							});
+						},
+					},
+
+					{
+						title: "Two-Factor Authentication",
+						defaultValue: loaderData.hasTwoFactor ? "Enabled" : "Disabled",
+						icon: ExternalLink,
+						modalActionOnClickCheck: () => {
+							const isValid = loaderData.hasEmailVerified && loaderData.hasPassword;
+							if (!isValid) {
+								return { success: false, error: "Please verify your email and create a password" };
+							}
+
+							return { success: true, error: null };
+						},
+						modalShouldContinueRender: () => {
+							return !loaderData.hasTwoFactor;
+						},
+						componentLoad: TwoFactorEnable,
+					},
+				],
+			},
+			{
+				title: "Advanced",
+				items: [
 					{
 						title: "Delete Account",
 						icon: ChevronRight,
@@ -199,8 +284,8 @@ export default function Index({ matches }: Route.ComponentProps) {
 								action.items.map((item) => {
 									return (
 										<React.Fragment key={item.title}>
-											{showModal[item.title] && item.component && (
-												<item.component open={showModal[item.title]} onOpenChange={() => setShowModal((prev) => ({ ...prev, [item.title]: false }))} />
+											{showModal[item.title] && item.componentLoad && (
+												<item.componentLoad open={showModal[item.title]} onOpenChange={() => setShowModal((prev) => ({ ...prev, [item.title]: false }))} />
 											)}
 
 											<Button
@@ -225,7 +310,20 @@ export default function Index({ matches }: Route.ComponentProps) {
 														}
 													}
 
-													if (item.component) {
+													if (item.modalShouldContinueRender && !item.modalShouldContinueRender()) {
+														toast.toast({
+															title: "Error",
+															description: "This action is not available",
+														});
+														return;
+													}
+
+													if (item.onClick) {
+														item.onClick(e);
+														return;
+													}
+
+													if (item.componentLoad) {
 														setShowModal((prev) => ({ ...prev, [item.title]: true }));
 													}
 												}}
