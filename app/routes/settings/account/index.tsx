@@ -181,7 +181,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 						},
 						modalActionOnClick: async () => {
 							return await authClient.deleteUser({
-								callbackURL: "/", // you can provide a callback URL to redirect after deletion
+								callbackURL: "/auth/verify-delete",
 							});
 						},
 
