@@ -25,13 +25,22 @@ export async function clientLoader({ serverLoader, params }: Route.ClientLoaderA
 	return null;
 }
 
-const formSchema = z.object({
-	email: z.string().email().nonempty("Email is required"),
-	name: z.string().nonempty("Name is required"),
-	username: z.string().nonempty("Username is required"),
-	password: z.string().min(8, "Password must be at least 8 characters long"),
-	confirmPassword: z.string().min(8, "Password must be at least 8 characters long"),
-});
+const formSchema = z
+	.object({
+		email: z.string().email().nonempty("Email is required"),
+		name: z.string().nonempty("Name is required"),
+		username: z.string().nonempty("Username is required"),
+		password: z.string().min(8, "Password must be at least 8 characters long"),
+		confirmPassword: z.string().min(8, "Password must be at least 8 characters long"),
+	})
+	.refine((data) => data.password === data.confirmPassword, {
+		message: "Passwords do not match",
+		path: ["confirmPassword"],
+	})
+	.refine((data) => !data.username.includes("@"), {
+		message: "Username cannot contain '@'",
+		path: ["username"],
+	});
 
 export default function Register() {
 	const navigate = useNavigate();
@@ -51,20 +60,13 @@ export default function Register() {
 	});
 
 	const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-		if (values.password !== values.confirmPassword) {
-			form.setError("confirmPassword", {
-				type: "manual",
-				message: "Passwords do not match",
-			});
-			return;
-		}
-
 		await authClient.signUp.email(
 			{
 				email: values.email,
 				name: values.name,
 				username: values.username,
 				password: values.password,
+				callbackURL: "/auth/verify-email", // this is so it can send an email to verify the email
 			},
 			{
 				onRequest: () => {
@@ -127,7 +129,7 @@ export default function Register() {
 										render={({ field }) => (
 											<FormItem>
 												<FormControl>
-													<Input type="text" placeholder="bob" required {...field} />
+													<Input type="text" placeholder="name" required {...field} />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -139,7 +141,7 @@ export default function Register() {
 										render={({ field }) => (
 											<FormItem>
 												<FormControl>
-													<Input type="text" placeholder="bob the fun guy" required {...field} />
+													<Input type="text" placeholder="username" required {...field} />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
