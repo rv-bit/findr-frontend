@@ -22,8 +22,10 @@ export async function clientLoader({ serverLoader, params }: Route.ClientLoaderA
 
 	return {
 		...session,
+		accountLists: accountLists,
 		hasEmailVerified: hasEmailVerified,
 		hasPassword: hasPassword,
+		hasTwoFactor: session.user.twoFactorEnabled,
 	};
 }
 
@@ -114,7 +116,7 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
 				<div className="flex w-full max-w-7xl flex-col gap-5 px-10 pt-8 max-sm:px-4">
 					<h1 className="text-4xl font-semibold capitalize text-black dark:text-white">Settings</h1>
 					<section className="relative w-full">
-						<nav ref={navRef} className="no-scrollbar flex h-full w-full flex-nowrap items-start justify-start gap-4 overflow-x-auto overflow-y-visible">
+						<nav ref={navRef} className="no-scrollbar flex h-full w-full flex-nowrap items-start justify-start gap-2 overflow-x-auto overflow-y-visible">
 							{actions.map((action, index) => (
 								<NavLink
 									key={index}
