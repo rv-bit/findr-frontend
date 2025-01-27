@@ -1,7 +1,8 @@
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
+import { X as XIcon } from "lucide-react";
 import * as React from "react";
 
-import { buttonVariants } from "~/components/ui/button";
+import { Button, buttonVariants } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 
 const AlertDialog = AlertDialogPrimitive.Root;
@@ -33,7 +34,14 @@ const AlertDialogContent = React.forwardRef<React.ElementRef<typeof AlertDialogP
 					className,
 				)}
 				{...props}
-			/>
+			>
+				<AlertDialogCancel asChild>
+					<Button className="size-auto max-sm:top-0 top-2 right-2 fixed p-2 rounded-full hover:bg-sidebar-foreground/15 dark:hover:bg-neutral-800">
+						<XIcon size={28} />
+					</Button>
+				</AlertDialogCancel>
+				{props.children}
+			</AlertDialogPrimitive.Content>
 		</AlertDialogPortal>
 	),
 );
