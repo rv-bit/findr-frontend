@@ -21,6 +21,7 @@ import WarningComponent from "~/components/warning";
 
 import { ChevronRight, ExternalLink, TriangleAlert, type LucideIcon } from "lucide-react";
 
+import DeleteModal from "./delete-account";
 import EmailModal from "./email-change";
 import TwoFactorEnable from "./two-factor-enable";
 
@@ -33,8 +34,10 @@ interface Actions {
 	componentLoad?: React.FC<ModalProps>;
 
 	onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+
 	modalShouldContinueRender?: () => boolean;
 	modalActionOnClickCheck?: () => { success: boolean; error: string | null };
+	modalActionOnClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 
 	items?: Actions[];
 }
@@ -161,8 +164,25 @@ export default function Index({ matches }: Route.ComponentProps) {
 								return { success: false, error: "Please verify your email and create a password" };
 							}
 
+							const hasLinked = loaderData.accountLists?.length;
+							if (hasLinked) {
+								return { success: false, error: "You need to unlink your social account/s first" };
+							}
+
+							const hasTwoFactor = loaderData.hasTwoFactor;
+							if (hasTwoFactor) {
+								return { success: false, error: "You need to disable two-factor authentication first" };
+							}
+
 							return { success: true, error: null };
 						},
+						modalActionOnClick: async () => {
+							return await authClient.deleteUser({
+								callbackURL: "/", // you can provide a callback URL to redirect after deletion
+							});
+						},
+
+						componentLoad: DeleteModal,
 					},
 				],
 			},
@@ -209,6 +229,9 @@ export default function Index({ matches }: Route.ComponentProps) {
 		});
 
 		setShowWarningModal(false);
+
+		emailVerifyForm.reset();
+		navigate("/auth");
 	};
 
 	return (
@@ -285,7 +308,11 @@ export default function Index({ matches }: Route.ComponentProps) {
 									return (
 										<React.Fragment key={item.title}>
 											{showModal[item.title] && item.componentLoad && (
-												<item.componentLoad open={showModal[item.title]} onOpenChange={() => setShowModal((prev) => ({ ...prev, [item.title]: false }))} />
+												<item.componentLoad
+													open={showModal[item.title]}
+													onOpenChange={() => setShowModal((prev) => ({ ...prev, [item.title]: false }))}
+													onClickAction={item.modalActionOnClick}
+												/>
 											)}
 
 											<Button
@@ -311,10 +338,6 @@ export default function Index({ matches }: Route.ComponentProps) {
 													}
 
 													if (item.modalShouldContinueRender && !item.modalShouldContinueRender()) {
-														toast.toast({
-															title: "Error",
-															description: "This action is not available",
-														});
 														return;
 													}
 
