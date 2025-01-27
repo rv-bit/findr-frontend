@@ -61,7 +61,7 @@ export default function Login() {
 					}
 
 					setLoading(false);
-					navigate("/settings/"); // Redirect to home page
+					navigate("/settings"); // Redirect to home page
 				},
 				onError: (ctx) => {
 					setLoading(false);
