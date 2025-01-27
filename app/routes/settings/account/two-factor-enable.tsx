@@ -11,7 +11,8 @@ import type { ModalProps } from "~/lib/types/modal";
 
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
+import { Checkbox } from "~/components/ui/checkbox";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "~/components/ui/input-otp";
 
@@ -19,6 +20,7 @@ interface StepProps {
 	step: number;
 	qr: {
 		totpURI: string;
+		secret: string;
 		backupCodes: string[];
 	};
 }
@@ -29,6 +31,7 @@ const twoFactorEnableSchema = z.object({
 
 const twoFactorCodeSchema = z.object({
 	code: z.string().nonempty("Code is required"),
+	trustDevice: z.boolean().optional(),
 });
 
 export default function Index({ open, onOpenChange }: ModalProps) {
@@ -37,6 +40,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 		qr: {
 			totpURI: "",
 			backupCodes: [],
+			secret: "",
 		},
 	});
 	const [loading, setLoading] = React.useState(false);
@@ -70,9 +74,15 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 		setLoading(false);
 
 		if (data) {
+			const urlObj = new URL(data.totpURI);
+			const secretKey = urlObj.searchParams.get("secret") ?? "";
+
 			setCurrentState({
 				step: 2,
-				qr: data,
+				qr: {
+					...data,
+					secret: secretKey,
+				},
 			});
 		}
 	};
@@ -83,9 +93,10 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 		await authClient.twoFactor.verifyTotp(
 			{
 				code: values.code,
+				trustDevice: values.trustDevice,
 			},
 			{
-				onSuccess: () => {
+				onSuccess: async () => {
 					setLoading(false);
 					setCurrentState((prevData) => ({
 						...prevData,
@@ -97,8 +108,6 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 				},
 			},
 		);
-
-		// onOpenChange(false);
 	};
 
 	return (
@@ -153,7 +162,13 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 						<Form {...twoFactorCodeForm}>
 							<form className="w-full" onSubmit={twoFactorCodeForm.handleSubmit(handleCodeSubmit)}>
 								<div className="flex flex-col gap-4">
-									<QRCodeCanvas size={190} value={currentState.qr.totpURI} />
+									<div className="flex flex-col items-start justify-start gap-2">
+										<QRCodeCanvas size={190} value={currentState.qr.totpURI} />
+										<span className="flex flex-col gap-1">
+											<h1 className="text-md font-semibold dark:text-white text-black">or put this code manually</h1>
+											<p className="break-all text-sm text-gray-500 dark:text-gray-400">{currentState.qr.secret}</p>
+										</span>
+									</div>
 
 									<div className="flex flex-col gap-2">
 										<FormField
@@ -176,6 +191,20 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 															</InputOTPGroup>
 														</InputOTP>
 													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+
+										<FormField
+											control={twoFactorCodeForm.control}
+											name="trustDevice"
+											render={({ field }) => (
+												<FormItem className="flex justify-start items-center gap-1 space-y-0 mt-2">
+													<FormControl>
+														<Checkbox checked={field.value} onCheckedChange={field.onChange}></Checkbox>
+													</FormControl>
+													<FormLabel>Trust this device</FormLabel>
 													<FormMessage />
 												</FormItem>
 											)}
