@@ -1,4 +1,4 @@
-import type { Route } from "../+types/_layout";
+import type { Route } from "../+types/_layout"; // Import the Route type from the _layout file just cause its basically the index of the routes folder
 
 import React from "react";
 import { useNavigate } from "react-router";
@@ -21,21 +21,22 @@ import WarningComponent from "~/components/warning";
 
 import { ChevronRight, ExternalLink, TriangleAlert, type LucideIcon } from "lucide-react";
 
-import DeleteModal from "./delete-account";
-import EmailModal from "./email-change";
-import TwoFactorEnable from "./two-factor-enable";
+import DeleteModal from "./modals/delete-account";
+import EmailModal from "./modals/email-change";
+import TwoFactorDisable from "./modals/two-factor-disable";
+import TwoFactorEnable from "./modals/two-factor-enable";
 
 interface Actions {
 	title: string;
 	defaultValue?: string | number | boolean | undefined;
 	route?: string; // meaning like the url route
 	icon?: LucideIcon;
+	disabled?: boolean;
 
 	componentLoad?: React.FC<ModalProps>;
 
 	onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 
-	modalShouldContinueRender?: () => boolean;
 	modalActionOnClickCheck?: () => { success: boolean; error: string | null };
 	modalActionOnClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 
@@ -110,6 +111,8 @@ export default function Index({ matches }: Route.ComponentProps) {
 							await authClient.unlinkAccount({
 								providerId: "google",
 							});
+
+							window.location.reload();
 						},
 					},
 					{
@@ -130,6 +133,8 @@ export default function Index({ matches }: Route.ComponentProps) {
 							await authClient.unlinkAccount({
 								providerId: "github",
 							});
+
+							window.location.reload();
 						},
 					},
 
@@ -137,6 +142,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 						title: "Two-Factor Authentication",
 						defaultValue: loaderData.hasTwoFactor ? "Enabled" : "Disabled",
 						icon: ExternalLink,
+						disabled: loaderData.hasTwoFactor ? true : false, // disable if two-factor is enabled, because there is no way to disable it just yet
 						modalActionOnClickCheck: () => {
 							const isValid = loaderData.hasEmailVerified && loaderData.hasPassword;
 							if (!isValid) {
@@ -145,10 +151,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 
 							return { success: true, error: null };
 						},
-						modalShouldContinueRender: () => {
-							return !loaderData.hasTwoFactor;
-						},
-						componentLoad: TwoFactorEnable,
+						componentLoad: !loaderData.hasTwoFactor ? TwoFactorEnable : TwoFactorDisable,
 					},
 				],
 			},
@@ -164,7 +167,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 								return { success: false, error: "Please verify your email and create a password" };
 							}
 
-							const hasLinked = loaderData.accountLists?.length;
+							const hasLinked = loaderData.accountLists?.some((account) => account.provider !== "credential");
 							if (hasLinked) {
 								return { success: false, error: "You need to unlink your social account/s first" };
 							}
@@ -318,6 +321,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 											<Button
 												key={item.title}
 												variant={"link"}
+												disabled={item.disabled}
 												className="group flex w-full items-center justify-between gap-4 bg-none p-0 hover:no-underline"
 												onClick={(e) => {
 													if (item.route) {
@@ -335,10 +339,6 @@ export default function Index({ matches }: Route.ComponentProps) {
 															});
 															return;
 														}
-													}
-
-													if (item.modalShouldContinueRender && !item.modalShouldContinueRender()) {
-														return;
 													}
 
 													if (item.onClick) {
