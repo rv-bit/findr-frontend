@@ -62,5 +62,21 @@ export default {
 		plugin(function ({ addVariant }: any) {
 			addVariant("current", "&.active");
 		}),
+
+		// @ts-ignore
+		function ({ matchVariant }) {
+			matchVariant(
+				"has",
+				// @ts-ignore
+				(value) => {
+					return `&:has(${value})`;
+				},
+				{
+					values: {
+						checked: "input:checked",
+					},
+				},
+			);
+		},
 	],
 } satisfies Config;
