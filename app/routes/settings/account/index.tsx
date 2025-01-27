@@ -23,8 +23,9 @@ import { ChevronRight, ExternalLink, TriangleAlert, type LucideIcon } from "luci
 
 import DeleteModal from "./modals/delete-account";
 import EmailModal from "./modals/email-change";
-import TwoFactorDisable from "./modals/two-factor-disable";
-import TwoFactorEnable from "./modals/two-factor-enable";
+import PasswordChangeModal from "./modals/password-change";
+import TwoFactorDisableModal from "./modals/two-factor-disable";
+import TwoFactorEnableModal from "./modals/two-factor-enable";
 
 interface Actions {
 	title: string;
@@ -77,7 +78,6 @@ export default function Index({ matches }: Route.ComponentProps) {
 					},
 					{
 						title: "Password",
-						defaultValue: loaderData.hasPassword ? "Set" : "Not Set",
 						icon: ChevronRight,
 						modalActionOnClickCheck: () => {
 							const isValid = loaderData.hasEmailVerified && loaderData.hasPassword;
@@ -87,6 +87,8 @@ export default function Index({ matches }: Route.ComponentProps) {
 
 							return { success: true, error: null };
 						},
+
+						componentLoad: PasswordChangeModal,
 					},
 				],
 			},
@@ -151,7 +153,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 
 							return { success: true, error: null };
 						},
-						componentLoad: !loaderData.hasTwoFactor ? TwoFactorEnable : TwoFactorDisable,
+						componentLoad: !loaderData.hasTwoFactor ? TwoFactorEnableModal : TwoFactorDisableModal,
 					},
 				],
 			},
