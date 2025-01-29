@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 
 import { cn } from "~/lib/utils";
 
-import { type LucideIcon, ChevronDown, UsersRound } from "lucide-react";
+import { type LucideIcon, ChevronDown, CircleHelp, Plus, Scale, UsersRound } from "lucide-react";
 import { type IconType } from "react-icons";
 
 import { GoHomeFill } from "react-icons/go";
@@ -14,7 +14,6 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "~/component
 import {
 	Sidebar,
 	SidebarContent,
-	SidebarFooter,
 	SidebarGroup,
 	SidebarGroupContent,
 	SidebarMenu,
@@ -25,12 +24,11 @@ import {
 	SidebarMenuSubItem,
 } from "~/components/ui/sidebar";
 
-import { NavFooter } from "./sidebar-footer";
 import { Button } from "./ui/button";
 
 interface Actions {
 	title: string;
-	url: string;
+	url?: string;
 	searchQuery?: string;
 	search?: string;
 	icon?: LucideIcon | IconType;
@@ -38,13 +36,13 @@ interface Actions {
 	isActive?: boolean;
 	isCollapsible?: boolean;
 	isDisabled?: boolean;
+	isAction?: boolean;
 	items?: Actions[];
 }
 
 const actions: Actions[] = [
 	{
 		title: "Main",
-		url: "#",
 		isCollapsible: false,
 		items: [
 			{
@@ -79,143 +77,42 @@ const actions: Actions[] = [
 		],
 	},
 	{
-		title: "Inbox",
-		url: "#",
+		title: "Recent",
 		isActive: true,
 		isCollapsible: true,
 		items: [
-			{
-				title: "Introduction",
-				url: "#",
-				isDisabled: true,
-			},
-			{
-				title: "Get Started",
-				url: "#",
-				isDisabled: true,
-			},
-			{
-				title: "Tutorials",
-				url: "#",
-				isDisabled: true,
-			},
-			{
-				title: "Changelog",
-				url: "#",
-				isDisabled: true,
-			},
+			// dynamically generated
 		],
 	},
 	{
-		title: "Settings",
-		url: "#",
+		title: "Communities",
 		isActive: true,
 		isCollapsible: true,
 		items: [
 			{
-				title: "General",
-				url: "#",
-				isDisabled: true,
+				title: "Create a Community",
+				icon: Plus,
+				url: "/communities/new",
 			},
-			{
-				title: "Team",
-				url: "#",
-				isDisabled: true,
-			},
-			{
-				title: "Billing",
-				url: "#",
-				isDisabled: true,
-			},
-			{
-				title: "Limits",
-				url: "#",
-				isDisabled: true,
-			},
+			// dynamically generated
 		],
 	},
 	{
-		title: "Settings2",
-		url: "#",
+		title: "Resources",
 		isActive: true,
 		isCollapsible: true,
 		items: [
 			{
-				title: "General",
-				url: "#",
-				isDisabled: true,
+				title: "Help",
+				url: "/help",
+				icon: CircleHelp,
 			},
 			{
-				title: "Team",
-				url: "#",
-				isDisabled: true,
+				title: "Privacy Policy",
+				url: "/legal",
+				icon: Scale,
 			},
-			{
-				title: "Billing",
-				url: "#",
-				isDisabled: true,
-			},
-			{
-				title: "Limits",
-				url: "#",
-				isDisabled: true,
-			},
-		],
-	},
-	{
-		title: "Settings3",
-		url: "#",
-		isActive: true,
-		isCollapsible: true,
-		items: [
-			{
-				title: "General",
-				url: "#",
-				isDisabled: true,
-			},
-			{
-				title: "Team",
-				url: "#",
-				isDisabled: true,
-			},
-			{
-				title: "Billing",
-				url: "#",
-				isDisabled: true,
-			},
-			{
-				title: "Limits",
-				url: "#",
-				isDisabled: true,
-			},
-		],
-	},
-	{
-		title: "Settings4",
-		url: "#",
-		isActive: true,
-		isCollapsible: true,
-		items: [
-			{
-				title: "General",
-				url: "#",
-				isDisabled: true,
-			},
-			{
-				title: "Team",
-				url: "#",
-				isDisabled: true,
-			},
-			{
-				title: "Billing",
-				url: "#",
-				isDisabled: true,
-			},
-			{
-				title: "Limits",
-				url: "#",
-				isDisabled: true,
-			},
+			// dynamically generated
 		],
 	},
 ];
@@ -223,45 +120,6 @@ const actions: Actions[] = [
 function CollapsibleItem({ item, index }: { item: Actions; index: number }) {
 	const contentRef = useRef<HTMLUListElement | null>(null);
 	const [isOpen, setIsOpen] = useState(item.isActive);
-
-	const [overflowY, setOverflowY] = useState<string>("hidden");
-	const [height, setHeight] = useState<string>("0px");
-	const [isAnimating, setIsAnimating] = useState(false);
-
-	useEffect(() => {
-		if (!contentRef.current) return;
-
-		const contentHeight = contentRef.current.scrollHeight;
-
-		if (isOpen) {
-			// When opening
-			setHeight(`${contentHeight}px`);
-			setIsAnimating(true);
-
-			// After the animation, set height to "auto" to handle content resizing
-			const timeout = setTimeout(() => {
-				setHeight("auto");
-				setOverflowY("visible");
-				setIsAnimating(false);
-			}, 333); // Match the transition duration
-			return () => clearTimeout(timeout);
-		} else {
-			// When closing
-			setHeight(`${contentHeight}px`); // Start with current height
-			setTimeout(() => {
-				// setHeight("0px"); // Collapse to zero
-				setOverflowY("visible");
-				setIsAnimating(true);
-			}, 5); // Delay to trigger reflow and start transition
-
-			const timeout = setTimeout(() => {
-				setHeight("0px");
-				setOverflowY("hidden");
-				setIsAnimating(false);
-			}, 333); // Match the transition duration
-			return () => clearTimeout(timeout);
-		}
-	}, [isOpen]);
 
 	return (
 		<React.Fragment>
@@ -280,18 +138,31 @@ function CollapsibleItem({ item, index }: { item: Actions; index: number }) {
 						<SidebarMenuSub
 							ref={contentRef}
 							style={{
-								height: height,
-								overflow: overflowY,
+								height: "auto",
 								transition: "height 333ms ease",
 							}}
 						>
 							{item.items?.map((subItem, subIndex) => (
 								<SidebarMenuSubItem key={subIndex}>
 									<SidebarMenuSubButton asChild size="lg">
-										<Button variant={"link"} disabled={subItem.isDisabled} className="w-full h-auto items-center justify-start">
-											<Link to={subItem.url}>
-												<span>{subItem.title}</span>
-											</Link>
+										<Button variant={"link"} disabled={subItem.isDisabled} className="w-full h-auto items-center justify-start hover:no-underline pl-3">
+											{subItem.url ? (
+												<Link to={subItem.url} className="w-full flex items-center justify-start gap-2 p-0 [&_svg]:size-auto">
+													{subItem.icon && <subItem.icon size={25} />}
+													<span>{subItem.title}</span>
+												</Link>
+											) : (
+												<Button
+													variant={"link"}
+													onClick={() => {
+														console.log("clicked");
+													}}
+													className="w-full items-center justify-start gap-2 p-0 [&_svg]:size-auto"
+												>
+													{subItem.icon && <subItem.icon size={28} />}
+													<h1>{subItem.title}</h1>
+												</Button>
+											)}
 										</Button>
 									</SidebarMenuSubButton>
 								</SidebarMenuSubItem>
@@ -310,8 +181,8 @@ export default function SidebarActions() {
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	return (
-		<Sidebar variant="sidebar" collapsible="offcanvas">
-			<SidebarContent className="p-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-transparent dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 [&::-webkit-scrollbar-thumb]:rounded-lg mr-0.5">
+		<Sidebar variant="sidebar" collapsible="offcanvas" className="group">
+			<SidebarContent className="p-2 pr-3 [&::-webkit-scrollbar-thumb]:invisible group-hover:[&::-webkit-scrollbar-thumb]:visible [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-transparent dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500/50 [&::-webkit-scrollbar-thumb]:rounded-lg mr-[0.175rem]">
 				<SidebarGroup>
 					<SidebarGroupContent>
 						<SidebarMenu className="gap-0">
@@ -331,7 +202,7 @@ export default function SidebarActions() {
 												isActive={action.search && searchParams.get("feed")?.toLowerCase() === action.search.toLowerCase() ? true : false}
 												disabled={action.isDisabled}
 												className={cn(
-													"flex h-12 items-center gap-2 px-4 hover:bg-sidebar-foreground/5 data-[active=true]:hover:bg-sidebar-foreground/10 dark:hover:bg-sidebar-accent/30 dark:data-[active=true]:hover:bg-sidebar-accent",
+													"flex h-10 items-center gap-2 px-4 hover:bg-sidebar-foreground/5 data-[active=true]:hover:bg-sidebar-foreground/10 dark:hover:bg-sidebar-accent/50 dark:data-[active=true]:hover:bg-sidebar-accent",
 												)}
 											>
 												<div className="flex size-6 items-center justify-center">
@@ -359,11 +230,15 @@ export default function SidebarActions() {
 						</SidebarMenu>
 					</SidebarGroupContent>
 				</SidebarGroup>
+
+				<div className="flex items-center justify-center p-3 px-5 pt-1 pb-1">
+					<span className="hover:underline hover:cursor-pointer text-neutral-500 dark:text-neutral-400 text-xs">findr @ 2025 - All rights reserved</span>
+				</div>
 			</SidebarContent>
 
-			<SidebarFooter>
+			{/* <SidebarFooter>
 				<NavFooter />
-			</SidebarFooter>
+			</SidebarFooter> */}
 		</Sidebar>
 	);
 }
