@@ -196,7 +196,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 	);
 
 	const [loading, setLoading] = React.useState(false);
-	const [showWarningModal, setShowWarningModal] = React.useState(false);
+	const [showWarningModal, setShowWarningModal] = React.useState<{ [key: string]: boolean }>({});
 	const [showModal, setShowModal] = React.useState<{ [key: string]: boolean }>({});
 
 	const emailVerifyForm = useForm<z.infer<typeof emailVerifySchema>>({
@@ -233,7 +233,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 			description: "If the email exists in our system, you will receive an email with instructions to verify your email",
 		});
 
-		setShowWarningModal(false);
+		setShowWarningModal({ ...showWarningModal, emailVerify: false });
 
 		emailVerifyForm.reset();
 		navigate("/auth");
@@ -244,7 +244,8 @@ export default function Index({ matches }: Route.ComponentProps) {
 			<div className="flex h-full w-full flex-col items-start justify-center gap-2">
 				{!loaderData.hasPassword && (
 					<WarningComponent
-						open={true}
+						open={showWarningModal.createPassword}
+						onChangeState={() => setShowWarningModal({ ...showWarningModal, createPassword: !showWarningModal.createPassword })}
 						icon={TriangleAlert}
 						message="Password is necessary to secure your account"
 						title="Create Password"
@@ -257,8 +258,8 @@ export default function Index({ matches }: Route.ComponentProps) {
 
 				{loaderData.hasPassword && !loaderData.hasEmailVerified && (
 					<WarningComponent
-						open={showWarningModal}
-						onChangeState={() => setShowWarningModal(!showWarningModal)}
+						open={showWarningModal.emailVerify}
+						onChangeState={() => setShowWarningModal({ ...showWarningModal, emailVerify: !showWarningModal.emailVerify })}
 						icon={TriangleAlert}
 						message="Email is not verified"
 						title="Verify Email"
@@ -287,7 +288,12 @@ export default function Index({ matches }: Route.ComponentProps) {
 										<Button
 											type="button"
 											className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white hover:dark:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
-											onClick={() => setShowWarningModal(false)}
+											onClick={() =>
+												setShowWarningModal({
+													...showWarningModal,
+													emailVerify: !showWarningModal.emailVerify,
+												})
+											}
 										>
 											Cancel
 										</Button>
