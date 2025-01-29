@@ -69,7 +69,7 @@ export default function ForgotPassword() {
 		setLoading(true);
 
 		toast.toast({
-			title: "Info",
+			title: "Email Change",
 			description: "If the email exists in our system, you will receive an email with instructions to reset your password",
 		});
 

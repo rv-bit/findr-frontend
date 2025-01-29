@@ -1,4 +1,5 @@
 import React from "react";
+import { useToast } from "~/hooks/use-toast";
 
 import type { ModalProps } from "~/lib/types/modal";
 
@@ -7,6 +8,8 @@ import { Button } from "~/components/ui/button";
 
 export default function Index({ open, onOpenChange, onClickAction }: ModalProps) {
 	const [loading, setLoading] = React.useState(false);
+
+	const toast = useToast();
 
 	return (
 		<AlertDialog open={open} onOpenChange={(open) => onOpenChange(open)}>
@@ -21,17 +24,22 @@ export default function Index({ open, onOpenChange, onClickAction }: ModalProps)
 					</Button>
 					<Button
 						type="button"
+						disabled={loading}
 						onClick={async (e) => {
 							if (onClickAction) {
 								setLoading(true);
-
 								await onClickAction(e);
-
 								setLoading(false);
+
+								onOpenChange(false);
+
+								toast.toast({
+									title: "Account Deletion",
+									description: "If the email exists in our system, you will receive an email with instructions to delete your account",
+								});
 							}
 						}}
 						className="rounded-3xl p-5 py-6"
-						disabled={loading}
 					>
 						{loading ? "Loading..." : "Continue"}
 					</Button>
