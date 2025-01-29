@@ -17,10 +17,15 @@ const formSchema = z.object({
 	email: z.string().email().nonempty("Email is required"),
 });
 
-const newPasswordSchema = z.object({
-	password: z.string().min(8, "Password must be at least 8 characters long"),
-	confirmPassword: z.string().min(8, "Password must be at least 8 characters long"),
-});
+const newPasswordSchema = z
+	.object({
+		password: z.string().min(8, "Password must be at least 8 characters long"),
+		confirmPassword: z.string().min(8, "Password must be at least 8 characters long"),
+	})
+	.refine((data) => data.password === data.confirmPassword, {
+		message: "Passwords do not match",
+		path: ["confirmPassword"],
+	});
 
 export default function ForgotPassword() {
 	const location = useLocation();
@@ -90,14 +95,6 @@ export default function ForgotPassword() {
 	};
 
 	const handleSubmit = async (values: z.infer<typeof newPasswordSchema>) => {
-		if (values.password !== values.confirmPassword) {
-			newPasswordForm.setError("confirmPassword", {
-				type: "manual",
-				message: "Passwords do not match",
-			});
-			return;
-		}
-
 		setLoading(true);
 
 		const { data, error } = await authClient.resetPassword({
