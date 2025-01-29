@@ -12,7 +12,7 @@ import type { ModalProps } from "~/lib/types/modal";
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "~/components/ui/input-otp";
 
@@ -102,6 +102,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 						...prevData,
 						step: 3, // display backup codes
 					}));
+					authClient.signOut(); // logout user after enabling 2fa
 				},
 				onError: () => {
 					setLoading(false);
@@ -165,7 +166,9 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 									<div className="flex flex-col items-start justify-start gap-2">
 										<QRCodeCanvas size={190} value={currentState.qr.totpURI} />
 										<span className="flex flex-col gap-1">
-											<h1 className="text-md font-semibold dark:text-white text-black">or put this code manually</h1>
+											<div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-neutral-200 dark:after:border-neutral-800">
+												<span className="relative z-10 bg-modal px-2 text-neutral-500 dark:text-neutral-400">Or</span>
+											</div>
 											<p className="break-all text-sm text-gray-500 dark:text-gray-400">{currentState.qr.secret}</p>
 										</span>
 									</div>
@@ -200,15 +203,22 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 											control={twoFactorCodeForm.control}
 											name="trustDevice"
 											render={({ field }) => (
-												<FormItem className="flex justify-start items-center gap-1 space-y-0 mt-2">
+												<FormItem className="flex justify-start items-start gap-2 space-y-0 mt-2">
 													<FormControl>
 														<Checkbox checked={field.value} onCheckedChange={field.onChange}></Checkbox>
 													</FormControl>
-													<FormLabel>Trust this device</FormLabel>
+													<div className="flex flex-col gap-1 justify-center items-start">
+														<FormLabel>Trust this device</FormLabel>
+														<FormDescription>Don't ask for a code again on this device for (60) days</FormDescription>
+													</div>
 													<FormMessage />
 												</FormItem>
 											)}
 										/>
+
+										<span className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
+											By continuing with this, you are going to be logged out and you will need to login again with the new two-factor authentication enabled.
+										</span>
 									</div>
 
 									<AlertDialogFooter>
