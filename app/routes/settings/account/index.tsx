@@ -1,4 +1,4 @@
-import type { Route } from "../+types/_layout"; // Import the Route type from the _layout file just cause its basically the index of the routes folder
+import type { Route } from "../account/+types/index"; // Import the Route type from the _layout file just cause its basically the index of the routes folder
 
 import React from "react";
 import { useNavigate } from "react-router";
@@ -310,7 +310,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 				{actions.map((action) => {
 					return (
 						<React.Fragment key={action.title}>
-							<h1 key={action.title} className="text-2xl font-semibold capitalize text-black dark:text-white">
+							<h1 key={action.title} className="text-2xl font-semibold capitalize text-black dark:text-white mb-2">
 								{action.title}
 							</h1>
 
