@@ -1,10 +1,6 @@
-import type { Route } from "./+types/index";
-
 import React, { useEffect } from "react";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
-
-import { Welcome } from "~/welcome/welcome";
 
 export default function Index() {
 	const inViewportRef = React.useRef(null);
@@ -51,7 +47,7 @@ export default function Index() {
 		<p>Error: {error.message}</p>
 	) : (
 		<>
-			<Welcome />
+			<h1>Welcome</h1>
 			{/* <div>
 				{data?.pages.map((group, i) => (
 					<React.Fragment key={i}>
