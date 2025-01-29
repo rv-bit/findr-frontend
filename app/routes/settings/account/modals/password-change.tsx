@@ -72,8 +72,8 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 		<AlertDialog open={open} onOpenChange={(open) => onOpenChange(open)}>
 			<AlertDialogContent className="w-[calc(95vw-20px)]">
 				<AlertDialogHeader>
-					<AlertDialogTitle>Change Email</AlertDialogTitle>
-					<AlertDialogDescription className="space-y-0">Change your email address</AlertDialogDescription>
+					<AlertDialogTitle>Password Change</AlertDialogTitle>
+					<AlertDialogDescription className="space-y-0">Change your password.</AlertDialogDescription>
 				</AlertDialogHeader>
 				<section className="flex flex-col gap-2">
 					<Form {...newPasswordForm}>
