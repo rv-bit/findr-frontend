@@ -73,7 +73,7 @@ export default function TopbarActions() {
 			}}
 		>
 			<div className="flex items-center justify-start gap-2">
-				<SidebarTrigger className="rounded-full hover:bg-sidebar-foreground/15" />
+				<SidebarTrigger className="rounded-full hover:bg-primary-500/15" />
 
 				<Button
 					variant={"link"}
@@ -100,7 +100,7 @@ export default function TopbarActions() {
 				) : (
 					<DropdownMenu open={open} onOpenChange={setOpen}>
 						<DropdownMenuTrigger asChild>
-							<SidebarMenuButton variant={"link"} size="lg" className="h-auto p-1 rounded-full hover:bg-sidebar-foreground/15 dark:hover:bg-neutral-800">
+							<SidebarMenuButton variant={"link"} size="lg" className="h-auto p-1 rounded-full hover:bg-primary-500/15 dark:hover:bg-primary-500/45">
 								<Avatar className="h-8 w-8 rounded-full">
 									{!isPending && <AvatarImage src={session?.user.image ?? undefined} alt={session?.user.name} />}
 									<AvatarFallback className="rounded-lg">
@@ -112,7 +112,12 @@ export default function TopbarActions() {
 								</Avatar>
 							</SidebarMenuButton>
 						</DropdownMenuTrigger>
-						<DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg dark:bg-modal border-none mt-3.5" side={"bottom"} align="end" sideOffset={4}>
+						<DropdownMenuContent
+							className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg dark:bg-sidebar-accent/40 border-none mt-3.5"
+							side={"bottom"}
+							align="end"
+							sideOffset={4}
+						>
 							<DropdownMenuLabel className="p-0 font-normal">
 								<Button
 									onClick={() => {
@@ -225,7 +230,11 @@ function DarkModeComponent() {
 				<Moon />
 				<h1>Dark Mode</h1>
 			</span>
-			<Switch checked={theme === "dark"} onCheckedChange={(checked) => handleChangeTheme(checked ? "dark" : "light")} />
+			<Switch
+				checked={theme === "dark"}
+				onCheckedChange={(checked) => handleChangeTheme(checked ? "dark" : "light")}
+				className="dark:data-[state=checked]:bg-primary-400 data-[state=checked]:bg-primary-400"
+			/>
 		</>
 	);
 }
