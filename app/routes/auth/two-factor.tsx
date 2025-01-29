@@ -11,14 +11,12 @@ import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFoo
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "~/components/ui/input-otp";
 import { Label } from "~/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
 
 interface StepProps {
 	step: number;
-	code?: string;
 }
 
 interface OptionsProps {
@@ -38,13 +36,14 @@ const options: OptionsProps[] = [
 		option: "app",
 		title: "Authenticator App",
 		description: "Use an authenticator app to generate a code",
-		disabled: true,
+		disabled: false,
+	},
+	{
+		option: "backup",
+		title: "Backup Code",
+		description: "Use a backup code to verify your identity (not recommended)",
 	},
 ];
-
-const twoFactorEnableSchema = z.object({
-	password: z.string().min(8, "Password must be at least 8 characters long"),
-});
 
 const twoFactorOptionsSchema = z.object({
 	option: z.string().nonempty("Option is required"),
@@ -60,19 +59,8 @@ export default function Index() {
 
 	const [open, onOpenChange] = React.useState(true);
 	const [loading, setLoading] = React.useState(false);
+	const [currentStep, setCurrentStep] = React.useState(1);
 	const [currentVerificationOption, setCurrentVerificationOption] = React.useState<string>("email");
-	const [currentStep, setCurrentStep] = React.useState<StepProps>({
-		step: 1,
-		code: "",
-	});
-
-	const twoFactorForm = useForm<z.infer<typeof twoFactorEnableSchema>>({
-		mode: "onChange",
-		resolver: zodResolver(twoFactorEnableSchema),
-		defaultValues: {
-			password: "",
-		},
-	});
 
 	const twoFactorOptionsForm = useForm<z.infer<typeof twoFactorOptionsSchema>>({
 		mode: "onChange",
@@ -90,112 +78,95 @@ export default function Index() {
 		},
 	});
 
-	const { formState: passwordFormState } = twoFactorForm;
-	const isFormIsComplete = passwordFormState.isValid;
+	const { formState: optionsFormState } = twoFactorOptionsForm;
+	const isOptionsFormIsComplete = optionsFormState.isValid;
 
 	const { formState: codeFormState } = twoFactorCodeForm;
 	const isCodeFormIsComplete = codeFormState.isValid;
-
-	const { formState: optionsFormState } = twoFactorOptionsForm;
-	const isOptionsFormIsComplete = optionsFormState.isValid;
 
 	const handleGetVerificationOption = async (values: z.infer<typeof twoFactorOptionsSchema>) => {
 		setLoading(true);
 		setCurrentVerificationOption(values.option);
 		setLoading(false);
 
-		setCurrentStep({
-			step: 2,
-			code: "",
-		});
+		setCurrentStep(2);
 	};
-
-	const handleGetCodeSubmit = React.useCallback(
-		async (values: z.infer<typeof twoFactorEnableSchema>) => {
-			setLoading(true);
-
-			if (currentVerificationOption === "app") {
-				const { data, error } = await authClient.twoFactor.getTotpUri({
-					password: values.password,
-				});
-
-				setLoading(false);
-
-				if (data) {
-					setCurrentStep({
-						step: 3,
-						code: data.totpURI,
-					});
-				} else {
-					navigate("/auth");
-				}
-
-				return;
-			}
-
-			const { data, error } = await authClient.twoFactor.sendOtp();
-
-			setLoading(false);
-
-			if (data) {
-				setCurrentStep({
-					step: 3,
-				});
-			} else {
-				navigate("/auth");
-			}
-		},
-		[currentVerificationOption],
-	);
 
 	const handleCodeSubmit = React.useCallback(
 		async (values: z.infer<typeof twoFactorCodeSchema>) => {
 			setLoading(true);
 
-			if (currentVerificationOption === "app") {
-				await authClient.twoFactor.verifyTotp(
-					{
-						code: values.code,
-						trustDevice: values.trustDevice,
-					},
-					{
-						onSuccess: async () => {
-							setLoading(false);
-							navigate("/settings");
+			switch (currentVerificationOption) {
+				case "app":
+					await authClient.twoFactor.verifyTotp(
+						{
+							code: values.code,
+							trustDevice: values.trustDevice,
 						},
-						onError: () => {
-							setLoading(false);
-							navigate("/");
+						{
+							onSuccess: async () => {
+								setLoading(false);
+								navigate("/settings");
+							},
+							onError: () => {
+								setLoading(false);
+								twoFactorCodeForm.setError("code", {
+									type: "manual",
+									message: "Invalid code",
+								});
+							},
 						},
-					},
-				);
-
-				return;
+					);
+					break;
+				case "backup":
+					await authClient.twoFactor.verifyBackupCode(
+						{
+							code: values.code,
+						},
+						{
+							onSuccess: async () => {
+								setLoading(false);
+								navigate("/settings");
+							},
+							onError: () => {
+								setLoading(false);
+								twoFactorCodeForm.setError("code", {
+									type: "manual",
+									message: "Invalid code",
+								});
+							},
+						},
+					);
+					break;
+				default:
+					await authClient.twoFactor.verifyOtp(
+						{
+							code: values.code,
+							trustDevice: values.trustDevice,
+						},
+						{
+							onSuccess: async () => {
+								setLoading(false);
+								navigate("/settings");
+							},
+							onError: () => {
+								setLoading(false);
+								twoFactorCodeForm.setError("code", {
+									type: "manual",
+									message: "Invalid code",
+								});
+							},
+						},
+					);
+					break;
 			}
-
-			await authClient.twoFactor.verifyOtp(
-				{
-					code: values.code,
-					trustDevice: values.trustDevice,
-				},
-				{
-					onSuccess: async () => {
-						setLoading(false);
-						navigate("/settings");
-					},
-					onError: () => {
-						setLoading(false);
-						navigate("/");
-					},
-				},
-			);
 		},
 		[currentVerificationOption],
 	);
 
 	React.useEffect(() => {
 		if (!open) {
-			navigate("/");
+			navigate("/auth");
 		}
 
 		return () => {};
@@ -205,11 +176,19 @@ export default function Index() {
 		<AlertDialog open={open} onOpenChange={(open) => onOpenChange(open)}>
 			<AlertDialogContent className="w-[calc(95vw-20px)]">
 				<AlertDialogHeader className="space-y-0">
-					<AlertDialogTitle>Activate Two-Factor Authentication</AlertDialogTitle>
-					<AlertDialogDescription>Idk</AlertDialogDescription>
+					<AlertDialogTitle>Two Factor Authentication</AlertDialogTitle>
+					<AlertDialogDescription>
+						{currentStep === 1
+							? "Choose a verification option to receive a code"
+							: currentStep === 2 && currentVerificationOption === "backup"
+								? "Enter your backup code"
+								: currentStep === 2 && currentVerificationOption === "app"
+									? "Enter the code from your authenticator app"
+									: "Enter the code sent to your email"}
+					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<section className="flex flex-col gap-2">
-					{currentStep.step === 1 && (
+					{currentStep === 1 && (
 						<Form {...twoFactorOptionsForm}>
 							<form className="w-full" onSubmit={twoFactorOptionsForm.handleSubmit(handleGetVerificationOption)}>
 								<div className="flex flex-col gap-4">
@@ -224,10 +203,15 @@ export default function Index() {
 															{options.map((option, index) => (
 																<Label
 																	key={index}
-																	htmlFor={option.option}
-																	className="flex items-center justify-start gap-4 p-5 rounded-lg bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 has-checked:border-primary-400 dark:has-checked:border-primary-400 transition-colors duration-150"
+																	htmlFor={`option-${index}`}
+																	className="flex items-center justify-start gap-4 p-5 rounded-lg bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 has-checked:border-primary-400 dark:has-checked:border-primary-400 transition-colors duration-150 hover:cursor-pointer"
 																>
-																	<RadioGroupItem disabled={option.disabled} value={option.option} className="dark:border-primary-300 border-primary-300" />
+																	<RadioGroupItem
+																		id={`option-${index}`}
+																		disabled={option.disabled}
+																		value={option.option}
+																		className="dark:border-primary-300 border-primary-300"
+																	/>
 																	<div className="flex flex-col justify-start items-start gap-1">
 																		<h1 className="text-md font-semibold text-black dark:text-white">{option.title}</h1>
 																		<p className="text-sm text-neutral-500 dark:text-neutral-400">{option.description}</p>
@@ -259,43 +243,7 @@ export default function Index() {
 						</Form>
 					)}
 
-					{currentStep.step === 2 && (
-						<Form {...twoFactorForm}>
-							<form className="w-full" onSubmit={twoFactorForm.handleSubmit(handleGetCodeSubmit)}>
-								<div className="flex flex-col gap-4">
-									<div className="flex flex-col gap-2">
-										<FormField
-											control={twoFactorForm.control}
-											name="password"
-											render={({ field }) => (
-												<FormItem>
-													<FormControl>
-														<Input type="password" placeholder="password" required {...field} />
-													</FormControl>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
-									</div>
-
-									<AlertDialogFooter>
-										<Button
-											type="button"
-											className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white hover:dark:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
-											onClick={() => onOpenChange(false)}
-										>
-											Cancel
-										</Button>
-										<Button type="submit" className="rounded-3xl p-5 py-6" disabled={!isFormIsComplete || loading}>
-											{loading ? "Loading..." : "Continue"}
-										</Button>
-									</AlertDialogFooter>
-								</div>
-							</form>
-						</Form>
-					)}
-
-					{currentStep.step === 3 && (
+					{currentStep === 2 && (
 						<Form {...twoFactorCodeForm}>
 							<form className="w-full" onSubmit={twoFactorCodeForm.handleSubmit(handleCodeSubmit)}>
 								<div className="flex flex-col gap-4">
@@ -306,19 +254,41 @@ export default function Index() {
 											render={({ field }) => (
 												<FormItem>
 													<FormControl>
-														<InputOTP maxLength={6} {...field}>
-															<InputOTPGroup>
-																<InputOTPSlot index={0} />
-																<InputOTPSlot index={1} />
-																<InputOTPSlot index={2} />
-															</InputOTPGroup>
-															<InputOTPSeparator />
-															<InputOTPGroup>
-																<InputOTPSlot index={3} />
-																<InputOTPSlot index={4} />
-																<InputOTPSlot index={5} />
-															</InputOTPGroup>
-														</InputOTP>
+														{currentVerificationOption === "backup" ? (
+															<InputOTP maxLength={11} {...field}>
+																<InputOTPGroup>
+																	<InputOTPSlot index={0} />
+																	<InputOTPSlot index={1} />
+																	<InputOTPSlot index={2} />
+																	<InputOTPSlot index={3} />
+																	<InputOTPSlot index={4} />
+																</InputOTPGroup>
+																<InputOTPGroup>
+																	<InputOTPSlot index={5} />
+																</InputOTPGroup>
+																<InputOTPGroup>
+																	<InputOTPSlot index={6} />
+																	<InputOTPSlot index={7} />
+																	<InputOTPSlot index={8} />
+																	<InputOTPSlot index={9} />
+																	<InputOTPSlot index={10} />
+																</InputOTPGroup>
+															</InputOTP>
+														) : (
+															<InputOTP maxLength={6} {...field}>
+																<InputOTPGroup>
+																	<InputOTPSlot index={0} />
+																	<InputOTPSlot index={1} />
+																	<InputOTPSlot index={2} />
+																</InputOTPGroup>
+																<InputOTPSeparator />
+																<InputOTPGroup>
+																	<InputOTPSlot index={3} />
+																	<InputOTPSlot index={4} />
+																	<InputOTPSlot index={5} />
+																</InputOTPGroup>
+															</InputOTP>
+														)}
 													</FormControl>
 													<FormMessage />
 												</FormItem>
