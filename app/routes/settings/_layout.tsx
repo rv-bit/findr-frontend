@@ -1,13 +1,14 @@
 import type { Route } from "./+types/_layout";
 
 import React from "react";
-import { NavLink, Outlet, useLocation } from "react-router";
+import { Outlet, useLocation, useNavigate } from "react-router";
 
 import { authClient } from "~/lib/auth";
 import { cn } from "~/lib/utils";
 
 import { ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
 import { type IconType } from "react-icons";
+import { Button } from "~/components/ui/button";
 
 export async function clientLoader({ serverLoader, params }: Route.ClientLoaderArgs) {
 	const { data: session, error } = await authClient.getSession();
@@ -33,6 +34,7 @@ interface Actions {
 	title: string;
 	url: string | string[];
 	icon?: LucideIcon | IconType;
+	disabled?: boolean;
 }
 
 const actions: Actions[] = [
@@ -47,14 +49,12 @@ const actions: Actions[] = [
 	{
 		title: "Privacy",
 		url: "/settings/privacy",
-	},
-	{
-		title: "Security",
-		url: "/settings/security",
+		disabled: true,
 	},
 	{
 		title: "Notifications",
 		url: "/settings/notifications",
+		disabled: true,
 	},
 ];
 
@@ -68,7 +68,8 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
 	const navGoRightRef = React.useRef<HTMLButtonElement>(null);
 	const navGoLeftRef = React.useRef<HTMLButtonElement>(null);
 
-	const location = useLocation(); // Hook to get current location
+	const location = useLocation();
+	const navigate = useNavigate();
 
 	const handleScrollAndResize = () => {
 		if (!navRef.current || !navGoRightRef.current || !navGoLeftRef.current) return;
@@ -118,11 +119,16 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
 					<section className="relative w-full">
 						<nav ref={navRef} className="no-scrollbar flex h-full w-full flex-nowrap items-start justify-start gap-2 overflow-x-auto overflow-y-visible">
 							{actions.map((action, index) => (
-								<NavLink
+								<Button
 									key={index}
-									to={typeof action.url === "string" ? action.url : action.url[1]}
+									variant={"link"}
+									disabled={action.disabled}
+									onClick={(e) => {
+										e.preventDefault();
+										navigate(typeof action.url === "string" ? action.url : action.url[1]);
+									}}
 									className={cn(
-										"group relative h-auto min-w-fit flex-shrink-0 items-center justify-center px-4 py-2",
+										"group relative h-auto min-w-fit flex-shrink-0 items-center justify-center px-4 py-2 hover:no-underline rounded-none",
 										isActive(action.url) ? "border-b-2 border-black dark:border-white" : "hover:border-b-2 hover:border-black/50 dark:hover:border-white/80",
 									)}
 								>
@@ -135,7 +141,7 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
 									>
 										{action.title}
 									</h1>
-								</NavLink>
+								</Button>
 							))}
 						</nav>
 
