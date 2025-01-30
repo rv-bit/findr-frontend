@@ -43,8 +43,6 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 	const isFormIsComplete = formState.isValid;
 
 	const handleSubmit = async (values: z.infer<typeof newPasswordSchema>) => {
-		setLoading(true);
-
 		await authClient.changePassword(
 			{
 				currentPassword: values.currentPassword,
@@ -52,17 +50,23 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 				revokeOtherSessions: true,
 			},
 			{
+				onRequest: () => {
+					setLoading(true);
+				},
+
 				onSuccess() {
-					setLoading(false);
 					onOpenChange(false);
 				},
 
 				onError(context) {
-					setLoading(false);
 					newPasswordForm.setError("currentPassword", {
 						type: "manual",
 						message: context.error.message,
 					});
+				},
+
+				onResponse(context) {
+					setLoading(false);
 				},
 			},
 		);

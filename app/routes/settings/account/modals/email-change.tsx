@@ -32,25 +32,29 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 	const isFormIsComplete = formState.isValid;
 
 	const handleSubmit = async (values: z.infer<typeof newEmailSchema>) => {
-		setLoading(true);
-
 		await authClient.changeEmail(
 			{
 				newEmail: values.newEmail,
 				callbackURL: "/auth/verify-email",
 			},
 			{
+				onRequest: () => {
+					setLoading(true);
+				},
+
 				onSuccess() {
-					setLoading(false);
 					onOpenChange(false);
 				},
 
 				onError(context) {
-					setLoading(false);
 					newEmailForm.setError("newEmail", {
 						type: "manual",
 						message: context.error.message,
 					});
+				},
+
+				onResponse(context) {
+					setLoading(false);
 				},
 			},
 		);

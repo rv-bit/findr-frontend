@@ -11,6 +11,8 @@ import type { ModalProps } from "~/lib/types/modal";
 import { ChevronRight, type LucideIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 
+import UsernameChangeModal from "./modals/change-username";
+
 interface Actions {
 	title: string;
 	description?: string;
@@ -56,6 +58,8 @@ export default function Index({ matches }: Route.ComponentProps) {
 
 							return { success: true, error: null };
 						},
+
+						componentLoad: UsernameChangeModal,
 					},
 					{
 						title: "About Description",

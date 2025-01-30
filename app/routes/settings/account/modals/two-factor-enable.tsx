@@ -88,23 +88,33 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 	};
 
 	const handleCodeSubmit = async (values: z.infer<typeof twoFactorCodeSchema>) => {
-		setLoading(true);
-
 		await authClient.twoFactor.verifyTotp(
 			{
 				code: values.code,
 				trustDevice: values.trustDevice,
 			},
 			{
+				onRequest: () => {
+					setLoading(true);
+				},
+
 				onSuccess: async () => {
-					setLoading(false);
 					setCurrentState((prevData) => ({
 						...prevData,
 						step: 3, // display backup codes
 					}));
+
 					authClient.signOut(); // logout user after enabling 2fa
 				},
-				onError: () => {
+
+				onError: (context) => {
+					twoFactorCodeForm.setError("code", {
+						type: "manual",
+						message: context.error.message,
+					});
+				},
+
+				onResponse(context) {
 					setLoading(false);
 				},
 			},

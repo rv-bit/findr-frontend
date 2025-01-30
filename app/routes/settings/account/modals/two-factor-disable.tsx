@@ -38,10 +38,6 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 		});
 
 		setLoading(false);
-
-		if (data) {
-			console.log(data);
-		}
 	};
 
 	return (
