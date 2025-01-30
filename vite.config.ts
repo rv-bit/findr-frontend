@@ -1,12 +1,11 @@
 import { reactRouter } from "@react-router/dev/vite";
 import autoprefixer from "autoprefixer";
+import path from "path";
 import tailwindcss from "tailwindcss";
 import tsconfigPaths from "vite-tsconfig-paths";
-import path from "path";
 
 import { defineConfig } from "vite";
 
-// Using any is BAD, but it's only for development
 const devConfig = {
 	server: {
 		port: 3000,
