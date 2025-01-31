@@ -1,4 +1,4 @@
-import editor_stylesheet from "~/styles/default.mdx.css?url";
+import editor_stylesheet from "~/styles/form.default.mdx.css?url";
 
 import type { Route } from "./+types/index";
 
@@ -34,20 +34,20 @@ interface Types {
 const types: Types[] = [
 	{
 		title: "Text",
-		url: "/post/new",
+		url: "/post/new/",
 		queryKey: "type",
 		query: "text",
 	},
 	{
 		title: "Images",
-		url: "/post/new",
+		url: "/post/new/",
 		queryKey: "type",
 		query: "images",
 		disabled: true,
 	},
 	{
 		title: "Link",
-		url: "/post/new",
+		url: "/post/new/",
 		queryKey: "type",
 		query: "link",
 		disabled: true,
@@ -86,9 +86,37 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 	const { formState } = newPostForm;
 	const isFormIsComplete = formState.isValid;
 
-	console.log(isFormIsComplete);
+	const handleSubmit = async (values: z.infer<typeof newPostSchema>) => {
+		setLoading(true);
 
-	const handleSubmit = async (values: z.infer<typeof newPostSchema>) => {};
+		const content = contentRef.current?.getMarkdown();
+		const slug = values.title.toLowerCase().trim().replace(/\s/g, "-");
+
+		if (!content) {
+			setLoading(false);
+			return;
+		}
+
+		const res = await fetch("/api/v1/post/insert", {
+			method: "POST",
+			body: JSON.stringify({
+				...values,
+				slug,
+				content,
+			}),
+			headers: {
+				"Content-Type": "application/json",
+			},
+		});
+
+		if (!res.ok) {
+			setLoading(false);
+			return;
+		}
+
+		setLoading(false);
+		navigate("/");
+	};
 
 	const handleScrollAndResize = () => {
 		if (!navRef.current || !navGoRightRef.current || !navGoLeftRef.current) return;
@@ -124,8 +152,8 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 	}, []);
 
 	const isActive = React.useMemo(
-		() => (url: string, query: string) => {
-			const isQueryMatch = searchParams.get("type") === query;
+		() => (url: string, queryKey: string, query: string) => {
+			const isQueryMatch = searchParams.get(queryKey) === query;
 			return location.pathname === url && isQueryMatch;
 		},
 		[location, searchParams],
@@ -155,14 +183,18 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 								}}
 								className={cn(
 									"group relative h-auto min-w-fit flex-shrink-0 items-center justify-center px-4 py-2 hover:no-underline rounded-none",
-									isActive(action.url, action?.query) ? "border-b-2 border-black dark:border-white" : "hover:border-b-2 hover:border-black/50 dark:hover:border-white/80",
+									isActive(action.url, action?.queryKey, action?.query)
+										? "border-b-2 border-black dark:border-white"
+										: "hover:border-b-2 hover:border-black/50 dark:hover:border-white/80",
 								)}
 							>
 								{action.icon && <action.icon />}
 								<h1
 									className={cn(
 										"inline-flex text-black",
-										isActive(action.url, action?.query) ? "text-black dark:text-white" : "group-hover:text-black/50 dark:text-[#8BA2AE] dark:group-hover:text-white/80",
+										isActive(action.url, action?.queryKey, action?.query)
+											? "text-black dark:text-white"
+											: "group-hover:text-black/50 dark:text-[#8BA2AE] dark:group-hover:text-white/80",
 									)}
 								>
 									{action.title}
