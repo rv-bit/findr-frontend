@@ -35,7 +35,7 @@ const devConfig = {
 const prodConfig = {
 	server: {
 		proxy: {
-			"/v1": {
+			"/api": {
 				target: process.env.VITE_API_URL,
 				secure: true,
 				configure: (proxy: any, _options: any) => {
