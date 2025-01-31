@@ -37,6 +37,7 @@ const prodConfig = {
 		proxy: {
 			"/api": {
 				target: process.env.VITE_API_URL,
+				changeOrigin: true,
 				secure: true,
 				configure: (proxy: any, _options: any) => {
 					proxy.on("error", (err: any, _req: any, _res: any) => {
