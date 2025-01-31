@@ -1,17 +1,17 @@
 .mdxeditor {
-	@apply flex max-h-[100px] min-h-fit w-full flex-col items-start justify-start gap-2 overflow-hidden border-none bg-transparent text-base shadow-sm md:text-sm;
+	@apply flex h-full w-full flex-col items-start justify-start gap-2 overflow-hidden border-none bg-transparent text-base shadow-sm md:text-sm;
 }
 
 .mdxeditor-root-contenteditable {
-	@apply h-full min-h-full w-full flex-1 text-black focus-visible:outline-none dark:text-white dark:focus-visible:outline-none;
+	@apply h-full w-full flex-1 text-black focus-visible:outline-none dark:text-white dark:focus-visible:outline-none;
 }
 
 .mdxeditor-root-contenteditable div {
-	@apply h-full min-h-fit w-full truncate focus-visible:outline-none dark:focus-visible:outline-none;
+	@apply h-full w-full text-black focus-visible:outline-none dark:text-white dark:focus-visible:outline-none;
 }
 
 ._contentEditable_uazmk_379 {
-	@apply h-full w-full flex-1 truncate focus-visible:outline-none dark:focus-visible:outline-none;
+	@apply h-full w-full flex-1 text-black focus-visible:outline-none dark:text-white dark:focus-visible:outline-none;
 }
 
 ._placeholder_uazmk_1084 {
