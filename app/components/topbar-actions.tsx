@@ -11,16 +11,16 @@ import { SidebarMenuButton, SidebarTrigger } from "~/components/ui/sidebar";
 import { Button } from "./ui/button";
 import { Switch } from "./ui/switch";
 
-import { type LucideIcon, LogOut, Moon, Settings } from "lucide-react";
+import { type LucideIcon, LogOut, Moon, Plus, Settings } from "lucide-react";
 
 import LogoIcon from "~/icons/logo";
 
-interface Actions {
+interface DropDownActions {
 	title: string;
 	url?: string;
 	icon?: LucideIcon;
 	component?: React.FC;
-	items?: Actions[];
+	items?: DropDownActions[];
 	onClick?: () => void;
 }
 
@@ -30,7 +30,7 @@ export default function TopbarActions() {
 	const navigate = useNavigate();
 	const { data: session, isPending, error } = authClient.useSession();
 
-	const actions: Actions[] = React.useMemo(
+	const dropDownActions: DropDownActions[] = React.useMemo(
 		() => [
 			{
 				title: "Other",
@@ -98,119 +98,132 @@ export default function TopbarActions() {
 						<span className="truncate text-sm capitalize">Login</span>
 					</Button>
 				) : (
-					<DropdownMenu open={open} onOpenChange={setOpen}>
-						<DropdownMenuTrigger asChild>
-							<SidebarMenuButton variant={"link"} size="lg" className="h-auto p-1 rounded-full hover:bg-primary-500/15 dark:hover:bg-primary-500/45">
-								<Avatar className="h-8 w-8 rounded-full">
-									{!isPending && <AvatarImage src={session?.user.image ?? undefined} alt={session?.user.name} />}
-									<AvatarFallback className="rounded-lg">
-										{session?.user.name
-											?.split(" ")
-											.map((name) => name[0])
-											.join("")}
-									</AvatarFallback>
-								</Avatar>
-							</SidebarMenuButton>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent
-							className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg dark:bg-sidebar-accent/40 border-none mt-3.5"
-							side={"bottom"}
-							align="end"
-							sideOffset={4}
+					<React.Fragment>
+						<Button
+							onClick={async () => {
+								navigate("/post/new");
+							}}
+							type="button"
+							className="h-10 rounded-full bg-transparent dark:bg-transparent hover:bg-sidebar-foreground dark:hover:bg-sidebar-accent dark:text-white flex justify-center items-center [&_svg]:size-auto"
 						>
-							<DropdownMenuLabel className="p-0 font-normal">
-								<Button
-									onClick={() => {
-										navigate("/profile");
-										setOpen(false);
-									}}
-									variant={"link"}
-									className="w-full h-auto flex items-center justify-center gap-2 px-3 text-left text-sm hover:no-underline opacity-80 hover:opacity-100"
-								>
+							<Plus size={28} />
+							<span className="truncate text-sm capitalize">Create</span>
+						</Button>
+
+						<DropdownMenu open={open} onOpenChange={setOpen}>
+							<DropdownMenuTrigger asChild>
+								<SidebarMenuButton variant={"link"} size="lg" className="h-auto p-1 rounded-full hover:bg-sidebar-foreground dark:hover:bg-sidebar-accent">
 									<Avatar className="h-8 w-8 rounded-full">
-										<AvatarImage src={session?.user.image ?? undefined} alt={session?.user.email} />
-										<AvatarFallback className="rounded-full">
+										{!isPending && <AvatarImage src={session?.user.image ?? undefined} alt={session?.user.name} />}
+										<AvatarFallback className="rounded-lg">
 											{session?.user.name
 												?.split(" ")
 												.map((name) => name[0])
 												.join("")}
 										</AvatarFallback>
 									</Avatar>
-									<div className="grid flex-1 text-left text-sm leading-tight">
-										<span className="truncate font-semibold">View Profile</span>
-										<span className="truncate text-xs">{session?.user.username!}</span>
-									</div>
-								</Button>
-							</DropdownMenuLabel>
-							<DropdownMenuSeparator />
-							{actions.map((item) =>
-								item.items ? (
-									<DropdownMenuGroup key={item.title}>
-										{item.items?.map((action) => (
+								</SidebarMenuButton>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent
+								className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg dark:bg-sidebar-accent/40 border-none mt-3.5"
+								side={"bottom"}
+								align="end"
+								sideOffset={4}
+							>
+								<DropdownMenuLabel className="p-0 font-normal">
+									<Button
+										onClick={() => {
+											navigate("/profile");
+											setOpen(false);
+										}}
+										variant={"link"}
+										className="w-full h-auto flex items-center justify-center gap-2 px-3 text-left text-sm hover:no-underline opacity-80 hover:opacity-100"
+									>
+										<Avatar className="h-8 w-8 rounded-full">
+											<AvatarImage src={session?.user.image ?? undefined} alt={session?.user.email} />
+											<AvatarFallback className="rounded-full">
+												{session?.user.name
+													?.split(" ")
+													.map((name) => name[0])
+													.join("")}
+											</AvatarFallback>
+										</Avatar>
+										<div className="grid flex-1 text-left text-sm leading-tight">
+											<span className="truncate font-semibold">View Profile</span>
+											<span className="truncate text-xs">{session?.user.username!}</span>
+										</div>
+									</Button>
+								</DropdownMenuLabel>
+								<DropdownMenuSeparator />
+								{dropDownActions.map((item) =>
+									item.items ? (
+										<DropdownMenuGroup key={item.title}>
+											{item.items?.map((action) => (
+												<DropdownMenuItem
+													key={action.title}
+													onClick={(e) => {
+														e.preventDefault();
+
+														if (action.url) {
+															navigate(action.url);
+															setOpen(false);
+															return;
+														}
+
+														if (action.onClick) {
+															action.onClick();
+														}
+													}}
+													className="group w-full h-auto hover:cursor-pointer px-3 py-2 text-left"
+												>
+													{action.component ? (
+														<action.component />
+													) : (
+														<span className="flex w-full items-center justify-start gap-1 opacity-80 group-hover:opacity-100">
+															{action.icon && <action.icon />}
+															<h1>{action.title}</h1>
+														</span>
+													)}
+												</DropdownMenuItem>
+											))}
+
+											<DropdownMenuSeparator />
+										</DropdownMenuGroup>
+									) : (
+										<DropdownMenuGroup key={item.title}>
 											<DropdownMenuItem
-												key={action.title}
 												onClick={(e) => {
 													e.preventDefault();
 
-													if (action.url) {
-														navigate(action.url);
+													if (item.url) {
+														navigate(item.url);
 														setOpen(false);
 														return;
 													}
 
-													if (action.onClick) {
-														action.onClick();
+													if (item.onClick) {
+														item.onClick();
 													}
 												}}
-												className="group w-full h-auto hover:cursor-pointer px-3 py-2 text-left"
+												className="group w-full hover:cursor-pointer px-3 py-2 text-left"
 											>
-												{action.component ? (
-													<action.component />
+												{item.component ? (
+													<item.component />
 												) : (
 													<span className="flex w-full items-center justify-start gap-1 opacity-80 group-hover:opacity-100">
-														{action.icon && <action.icon />}
-														<h1>{action.title}</h1>
+														{item.icon && <item.icon />}
+														<h1>{item.title}</h1>
 													</span>
 												)}
 											</DropdownMenuItem>
-										))}
 
-										<DropdownMenuSeparator />
-									</DropdownMenuGroup>
-								) : (
-									<DropdownMenuGroup key={item.title}>
-										<DropdownMenuItem
-											onClick={(e) => {
-												e.preventDefault();
-
-												if (item.url) {
-													navigate(item.url);
-													setOpen(false);
-													return;
-												}
-
-												if (item.onClick) {
-													item.onClick();
-												}
-											}}
-											className="group w-full hover:cursor-pointer px-3 py-2 text-left"
-										>
-											{item.component ? (
-												<item.component />
-											) : (
-												<span className="flex w-full items-center justify-start gap-1 opacity-80 group-hover:opacity-100">
-													{item.icon && <item.icon />}
-													<h1>{item.title}</h1>
-												</span>
-											)}
-										</DropdownMenuItem>
-
-										{actions.length - 1 !== actions.indexOf(item) && <DropdownMenuSeparator />}
-									</DropdownMenuGroup>
-								),
-							)}
-						</DropdownMenuContent>
-					</DropdownMenu>
+											{dropDownActions.length - 1 !== dropDownActions.indexOf(item) && <DropdownMenuSeparator />}
+										</DropdownMenuGroup>
+									),
+								)}
+							</DropdownMenuContent>
+						</DropdownMenu>
+					</React.Fragment>
 				)}
 			</div>
 		</header>
