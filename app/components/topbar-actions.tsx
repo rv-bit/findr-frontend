@@ -78,7 +78,7 @@ export default function TopbarActions() {
 				<Button
 					variant={"link"}
 					onClick={() => {
-						window.location.href = "/";
+						navigate("/");
 					}}
 					className="size-auto p-0 [&_svg]:size-auto"
 				>
@@ -101,10 +101,10 @@ export default function TopbarActions() {
 					<React.Fragment>
 						<Button
 							onClick={async () => {
-								navigate("/post/new");
+								navigate(`/post/new/?type=text`);
 							}}
 							type="button"
-							className="h-10 rounded-full bg-transparent dark:bg-transparent hover:bg-sidebar-foreground dark:hover:bg-sidebar-accent dark:text-white flex justify-center items-center [&_svg]:size-auto"
+							className="h-9 rounded-full shadow-none text-black bg-transparent dark:bg-transparent hover:bg-sidebar-foreground/20 dark:hover:bg-sidebar-accent dark:text-white flex justify-center items-center [&_svg]:size-auto"
 						>
 							<Plus size={28} />
 							<span className="truncate text-sm capitalize">Create</span>
@@ -112,10 +112,10 @@ export default function TopbarActions() {
 
 						<DropdownMenu open={open} onOpenChange={setOpen}>
 							<DropdownMenuTrigger asChild>
-								<SidebarMenuButton variant={"link"} size="lg" className="h-auto p-1 rounded-full hover:bg-sidebar-foreground dark:hover:bg-sidebar-accent">
+								<SidebarMenuButton variant={"link"} size="lg" className="h-auto p-1 rounded-full hover:bg-sidebar-foreground/20 hover:text-white dark:hover:bg-sidebar-accent">
 									<Avatar className="h-8 w-8 rounded-full">
 										{!isPending && <AvatarImage src={session?.user.image ?? undefined} alt={session?.user.name} />}
-										<AvatarFallback className="rounded-lg">
+										<AvatarFallback className="rounded-lg bg-sidebar-foreground/50">
 											{session?.user.name
 												?.split(" ")
 												.map((name) => name[0])
