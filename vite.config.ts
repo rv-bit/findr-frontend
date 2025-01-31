@@ -11,8 +11,9 @@ const devConfig = {
 		port: 3000,
 		cors: true,
 		proxy: {
-			"/api": {
-				target: "http://localhost:5001",
+			"/v1": {
+				// api version
+				target: "http://localhost:5001/",
 				changeOrigin: true,
 				secure: false,
 				ws: true,
@@ -35,7 +36,8 @@ const devConfig = {
 const prodConfig = {
 	server: {
 		proxy: {
-			"/api": {
+			"/v1": {
+				// api version
 				target: process.env.VITE_API_URL,
 				secure: true,
 				configure: (proxy: any, _options: any) => {
