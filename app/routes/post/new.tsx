@@ -1,3 +1,5 @@
+import editor_stylesheet from "~/styles/default.mdx.css?url";
+
 import type { Route } from "./+types/index";
 
 import React from "react";
@@ -17,6 +19,8 @@ import { AlertDialogFooter } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
 import { Textarea } from "~/components/ui/textarea";
+
+export const links: Route.LinksFunction = () => [{ rel: "stylesheet", href: editor_stylesheet }];
 
 interface Types {
 	title: string;
