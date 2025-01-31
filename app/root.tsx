@@ -3,6 +3,7 @@ import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, 
 
 import type { Route } from "./+types/root";
 import stylesheet from "./app.css?url";
+import mdxeditor_stylesheet from "./editor.css?url";
 
 import { QueryClientProvider } from "@tanstack/react-query";
 
@@ -20,6 +21,8 @@ import { Topbar, TopbarInset, TopbarProvider } from "~/components/ui/topbar";
 import SidebarActions from "~/components/sidebar-main";
 import TopbarActions from "./components/topbar-actions";
 
+import ErrorIcon from "~/icons/error";
+
 export function meta({}: Route.MetaArgs) {
 	return [{ title: "New React Router App" }, { name: "description", content: "Welcome to React Router!" }];
 }
@@ -36,6 +39,7 @@ export const links: Route.LinksFunction = () => [
 		href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
 	},
 	{ rel: "stylesheet", href: stylesheet },
+	{ rel: "stylesheet", href: mdxeditor_stylesheet },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -107,21 +111,41 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 	let stack: string | undefined;
 
 	if (isRouteErrorResponse(error)) {
-		message = error.status === 404 ? "404" : "Error";
-		details = error.status === 404 ? "The requested page could not be found." : error.statusText || details;
-	} else if (import.meta.env.DEV && error && error instanceof Error) {
+		// 404 error page
+		return (
+			<main className="h-full w-full container mx-auto flex flex-col justify-center items-center gap-2">
+				<ErrorIcon width={300} height={300} />
+
+				<h1 className="max-sm:text-lg text-balance text-center text-3xl text-black dark:text-white">
+					{error.status === 404 ? "Oops! We couldn't find that page" : error.statusText || "Error"}
+				</h1>
+				<p className="max-sm:text-sm text-md text-balance text-center">
+					You can go back to the{" "}
+					<a className="hover:underline font-bold italic" href="/">
+						home page
+					</a>{" "}
+					or try again later.
+				</p>
+			</main>
+		);
+	}
+
+	if (import.meta.env.DEV && error && error instanceof Error) {
 		details = error.message;
 		stack = error.stack;
 	}
 
 	return (
-		<main className="container mx-auto p-4 pt-16">
-			<h1>{message}</h1>
+		<main className="h-full w-full container mx-auto flex justify-center items-center">
 			<p>{details}</p>
+
 			{stack && (
-				<pre className="w-full overflow-x-auto p-4">
-					<code>{stack}</code>
-				</pre>
+				<>
+					<h1>{message}</h1>
+					<pre className="w-full overflow-x-auto p-4">
+						<code>{stack}</code>
+					</pre>
+				</>
 			)}
 		</main>
 	);
