@@ -121,7 +121,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 												key={item.title}
 												variant={"link"}
 												disabled={item.disabled}
-												className="group flex w-full items-center justify-between gap-4 bg-none p-0 hover:no-underline"
+												className="group flex w-full items-center justify-between gap-4 bg-none p-0 h-auto hover:no-underline"
 												onClick={(e) => {
 													if (item.route) {
 														navigate(item.route);
@@ -150,9 +150,9 @@ export default function Index({ matches }: Route.ComponentProps) {
 													}
 												}}
 											>
-												<div className="flex flex-col items-start justify-center gap-[0.15rem]">
+												<div className="flex flex-col items-start justify-center gap-[0.15rem] w-fit">
 													<span>{item.title}</span>
-													{item.description && <span className="text-xs text-gray-500 dark:text-gray-400">{item.description}</span>}
+													{item.description && <span className="text-balance text-left text-xs text-gray-500 dark:text-gray-400">{item.description}</span>}
 												</div>
 												<div className="flex items-center justify-center gap-2">
 													<h1 className="">{item?.defaultValue}</h1>
