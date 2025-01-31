@@ -1,0 +1,88 @@
+.mdxeditor {
+	@apply mr-[0.175rem] flex max-h-[350px] min-h-[250px] w-full flex-col items-start justify-start gap-2 overflow-y-auto rounded-md border border-neutral-200 bg-transparent text-base shadow-sm placeholder:text-neutral-500 md:text-sm dark:border-neutral-800 [&::-webkit-scrollbar-thumb]:visible [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500/50 [&::-webkit-scrollbar-track]:bg-gray-100 dark:[&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:w-1.5;
+}
+
+.mdxeditor-popup-container {
+	@apply p-0;
+}
+
+.mdxeditor-root-contenteditable {
+	@apply h-full min-h-full w-full flex-1 text-black focus-visible:outline-none dark:text-white dark:focus-visible:outline-none;
+}
+
+.mdxeditor-root-contenteditable div {
+	@apply h-full min-h-[250px] w-full focus-visible:outline-none dark:focus-visible:outline-none;
+}
+
+._contentEditable_uazmk_379 {
+	@apply h-full w-full flex-1 focus-visible:outline-none dark:focus-visible:outline-none;
+}
+
+._placeholder_uazmk_1084 {
+	@apply hidden;
+}
+
+.mdxeditor-toolbar {
+	@apply flex h-fit w-full flex-row items-start justify-start gap-2;
+}
+
+._toolbarGroupOfGroups_uazmk_217 {
+	@apply flex;
+}
+
+._toolbarToggleSingleGroup_uazmk_222 button {
+	@apply text-black dark:text-white;
+}
+._toolbarToggleSingleGroup_uazmk_222 button:active,
+._toolbarToggleSingleGroup_uazmk_222 button[data-state="on"] {
+	@apply bg-sidebar-foreground/20 dark:bg-sidebar-accent;
+}
+
+._tooltipTrigger_uazmk_676 {
+	@apply text-black dark:text-white;
+}
+._tooltipTrigger_uazmk_676 button {
+	@apply flex items-center justify-center;
+}
+
+._bold_1tncs_10 {
+	font-weight: bold;
+}
+
+._italic_1tncs_14 {
+	font-style: italic;
+}
+
+._underline_1tncs_18 {
+	text-decoration: underline;
+}
+
+._bold_1tncs_10 {
+	font-weight: 700;
+}
+
+._italic_1tncs_14 {
+	font-style: italic;
+}
+
+._underline_1tncs_18 {
+	text-decoration: underline;
+}
+
+._strikethrough_1tncs_34 {
+	text-decoration: line-through;
+}
+
+._underlineStrikethrough_1tncs_38 {
+	text-decoration: underline line-through;
+}
+
+._subscript_1tncs_42 {
+	font-size: 0.8em;
+	vertical-align: sub !important;
+}
+
+._superscript_1tncs_47 {
+	font-size: 0.8em;
+	vertical-align: super;
+}

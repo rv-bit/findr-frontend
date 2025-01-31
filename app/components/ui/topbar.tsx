@@ -1,7 +1,8 @@
 import React from "react";
+
 import { cn } from "~/lib/utils";
 
-export const TOPBAR_HEIGHT = "5svh";
+export const TOPBAR_HEIGHT = "4rem";
 
 const TopbarContext = React.createContext<null>(null);
 
@@ -12,10 +13,11 @@ const TopbarProvider = React.forwardRef<HTMLDivElement, React.ComponentProps<"di
 				style={
 					{
 						"--topbar-height": TOPBAR_HEIGHT,
+						overflowX: "hidden",
 						...style,
 					} as React.CSSProperties
 				}
-				className={cn("flex min-h-svh w-full flex-col bg-sidebar", className)}
+				className={cn("min-h-svh w-full", className)}
 				ref={ref}
 				{...props}
 			>
@@ -31,7 +33,7 @@ const Topbar = React.forwardRef<HTMLDivElement, React.ComponentProps<"div"> & {}
 			style={{
 				height: "var(--topbar-height)",
 			}}
-			className={cn("fixed z-10 w-full border-b border-sidebar-accent bg-sidebar", className)}
+			className={cn("fixed z-10 w-full border-b border-sidebar-accent bg-sidebar px-4", className)}
 			ref={ref}
 			{...props}
 		>
@@ -57,4 +59,4 @@ const TopbarInset = React.forwardRef<HTMLDivElement, React.ComponentProps<"div">
 	);
 });
 
-export { TopbarProvider, Topbar, TopbarInset };
+export { Topbar, TopbarInset, TopbarProvider };

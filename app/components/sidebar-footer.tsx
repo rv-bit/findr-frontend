@@ -1,7 +1,3 @@
 export function NavFooter() {
-	return (
-		<>
-
-		</>
-	);
+	return <></>;
 }

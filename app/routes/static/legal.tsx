@@ -1,6 +1,4 @@
-import type { Route } from "./+types/legal";
-
-import React, { useState } from "react";
+import { useState } from "react";
 import * as constants from "~/constants/tos";
 
 type SectionKey = keyof typeof constants.tos;

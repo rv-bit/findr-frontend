@@ -3,31 +3,28 @@ import type { Route } from "./+types/login";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 import { authClient } from "~/lib/auth";
-
-import * as constants from "~/constants/default";
 
 import { FaGithub, FaGoogle } from "react-icons/fa";
 
 import { Button } from "~/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 
-export async function clientLoader() {
+export async function clientLoader({ serverLoader, params }: Route.ClientLoaderArgs) {
 	const { data: session, error } = await authClient.getSession();
-	console.log("session", session);
 	if (session) {
-		throw new Response("", { status: 302, headers: { Location: "/" } }); // Redirect to home
+		throw new Response("", { status: 302, headers: { Location: "/" } }); // Redirect to home page
 	}
 	return null;
 }
 
 const formSchema = z.object({
-	email: z.string().email().nonempty("Email is required"),
+	username: z.string().nonempty("Username is required"),
 	password: z.string().min(8, "Password must be at least 8 characters long"),
 });
 
@@ -40,28 +37,38 @@ export default function Login() {
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			email: "",
+			username: "",
 			password: "",
 		},
 	});
 
 	const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-		await authClient.signIn.email(
+		await authClient.signIn.username(
 			{
-				email: values.email,
+				username: values.username,
 				password: values.password,
 			},
 			{
 				onRequest: () => {
 					setLoading(true);
 				},
-				onSuccess: () => {
-					setLoading(false);
-					navigate("/"); // Redirect to home page
+
+				async onSuccess(ctx) {
+					if (ctx.data.twoFactorRedirect) {
+						navigate("/auth/two-factor"); // Redirect to two-factor page
+
+						return;
+					}
+
+					navigate("/settings"); // Redirect to home page
 				},
+
 				onError: (ctx) => {
-					setLoading(false);
 					setError(ctx.error.message);
+				},
+
+				onResponse: () => {
+					setLoading(false);
 				},
 			},
 		);
@@ -72,12 +79,12 @@ export default function Login() {
 			<div className="flex max-w-lg flex-col gap-6">
 				<div className="flex flex-col gap-6">
 					<div className="flex flex-col items-center gap-1">
-						<h1 className="text-center text-xl font-semibold text-neutral-500 dark:text-neutral-400">Welcome to {constants.APP_NAME}</h1>
+						<h1 className="text-center text-xl font-semibold text-neutral-500 dark:text-neutral-400">Welcome back!</h1>
 						<div className="text-balance text-center text-sm text-neutral-500 dark:text-neutral-400">
 							Don&apos;t have an account?
 							<Link
 								to={{
-									pathname: "/onboard",
+									pathname: "/auth/onboard",
 								}}
 								className="ml-1 underline underline-offset-4"
 							>
@@ -88,20 +95,18 @@ export default function Login() {
 
 					<Form {...form}>
 						<form onSubmit={form.handleSubmit(handleSubmit)}>
-							<div className="mb-2 flex flex-col gap-2">
-								<div className="text-sm text-red-500 dark:text-red-400">{error}</div>
-							</div>
-
-							<div className="flex flex-col gap-6">
+							<div className="flex flex-col gap-4">
+								<div className="flex flex-col gap-2">
+									<div className="text-sm text-red-500 dark:text-red-400">{error}</div>
+								</div>
 								<div className="flex flex-col gap-2">
 									<FormField
 										control={form.control}
-										name="email"
+										name="username"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Email</FormLabel>
 												<FormControl>
-													<Input type="email" placeholder="m@example.com" required {...field} />
+													<Input type="text" placeholder="username" required {...field} />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -112,10 +117,19 @@ export default function Login() {
 										name="password"
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Password</FormLabel>
 												<FormControl>
-													<Input type="password" required {...field} />
+													<Input type="password" placeholder="password" required {...field} />
 												</FormControl>
+												<div className="flex items-center justify-end">
+													<Link
+														to={{
+															pathname: "/auth/forgot-password",
+														}}
+														className="text-xs text-neutral-500 dark:text-neutral-400"
+													>
+														Forgot password?
+													</Link>
+												</div>
 												<FormMessage />
 											</FormItem>
 										)}
@@ -129,7 +143,7 @@ export default function Login() {
 					</Form>
 
 					<div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-neutral-200 dark:after:border-neutral-800">
-						<span className="relative z-10 bg-white px-2 text-neutral-500 dark:bg-primary dark:text-neutral-400">Or</span>
+						<span className="relative z-10 bg-sidebar px-2 text-neutral-500 dark:text-neutral-400">Or</span>
 					</div>
 					<div className="grid gap-2 sm:grid-cols-2">
 						<Button

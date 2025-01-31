@@ -1,19 +1,26 @@
-import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
+import { useEffect, useRef } from "react";
+import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useNavigation } from "react-router";
 
 import type { Route } from "./+types/root";
 import stylesheet from "./app.css?url";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
+
+import type { LoadingBarRef } from "react-top-loading-bar";
+import LoadingBar from "react-top-loading-bar";
+
+import { queryClient } from "./lib/query-client";
 
 import { ThemeProvider } from "~/providers/Theme";
 
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
+import { Toaster } from "~/components/ui/toaster";
 import { Topbar, TopbarInset, TopbarProvider } from "~/components/ui/topbar";
 
 import SidebarActions from "~/components/sidebar-main";
 import TopbarActions from "./components/topbar-actions";
 
-const queryClient = new QueryClient();
+import ErrorIcon from "~/icons/error";
 
 export function meta({}: Route.MetaArgs) {
 	return [{ title: "New React Router App" }, { name: "description", content: "Welcome to React Router!" }];
@@ -34,6 +41,19 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+	const navigation = useNavigation();
+	const loadingBarRef = useRef<LoadingBarRef>(null);
+
+	useEffect(() => {
+		if (navigation.state === "loading" || navigation.state === "submitting") {
+			loadingBarRef.current?.continuousStart();
+		}
+
+		if (navigation.state === "idle") {
+			loadingBarRef.current?.complete();
+		}
+	}, [navigation.state]);
+
 	return (
 		<html lang="en">
 			<head>
@@ -43,6 +63,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<Links />
 			</head>
 			<body>
+				<LoadingBar ref={loadingBarRef} color="#5060dd" shadow={false} transitionTime={100} waitingTime={300} />
+
 				<QueryClientProvider client={queryClient}>
 					<ThemeProvider>
 						<TopbarProvider>
@@ -64,6 +86,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 									>
 										{children}
 									</main>
+									<Toaster />
 								</SidebarInset>
 							</SidebarProvider>
 						</TopbarProvider>
@@ -86,21 +109,41 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 	let stack: string | undefined;
 
 	if (isRouteErrorResponse(error)) {
-		message = error.status === 404 ? "404" : "Error";
-		details = error.status === 404 ? "The requested page could not be found." : error.statusText || details;
-	} else if (import.meta.env.DEV && error && error instanceof Error) {
+		// 404 error page
+		return (
+			<main className="h-full w-full container mx-auto flex flex-col justify-center items-center gap-2">
+				<ErrorIcon width={300} height={300} />
+
+				<h1 className="max-sm:text-lg text-balance text-center text-3xl text-black dark:text-white">
+					{error.status === 404 ? "Oops! We couldn't find that page" : error.statusText || "Error"}
+				</h1>
+				<p className="max-sm:text-sm text-md text-balance text-center">
+					You can go back to the{" "}
+					<a className="hover:underline font-bold italic" href="/">
+						home page
+					</a>{" "}
+					or try again later.
+				</p>
+			</main>
+		);
+	}
+
+	if (import.meta.env.DEV && error && error instanceof Error) {
 		details = error.message;
 		stack = error.stack;
 	}
 
 	return (
-		<main className="container mx-auto p-4 pt-16">
-			<h1>{message}</h1>
+		<main className="h-full w-full container mx-auto flex justify-center items-center">
 			<p>{details}</p>
+
 			{stack && (
-				<pre className="w-full overflow-x-auto p-4">
-					<code>{stack}</code>
-				</pre>
+				<>
+					<h1>{message}</h1>
+					<pre className="w-full overflow-x-auto p-4">
+						<code>{stack}</code>
+					</pre>
+				</>
 			)}
 		</main>
 	);
