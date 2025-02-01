@@ -12,10 +12,12 @@ const devConfig = {
 		cors: true,
 		proxy: {
 			"/api": {
+				// api version
 				target: "http://localhost:5001/",
 				changeOrigin: true,
 				secure: false,
 				ws: true,
+				rewrite: (path: string) => path.replace(/^\/api/, ""),
 				configure: (proxy: any, _options: any) => {
 					proxy.on("error", (err: any, _req: any, _res: any) => {
 						console.log("proxy error", err);
@@ -36,9 +38,11 @@ const prodConfig = {
 	server: {
 		proxy: {
 			"/api": {
+				// api version
 				target: process.env.VITE_API_URL,
 				changeOrigin: true,
 				secure: true,
+				rewrite: (path: string) => path.replace(/^\/api/, ""),
 				configure: (proxy: any, _options: any) => {
 					proxy.on("error", (err: any, _req: any, _res: any) => {
 						console.log("proxy error", err);
