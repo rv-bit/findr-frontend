@@ -13,7 +13,7 @@ const devConfig = {
 		proxy: {
 			"/api": {
 				// api version
-				target: "http://localhost:5001/",
+				target: "http://localhost:5001",
 				changeOrigin: true,
 				secure: false,
 				ws: true,
