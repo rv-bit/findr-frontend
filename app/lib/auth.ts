@@ -2,7 +2,7 @@ import { emailOTPClient, twoFactorClient, usernameClient } from "better-auth/cli
 import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient({
-	baseURL: import.meta.env.DEV ? import.meta.env.VITE_API_URL : import.meta.env.VITE_API_AUTH_URL,
+	baseURL: "https://api.findr.blog/auth/",
 	plugins: [twoFactorClient(), usernameClient(), emailOTPClient()],
 });
 
