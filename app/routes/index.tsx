@@ -1,6 +1,6 @@
+import { useInfiniteQuery } from "@tanstack/react-query";
 import type { Route } from "./+types/index";
 
-import { useInfiniteQuery } from "@tanstack/react-query";
 import React, { useEffect } from "react";
 
 // export async function loader({ params }: Route.LoaderArgs) {
@@ -46,8 +46,8 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 	const inViewportRef = React.useRef(null);
 
 	const fetchPosts = async ({ pageParam: pageParam = 0 }) => {
-		const res = await fetch("/api/v1/post/", {
-			method: "POST",
+		const res = await fetch("/api/v0/post/", {
+			method: "GET",
 			body: JSON.stringify({ pageParam }),
 			headers: {
 				"Content-Type": "application/json",
@@ -120,6 +120,12 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 					)}
 				</div> */}
 			</div>
+		</div>
+	);
+
+	return (
+		<div className="flex h-full w-full flex-col items-center justify-start max-md:w-screen">
+			<div className="overflow-hidden flex w-full max-w-5xl flex-col gap-1 px-10 pt-8 max-sm:px-4">Welcome</div>
 		</div>
 	);
 }

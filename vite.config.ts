@@ -17,6 +17,7 @@ const devConfig = {
 				changeOrigin: true,
 				secure: false,
 				ws: true,
+				rewrite: (path: string) => path.replace(/^\/api/, ""),
 				configure: (proxy: any, _options: any) => {
 					proxy.on("error", (err: any, _req: any, _res: any) => {
 						console.log("proxy error", err);
@@ -40,6 +41,7 @@ const prodConfig = {
 				// api version
 				target: process.env.VITE_API_URL,
 				secure: true,
+				rewrite: (path: string) => path.replace(/^\/api/, ""),
 				configure: (proxy: any, _options: any) => {
 					proxy.on("error", (err: any, _req: any, _res: any) => {
 						console.log("proxy error", err);
