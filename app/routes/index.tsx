@@ -46,7 +46,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 	const inViewportRef = React.useRef(null);
 
 	const fetchPosts = async ({ pageParam: pageParam = 0 }) => {
-		const res = await fetch("/v1/posts/", {
+		const res = await fetch("/api/v1/post/", {
 			method: "POST",
 			body: JSON.stringify({ pageParam }),
 			headers: {
