@@ -7,7 +7,23 @@ import { useLocation, useNavigate, useSearchParams } from "react-router";
 import { ClientOnly } from "remix-utils/client-only";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BoldItalicUnderlineToggles, markdownShortcutPlugin, MDXEditor, toolbarPlugin, UndoRedo, type MDXEditorMethods } from "@mdxeditor/editor";
+import {
+	BoldItalicUnderlineToggles,
+	codeBlockPlugin,
+	CodeToggle,
+	InsertThematicBreak,
+	listsPlugin,
+	ListsToggle,
+	markdownShortcutPlugin,
+	MDXEditor,
+	quotePlugin,
+	thematicBreakPlugin,
+	toolbarPlugin,
+	UndoRedo,
+	useCodeBlockEditorContext,
+	type CodeBlockEditorDescriptor,
+	type MDXEditorMethods,
+} from "@mdxeditor/editor";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -20,7 +36,9 @@ import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
 import { Textarea } from "~/components/ui/textarea";
 
-export const links: Route.LinksFunction = () => [{ rel: "stylesheet", href: editor_stylesheet }];
+export const links: Route.LinksFunction = () => [
+	{ rel: "stylesheet", href: editor_stylesheet }, // override styles
+];
 
 interface Types {
 	title: string;
@@ -53,6 +71,23 @@ const types: Types[] = [
 		disabled: true,
 	},
 ];
+
+const PlainTextCodeEditorDescriptor: CodeBlockEditorDescriptor = {
+	// always use the editor, no matter the language or the meta of the code block
+	match: (language, meta) => true,
+	// You can have multiple editors with different priorities, so that there's a "catch-all" editor (with the lowest priority)
+	priority: 0,
+	// The Editor is a React component
+	Editor: (props) => {
+		const cb = useCodeBlockEditorContext();
+		// stops the propagation so that the parent lexical editor does not handle certain events.
+		return (
+			<div onKeyDown={(e) => e.nativeEvent.stopImmediatePropagation()}>
+				<textarea rows={3} cols={20} defaultValue={props.code} onChange={(e) => cb.setCode(e.target.value)} />
+			</div>
+		);
+	},
+};
 
 // making only one schema for now, since the other two types are disabled
 const newPostSchema = z.object({
@@ -243,11 +278,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 										render={({ field }) => (
 											<FormItem>
 												<FormControl>
-													<Textarea
-														{...field}
-														placeholder="Title"
-														className="rounded-xl resize-none placeholder:flex placeholder:justify-center placeholder:items-center text-black dark:text-white"
-													/>
+													<Textarea {...field} placeholder="Title" className="rounded-xl resize-none text-black dark:text-white" />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -267,12 +298,23 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 																markdown={field.value}
 																onChange={field.onChange}
 																plugins={[
+																	quotePlugin(),
+																	listsPlugin(),
+																	codeBlockPlugin(),
+																	quotePlugin(),
 																	markdownShortcutPlugin(),
+																	thematicBreakPlugin(),
 																	toolbarPlugin({
 																		toolbarContents: () => (
 																			<>
 																				<UndoRedo />
+																				<hr className="border-sidebar-foreground dark:border-sidebar-accent border-l-2 h-5" />
 																				<BoldItalicUnderlineToggles />
+																				<hr className="border-sidebar-foreground dark:border-sidebar-accent border-l-2 h-5" />
+																				<ListsToggle options={["bullet", "number"]} />
+																				<hr className="border-sidebar-foreground dark:border-sidebar-accent border-l-2 h-5" />
+																				<CodeToggle />
+																				<InsertThematicBreak />
 																			</>
 																		),
 																	}),
