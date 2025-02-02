@@ -9,6 +9,7 @@ export default {
 		extend: {
 			fontFamily: {
 				sans: ['"Segoe UI"', "Roboto", "sans-serif", ...fontFamily.sans],
+				"bricolage-grotesque": ["Bricolage Grotesque", "sans-serif"],
 			},
 			borderRadius: {
 				lg: "var(--radius)",

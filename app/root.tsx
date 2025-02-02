@@ -9,7 +9,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import type { LoadingBarRef } from "react-top-loading-bar";
 import LoadingBar from "react-top-loading-bar";
 
-import { queryClient } from "./lib/query-client";
+import { queryClient } from "./lib/query/query-client";
 
 import { ThemeProvider } from "~/providers/Theme";
 
@@ -36,6 +36,10 @@ export const links: Route.LinksFunction = () => [
 	{
 		rel: "stylesheet",
 		href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+	},
+	{
+		rel: "stylesheet",
+		href: "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap",
 	},
 	{ rel: "stylesheet", href: stylesheet },
 ];
