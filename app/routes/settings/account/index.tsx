@@ -310,7 +310,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 				{actions.map((action) => {
 					return (
 						<React.Fragment key={action.title}>
-							<h1 key={action.title} className="text-2xl font-semibold capitalize text-black dark:text-white mb-2">
+							<h1 key={action.title} className="text-2xl font-bricolage-grotesque tracking-tighter font-semibold capitalize text-black dark:text-white mb-2">
 								{action.title}
 							</h1>
 
