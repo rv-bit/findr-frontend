@@ -67,11 +67,19 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 	const handleEnableSubmit = async (values: z.infer<typeof twoFactorEnableSchema>) => {
 		setLoading(true);
 
-		const { data } = await authClient.twoFactor.enable({
+		const { data, error } = await authClient.twoFactor.enable({
 			password: values.password,
 		});
 
 		setLoading(false);
+
+		if (error) {
+			twoFactorForm.setError("password", {
+				type: "manual",
+				message: error.message,
+			});
+			return;
+		}
 
 		if (data) {
 			const urlObj = new URL(data.totpURI);
