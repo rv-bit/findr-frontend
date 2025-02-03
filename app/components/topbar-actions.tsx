@@ -124,12 +124,7 @@ export default function TopbarActions() {
 									</Avatar>
 								</SidebarMenuButton>
 							</DropdownMenuTrigger>
-							<DropdownMenuContent
-								className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg dark:bg-sidebar-accent/40 border-none mt-3.5"
-								side={"bottom"}
-								align="end"
-								sideOffset={4}
-							>
+							<DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg dark:bg-modal border-none mt-3.5" side={"bottom"} align="end" sideOffset={4}>
 								<DropdownMenuLabel className="p-0 font-normal">
 									<Button
 										onClick={() => {
