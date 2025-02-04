@@ -66,12 +66,5 @@ export async function getCroppedImg(
 	croppedCtx.drawImage(canvas, pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height, 0, 0, pixelCrop.width, pixelCrop.height);
 
 	// As Base64 string
-	// return croppedCanvas.toDataURL('image/jpeg');
-
-	// As a blob
-	return new Promise((resolve, reject) => {
-		croppedCanvas.toBlob((file) => {
-			resolve(URL.createObjectURL(file as Blob));
-		}, imageType);
-	});
+	return croppedCanvas.toDataURL(imageType);
 }

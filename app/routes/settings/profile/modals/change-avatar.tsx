@@ -80,8 +80,6 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 	};
 
 	const handleSubmit = async (values: z.infer<typeof newAvatarSchema>) => {
-		console.log(values);
-
 		await authClient.updateUser(
 			{
 				image: values.croppedImage,
