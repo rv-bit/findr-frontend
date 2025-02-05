@@ -134,14 +134,8 @@ function CollapsibleItem({ item, index }: { item: Actions; index: number }) {
 							<ChevronDown className={cn("transition-transform duration-200", isOpen ? "rotate-180" : "")} />
 						</SidebarMenuButton>
 					</CollapsibleTrigger>
-					<CollapsibleContent>
-						<SidebarMenuSub
-							ref={contentRef}
-							style={{
-								height: "auto",
-								transition: "height 333ms ease",
-							}}
-						>
+					<CollapsibleContent className="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down data-[state=open]:opacity-100 data-[state=closed]:opacity-0 transition-opacity duration-300">
+						<SidebarMenuSub ref={contentRef}>
 							{item.items?.map((subItem, subIndex) => (
 								<SidebarMenuSubItem key={subIndex}>
 									<SidebarMenuSubButton asChild size="lg">
