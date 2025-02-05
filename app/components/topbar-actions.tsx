@@ -114,7 +114,7 @@ export default function TopbarActions() {
 							<DropdownMenuTrigger asChild>
 								<SidebarMenuButton variant={"link"} size="lg" className="h-auto p-1 rounded-full hover:bg-sidebar-foreground/20 hover:text-white dark:hover:bg-sidebar-accent">
 									<Avatar className="h-8 w-8 rounded-full">
-										{!isPending && <AvatarImage src={session?.user.image ?? undefined} alt={session?.user.name} />}
+										{!isPending && <AvatarImage src={`${import.meta.env.VITE_CLOUD_FRONT_URL}/${session?.user.image}`} alt={session?.user.name} />}
 										<AvatarFallback className="rounded-lg bg-sidebar-foreground/50">
 											{session?.user.name
 												?.split(" ")
@@ -135,7 +135,7 @@ export default function TopbarActions() {
 										className="w-full h-auto flex items-center justify-center gap-2 px-3 text-left text-sm hover:no-underline opacity-80 hover:opacity-100"
 									>
 										<Avatar className="h-8 w-8 rounded-full">
-											<AvatarImage src={session?.user.image ?? undefined} alt={session?.user.email} />
+											{!isPending && <AvatarImage src={`${import.meta.env.VITE_CLOUD_FRONT_URL}/${session?.user.image}`} alt={session?.user.name} />}
 											<AvatarFallback className="rounded-full">
 												{session?.user.name
 													?.split(" ")
