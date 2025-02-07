@@ -2,7 +2,7 @@ import { adminClient, emailOTPClient, multiSessionClient, twoFactorClient, usern
 import { createAuthClient } from "better-auth/react";
 
 export const authClient = createAuthClient({
-	baseURL: import.meta.env.VITE_API_URL,
+	baseURL: import.meta.env.VITE_API_AUTH_URL,
 	plugins: [twoFactorClient(), usernameClient(), emailOTPClient(), adminClient(), multiSessionClient()],
 });
 
