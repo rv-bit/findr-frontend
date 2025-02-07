@@ -106,7 +106,7 @@ export default function Login() {
 										render={({ field }) => (
 											<FormItem>
 												<FormControl>
-													<Input type="text" placeholder="username" required {...field} />
+													<Input type="text" placeholder="username" required className="text-black dark:text-white" {...field} />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -118,7 +118,7 @@ export default function Login() {
 										render={({ field }) => (
 											<FormItem>
 												<FormControl>
-													<Input type="password" placeholder="password" required {...field} />
+													<Input type="password" placeholder="password" required className="text-black dark:text-white" {...field} />
 												</FormControl>
 												<div className="flex items-center justify-end">
 													<Link

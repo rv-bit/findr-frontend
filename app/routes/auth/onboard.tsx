@@ -117,7 +117,7 @@ export default function Register() {
 										render={({ field }) => (
 											<FormItem>
 												<FormControl>
-													<Input type="email" placeholder="name@example.com" required {...field} />
+													<Input type="email" placeholder="name@example.com" required className="text-black dark:text-white" {...field} />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -129,7 +129,7 @@ export default function Register() {
 										render={({ field }) => (
 											<FormItem>
 												<FormControl>
-													<Input type="text" placeholder="name" required {...field} />
+													<Input type="text" placeholder="name" required className="text-black dark:text-white" {...field} />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -141,7 +141,7 @@ export default function Register() {
 										render={({ field }) => (
 											<FormItem>
 												<FormControl>
-													<Input type="text" placeholder="username" required {...field} />
+													<Input type="text" placeholder="username" required className="text-black dark:text-white" {...field} />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -153,7 +153,7 @@ export default function Register() {
 										render={({ field }) => (
 											<FormItem>
 												<FormControl>
-													<Input type="password" placeholder="password" required {...field} />
+													<Input type="password" placeholder="password" required className="text-black dark:text-white" {...field} />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -165,7 +165,7 @@ export default function Register() {
 										render={({ field }) => (
 											<FormItem>
 												<FormControl>
-													<Input type="password" placeholder="confirm password" required {...field} />
+													<Input type="password" placeholder="confirm password" required className="text-black dark:text-white" {...field} />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
