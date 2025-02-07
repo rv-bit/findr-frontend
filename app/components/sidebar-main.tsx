@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router";
+import { Form, Link, useNavigate, useSearchParams } from "react-router";
 
 import { cn } from "~/lib/utils";
 
@@ -26,11 +26,24 @@ import {
 
 import { Button } from "./ui/button";
 
+enum SearchQueries {
+	HOME = "home",
+	POPULAR = "popular",
+	EXPLORE = "explore",
+}
+
+enum Routes {
+	HOME = "/",
+	NEW_COMMUNITY = "/communities/new",
+	HELP = "/help",
+	LEGAL = "/legal",
+}
+
 interface Actions {
 	title: string;
 	url?: string;
+	searchKey?: string;
 	searchQuery?: string;
-	search?: string;
 	icon?: LucideIcon | IconType;
 	iconSize?: number | string;
 	isActive?: boolean;
@@ -47,31 +60,31 @@ const actions: Actions[] = [
 		items: [
 			{
 				title: "Home",
-				url: "/",
+				url: Routes.HOME,
 
-				searchQuery: "feed",
-				search: "home",
+				searchKey: "feed",
+				searchQuery: SearchQueries.HOME,
 
 				icon: GoHomeFill,
 				iconSize: 24,
 			},
 			{
 				title: "Popular",
-				url: "/",
+				url: Routes.HOME,
 
-				searchQuery: "feed",
-				search: "popular",
+				searchKey: "feed",
+				searchQuery: SearchQueries.POPULAR,
 
 				icon: RiUserCommunityLine,
 				iconSize: 24,
 			},
 			{
 				title: "Explore",
-				url: "/",
+				url: Routes.HOME,
 
-				searchQuery: "feed",
+				searchKey: "feed",
+				searchQuery: SearchQueries.EXPLORE,
 
-				search: "explore",
 				icon: UsersRound,
 			},
 		],
@@ -91,8 +104,8 @@ const actions: Actions[] = [
 		items: [
 			{
 				title: "Create a Community",
+				url: Routes.NEW_COMMUNITY,
 				icon: Plus,
-				url: "/communities/new",
 			},
 			// dynamically generated
 		],
@@ -104,15 +117,14 @@ const actions: Actions[] = [
 		items: [
 			{
 				title: "Help",
-				url: "/help",
+				url: Routes.HELP,
 				icon: CircleHelp,
 			},
 			{
 				title: "Privacy Policy",
-				url: "/legal",
+				url: Routes.LEGAL,
 				icon: Scale,
 			},
-			// dynamically generated
 		],
 	},
 ];
@@ -146,13 +158,7 @@ function CollapsibleItem({ item, index }: { item: Actions; index: number }) {
 													<span>{subItem.title}</span>
 												</Link>
 											) : (
-												<Button
-													variant={"link"}
-													onClick={() => {
-														console.log("clicked");
-													}}
-													className="w-full items-center justify-start gap-2 p-0 [&_svg]:size-auto"
-												>
+												<Button variant={"link"} className="w-full items-center justify-start gap-2 p-0 [&_svg]:size-auto">
 													{subItem.icon && <subItem.icon size={28} />}
 													<h1>{subItem.title}</h1>
 												</Button>
@@ -185,33 +191,33 @@ export default function SidebarActions() {
 									!item.isCollapsible &&
 									item.items?.map((action) => (
 										<SidebarMenuItem key={action.title}>
-											<SidebarMenuButton
-												onClick={() => {
-													navigate({
-														pathname: action.url,
-														search: `?${action.searchQuery}=${action.search}`,
-													});
-												}}
-												size="lg"
-												isActive={action.search && searchParams.get("feed")?.toLowerCase() === action.search.toLowerCase() ? true : false}
-												disabled={action.isDisabled}
-												className={cn(
-													"flex h-10 items-center gap-2 px-4 hover:bg-sidebar-foreground/5 data-[active=true]:hover:bg-sidebar-foreground/10 dark:hover:bg-sidebar-accent/50 dark:data-[active=true]:hover:bg-sidebar-accent",
-												)}
-											>
-												<div className="flex size-6 items-center justify-center">
-													{action.icon && (
-														<action.icon
-															size={action.iconSize}
-															className={
-																(cn("h-full w-full transition-colors delay-75 duration-200 ease-in-out"),
-																action.search && searchParams.get("feed")?.toLowerCase() === action.search.toLowerCase() ? "fill-black dark:fill-white" : "")
-															}
-														/>
+											<Form>
+												<SidebarMenuButton
+													name={action.searchKey}
+													value={action.searchQuery}
+													size="lg"
+													isActive={action.searchQuery && searchParams.get("feed")?.toLowerCase() === action.searchQuery.toLowerCase() ? true : false}
+													disabled={action.isDisabled}
+													className={cn(
+														"flex h-10 items-center gap-2 px-4 hover:bg-sidebar-foreground/5 data-[active=true]:hover:bg-sidebar-foreground/10 dark:hover:bg-sidebar-accent/50 dark:data-[active=true]:hover:bg-sidebar-accent",
 													)}
-												</div>
-												<span>{action.title}</span>
-											</SidebarMenuButton>
+												>
+													<div className="flex size-6 items-center justify-center">
+														{action.icon && (
+															<action.icon
+																size={action.iconSize}
+																className={
+																	(cn("h-full w-full transition-colors delay-75 duration-200 ease-in-out"),
+																	action.searchQuery && searchParams.get("feed")?.toLowerCase() === action.searchQuery.toLowerCase()
+																		? "fill-black dark:fill-white"
+																		: "")
+																}
+															/>
+														)}
+													</div>
+													<span>{action.title}</span>
+												</SidebarMenuButton>
+											</Form>
 										</SidebarMenuItem>
 									)),
 							)}
