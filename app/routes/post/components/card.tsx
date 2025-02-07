@@ -39,7 +39,7 @@ export default function Card(props: PostProps) {
 	}
 
 	return (
-		<article className="w-full h-auto max-h-96 min-h-28 flex flex-col justify-between gap-3 px-4 py-2 hover:dark:bg-sidebar-accent/50 hover:bg-sidebar-foreground/10 rounded-xl">
+		<article className="w-full h-auto max-h-96 min-h-28 flex flex-col justify-between gap-3 px-4 py-2 dark:hover:bg-sidebar-accent/50 hover:bg-sidebar-foreground/10 rounded-xl">
 			<span className="flex justify-start items-center gap-1">
 				<span className="flex justify-center items-center gap-2">
 					<Avatar className="size-6 rounded-full">
@@ -54,7 +54,7 @@ export default function Card(props: PostProps) {
 
 			<span className="h-full flex flex-col gap-1 justify-start items-start text-ellipsis overflow-hidden">
 				<h1 className="text-lg font-bold text-black dark:text-white">{props.title}</h1>
-				<ClientOnly>{() => <MDXEditor markdown={props.content} contentEditableClassName="text-ellipsis line-clamp-[10] text-black dark:text-white" readOnly={true} />}</ClientOnly>
+				<ClientOnly>{() => <MDXEditor markdown={props.content} contentEditableClassName="text-ellipsis line-clamp-10 text-black dark:text-white" readOnly={true} />}</ClientOnly>
 			</span>
 
 			<span className="flex gap-2 justify-start items-start">
@@ -62,7 +62,7 @@ export default function Card(props: PostProps) {
 					<span className="flex items-center justify-center">
 						<Button
 							disabled={true}
-							className="group p-2 px-3 shadow-none flex items-center justify-center gap-1 rounded-full bg-transparent dark:bg-transparent hover:dark:bg-[#333a3e] hover:bg-[#75858f]/20 [&_svg]:size-4 dark:text-white text-black"
+							className="group p-2 px-3 shadow-none flex items-center justify-center gap-1 rounded-full bg-transparent dark:bg-transparent dark:hover:bg-[#333a3e] hover:bg-[#75858f]/20 [&_svg]:size-4 dark:text-white text-black"
 						>
 							<ThumbsUp className="group-hover:text-red-400/85" />
 						</Button>
@@ -73,7 +73,7 @@ export default function Card(props: PostProps) {
 					<span className="flex items-center justify-center">
 						<Button
 							disabled={true}
-							className="group p-2 px-3 shadow-none flex items-center justify-center gap-1 rounded-full bg-transparent dark:bg-transparent hover:dark:bg-[#333a3e] hover:bg-[#75858f]/20 [&_svg]:size-4 dark:text-white text-black"
+							className="group p-2 px-3 shadow-none flex items-center justify-center gap-1 rounded-full bg-transparent dark:bg-transparent dark:hover:bg-[#333a3e] hover:bg-[#75858f]/20 [&_svg]:size-4 dark:text-white text-black"
 						>
 							<ThumbsDown className="group-hover:text-primary-400" />
 						</Button>
@@ -82,7 +82,7 @@ export default function Card(props: PostProps) {
 
 				<Button
 					disabled={true}
-					className="w-fit flex gap-1 justify-start items-center rounded-3xl px-3 dark:bg-sidebar-accent bg-[#E5EBEE] hover:dark:bg-[#333a3e] hover:bg-[#75858f]/20 dark:text-white text-black"
+					className="w-fit flex gap-1 justify-start items-center rounded-3xl px-3 dark:bg-sidebar-accent bg-[#E5EBEE] dark:hover:bg-[#333a3e] hover:bg-[#75858f]/20 dark:text-white text-black"
 				>
 					<MessageCircle />
 					<span className="text-sm text-black dark:text-white">{props.comments}</span>

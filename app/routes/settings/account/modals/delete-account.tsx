@@ -19,7 +19,7 @@ export default function Index({ open, onOpenChange, onClickAction }: ModalProps)
 					<AlertDialogDescription className="space-y-0">Are you sure you want to delete your account? This action cannot be undone.</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>
-					<Button type="button" className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white hover:dark:bg-[#2B3236]/40 rounded-3xl p-5 py-6" onClick={() => onOpenChange(false)}>
+					<Button type="button" className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6" onClick={() => onOpenChange(false)}>
 						Cancel
 					</Button>
 					<Button

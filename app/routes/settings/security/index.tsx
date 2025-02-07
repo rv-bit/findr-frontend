@@ -106,7 +106,7 @@ const Sessions = (props: SessionsProps) => {
 											</Button>
 										</DropdownMenuTrigger>
 										<DropdownMenuContent
-											className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg dark:bg-modal border border-sidebar-foreground dark:border-sidebar-accent mt-3.5"
+											className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg dark:bg-modal border border-sidebar-foreground dark:border-sidebar-accent mt-3.5"
 											side={"bottom"}
 											align="end"
 											sideOffset={4}
@@ -125,7 +125,7 @@ const Sessions = (props: SessionsProps) => {
 														window.location.reload();
 													}}
 													variant={"link"}
-													className="w-full h-auto flex items-center justify-start gap-2 px-3 text-left text-sm hover:no-underline text-red-500 dark:text-red-500 hover:text-primary-400 transition-all duration-150 hover:dark:bg-primary-400/5 hover:bg-primary-400/10"
+													className="w-full h-auto flex items-center justify-start gap-2 px-3 text-left text-sm hover:no-underline text-red-500 dark:text-red-500 hover:text-primary-400 transition-all duration-150 dark:hover:bg-primary-400/5 hover:bg-primary-400/10"
 												>
 													Revoke
 												</Button>
