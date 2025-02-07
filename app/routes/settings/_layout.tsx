@@ -43,6 +43,10 @@ const actions: Actions[] = [
 		url: ["/settings", "/settings/account"],
 	},
 	{
+		title: "Security",
+		url: "/settings/security",
+	},
+	{
 		title: "Profile",
 		url: "/settings/profile",
 	},
