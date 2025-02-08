@@ -4,12 +4,13 @@ import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, 
 import type { Route } from "./+types/root";
 import stylesheet from "./app.css?url";
 
+import { AuthQueryProvider } from "@daveyplate/better-auth-tanstack";
 import { QueryClientProvider } from "@tanstack/react-query";
 
 import type { LoadingBarRef } from "react-top-loading-bar";
 import LoadingBar from "react-top-loading-bar";
 
-import { queryClient } from "./lib/query-client";
+import { queryClient } from "./lib/query/query-client";
 
 import { ThemeProvider } from "~/providers/Theme";
 
@@ -37,6 +38,10 @@ export const links: Route.LinksFunction = () => [
 		rel: "stylesheet",
 		href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
 	},
+	{
+		rel: "stylesheet",
+		href: "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap",
+	},
 	{ rel: "stylesheet", href: stylesheet },
 ];
 
@@ -59,6 +64,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
+				<script crossOrigin="anonymous" src="//unpkg.com/react-scan/dist/auto.global.js" />
 				<Meta />
 				<Links />
 			</head>
@@ -66,31 +72,33 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<LoadingBar ref={loadingBarRef} color="#5060dd" shadow={false} transitionTime={100} waitingTime={300} />
 
 				<QueryClientProvider client={queryClient}>
-					<ThemeProvider>
-						<TopbarProvider>
-							<SidebarProvider>
-								<Topbar>
-									<TopbarInset>
-										<TopbarActions />
-									</TopbarInset>
-								</Topbar>
-								<SidebarActions />
-								<SidebarInset>
-									<main
-										style={{
-											height: "100%",
-											width: "100%",
-											flex: "1 1 0%",
-											overflowY: "auto",
-										}}
-									>
-										{children}
-									</main>
-									<Toaster />
-								</SidebarInset>
-							</SidebarProvider>
-						</TopbarProvider>
-					</ThemeProvider>
+					<AuthQueryProvider>
+						<ThemeProvider>
+							<TopbarProvider>
+								<SidebarProvider>
+									<Topbar>
+										<TopbarInset>
+											<TopbarActions />
+										</TopbarInset>
+									</Topbar>
+									<SidebarActions />
+									<SidebarInset>
+										<main
+											style={{
+												height: "100%",
+												width: "100%",
+												flex: "1 1 0%",
+												overflowY: "auto",
+											}}
+										>
+											{children}
+										</main>
+										<Toaster />
+									</SidebarInset>
+								</SidebarProvider>
+							</TopbarProvider>
+						</ThemeProvider>
+					</AuthQueryProvider>
 				</QueryClientProvider>
 				<ScrollRestoration />
 				<Scripts />

@@ -9,6 +9,7 @@ export default {
 		extend: {
 			fontFamily: {
 				sans: ['"Segoe UI"', "Roboto", "sans-serif", ...fontFamily.sans],
+				"bricolage-grotesque": ["Bricolage Grotesque", "sans-serif"],
 			},
 			borderRadius: {
 				lg: "var(--radius)",
@@ -50,9 +51,21 @@ export default {
 					"0%,70%,100%": { opacity: "1" },
 					"20%,50%": { opacity: "0" },
 				},
+
+				"accordion-down": {
+					from: { height: "0" },
+					to: { height: "var(--radix-collapsible-content-height)" },
+				},
+				"accordion-up": {
+					from: { height: "var(--radix-collapsible-content-height)" },
+					to: { height: "0" },
+				},
 			},
 			animation: {
 				"caret-blink": "caret-blink 1.25s ease-out infinite",
+
+				"accordion-down": "accordion-down 0.2s ease-out",
+				"accordion-up": "accordion-up 0.2s ease-out",
 			},
 		},
 	},

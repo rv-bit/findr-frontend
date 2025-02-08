@@ -19,13 +19,11 @@ import { Input } from "~/components/ui/input";
 
 import WarningComponent from "~/components/warning-dialog";
 
-import { ChevronRight, ExternalLink, TriangleAlert, type LucideIcon } from "lucide-react";
+import { ChevronRight, TriangleAlert, type LucideIcon } from "lucide-react";
 
 import DeleteModal from "./modals/delete-account";
 import EmailModal from "./modals/email-change";
 import PasswordChangeModal from "./modals/password-change";
-import TwoFactorDisableModal from "./modals/two-factor-disable";
-import TwoFactorEnableModal from "./modals/two-factor-enable";
 
 interface Actions {
 	title: string;
@@ -54,8 +52,6 @@ export default function Index({ matches }: Route.ComponentProps) {
 
 	const navigate = useNavigate();
 	const toast = useToast();
-
-	const { data: session, isPending, error } = authClient.useSession();
 
 	const actions: Actions[] = React.useMemo(
 		() => [
@@ -139,22 +135,6 @@ export default function Index({ matches }: Route.ComponentProps) {
 							window.location.reload();
 						},
 					},
-
-					{
-						title: "Two-Factor Authentication",
-						defaultValue: loaderData.hasTwoFactor ? "Enabled" : "Disabled",
-						icon: ExternalLink,
-						disabled: loaderData.hasTwoFactor ? true : false, // disable if two-factor is enabled, because there is no way to disable it just yet
-						modalActionOnClickCheck: () => {
-							const isValid = loaderData.hasEmailVerified && loaderData.hasPassword;
-							if (!isValid) {
-								return { success: false, error: "Please verify your email and create a password" };
-							}
-
-							return { success: true, error: null };
-						},
-						componentLoad: !loaderData.hasTwoFactor ? TwoFactorEnableModal : TwoFactorDisableModal,
-					},
 				],
 			},
 			{
@@ -211,7 +191,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 	const isFormIsComplete = formState.isValid;
 
 	const handleNewEmailSubmit = async (values: z.infer<typeof emailVerifySchema>) => {
-		if (session?.user?.email !== values.email) {
+		if (loaderData?.user?.email !== values.email) {
 			emailVerifyForm.setError("email", {
 				type: "manual",
 				message: "Email does not match the email in our system",
@@ -287,7 +267,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 									<AlertDialogFooter>
 										<Button
 											type="button"
-											className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white hover:dark:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+											className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
 											onClick={() =>
 												setShowWarningModal({
 													...showWarningModal,
@@ -310,7 +290,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 				{actions.map((action) => {
 					return (
 						<React.Fragment key={action.title}>
-							<h1 key={action.title} className="text-2xl font-semibold capitalize text-black dark:text-white mb-2">
+							<h1 key={action.title} className="text-2xl font-bricolage-grotesque tracking-tighter font-semibold capitalize text-black dark:text-white mb-2">
 								{action.title}
 							</h1>
 

@@ -5,12 +5,12 @@ import { useNavigate } from "react-router";
 
 import { useToast } from "~/hooks/use-toast";
 
-import { authClient } from "~/lib/auth";
 import type { ModalProps } from "~/lib/types/modal";
 
 import { ChevronRight, type LucideIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 
+import AvatarChangeModal from "./modals/change-avatar";
 import UsernameChangeModal from "./modals/change-username";
 
 interface Actions {
@@ -37,8 +37,6 @@ export default function Index({ matches }: Route.ComponentProps) {
 
 	const navigate = useNavigate();
 	const toast = useToast();
-
-	const { data: session, isPending, error } = authClient.useSession();
 
 	const actions: Actions[] = React.useMemo(
 		() => [
@@ -85,6 +83,8 @@ export default function Index({ matches }: Route.ComponentProps) {
 
 							return { success: true, error: null };
 						},
+
+						componentLoad: AvatarChangeModal,
 					},
 				],
 			},
@@ -101,7 +101,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 				{actions.map((action) => {
 					return (
 						<React.Fragment key={action.title}>
-							<h1 key={action.title} className="text-2xl font-semibold capitalize text-black dark:text-white mb-2">
+							<h1 key={action.title} className="text-2xl font-bricolage-grotesque tracking-tighter font-semibold capitalize text-black dark:text-white mb-2">
 								{action.title}
 							</h1>
 

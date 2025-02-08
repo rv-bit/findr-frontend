@@ -18,6 +18,7 @@ export default [
 			index("./routes/settings/account/index.tsx", { id: "index-settings" }), // This is the default route which will be the account page
 			route("account", "./routes/settings/account/index.tsx"),
 			route("profile", "./routes/settings/profile/index.tsx"),
+			route("security", "./routes/settings/security/index.tsx"),
 		]),
 	]),
 

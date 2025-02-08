@@ -6,6 +6,8 @@ import { z } from "zod";
 
 import { QRCodeCanvas } from "qrcode.react";
 
+import { useSession } from "~/hooks/use-auth";
+
 import { authClient } from "~/lib/auth";
 import type { ModalProps } from "~/lib/types/modal";
 
@@ -35,6 +37,8 @@ const twoFactorCodeSchema = z.object({
 });
 
 export default function Index({ open, onOpenChange }: ModalProps) {
+	const { refetch } = useSession();
+
 	const [currentState, setCurrentState] = React.useState<StepProps>({
 		step: 1,
 		qr: {
@@ -67,11 +71,19 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 	const handleEnableSubmit = async (values: z.infer<typeof twoFactorEnableSchema>) => {
 		setLoading(true);
 
-		const { data } = await authClient.twoFactor.enable({
+		const { data, error } = await authClient.twoFactor.enable({
 			password: values.password,
 		});
 
 		setLoading(false);
+
+		if (error) {
+			twoFactorForm.setError("password", {
+				type: "manual",
+				message: error.message,
+			});
+			return;
+		}
 
 		if (data) {
 			const urlObj = new URL(data.totpURI);
@@ -104,7 +116,8 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 						step: 3, // display backup codes
 					}));
 
-					authClient.signOut(); // logout user after enabling 2fa
+					await authClient.signOut(); // logout user after enabling 2fa
+					await refetch();
 				},
 
 				onError: (context) => {
@@ -155,7 +168,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 									<AlertDialogFooter>
 										<Button
 											type="button"
-											className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white hover:dark:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+											className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
 											onClick={() => onOpenChange(false)}
 										>
 											Cancel
@@ -234,7 +247,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 									<AlertDialogFooter>
 										<Button
 											type="button"
-											className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white hover:dark:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+											className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
 											onClick={() => onOpenChange(false)}
 										>
 											Cancel
@@ -266,7 +279,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 							<AlertDialogFooter>
 								<Button
 									type="button"
-									className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white hover:dark:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+									className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
 									onClick={() => onOpenChange(false)}
 								>
 									Close
