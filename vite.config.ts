@@ -40,6 +40,7 @@ const prodConfig = {
 			"/api": {
 				// api version
 				target: process.env.VITE_API_URL,
+				changeOrigin: true,
 				secure: true,
 				rewrite: (path: string) => path.replace(/^\/api/, ""),
 				configure: (proxy: any, _options: any) => {

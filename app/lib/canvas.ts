@@ -1,70 +1,33 @@
-export const createImage = (url: string) =>
-	new Promise((resolve, reject) => {
-		const image = new Image();
+import type { PixelCrop } from "react-image-crop";
 
-		image.addEventListener("load", () => resolve(image));
-		image.addEventListener("error", (error) => reject(error));
-		image.setAttribute("crossOrigin", "use-credentials"); // needed to avoid cross-origin issues on CodeSandbox
-		image.src = url;
-	});
-
-export function getRadianAngle(degreeValue: number) {
-	return (degreeValue * Math.PI) / 180;
-}
-
-export function rotateSize(width: number, height: number, rotation: number) {
-	const rotRad = getRadianAngle(rotation);
-
-	return {
-		width: Math.abs(Math.cos(rotRad) * width) + Math.abs(Math.sin(rotRad) * height),
-		height: Math.abs(Math.sin(rotRad) * width) + Math.abs(Math.cos(rotRad) * height),
-	};
-}
-
-export async function getCroppedImg(
-	imageSrc: string,
-	imageType: string,
-	pixelCrop: { x: number; y: number; width: number; height: number },
-	rotation = 0,
-	flip = { horizontal: false, vertical: false },
-) {
-	const image = (await createImage(imageSrc)) as HTMLImageElement;
-	const canvas = document.createElement("canvas");
+export const setCanvasPreview = (image: HTMLImageElement, canvas: HTMLCanvasElement, crop: PixelCrop) => {
 	const ctx = canvas.getContext("2d");
-
 	if (!ctx) {
-		return null;
+		throw new Error("No 2d context");
 	}
 
-	// calculate bounding box of the rotated image
-	const { width: bBoxWidth, height: bBoxHeight } = rotateSize(image.width, image.height, rotation);
+	// devicePixelRatio slightly increases sharpness on retina devices
+	// at the expense of slightly slower render times and needing to
+	// size the image back down if you want to download/upload and be
+	// true to the images natural size.
+	const pixelRatio = window.devicePixelRatio;
+	const scaleX = image.naturalWidth / image.width;
+	const scaleY = image.naturalHeight / image.height;
 
-	// set canvas size to match the bounding box
-	canvas.width = bBoxWidth;
-	canvas.height = bBoxHeight;
+	canvas.width = Math.floor(crop.width * scaleX * pixelRatio);
+	canvas.height = Math.floor(crop.height * scaleY * pixelRatio);
 
-	// translate canvas context to a central location to allow rotating and flipping around the center
-	ctx.translate(bBoxWidth / 2, bBoxHeight / 2);
-	ctx.scale(flip.horizontal ? -1 : 1, flip.vertical ? -1 : 1);
-	ctx.translate(-image.width / 2, -image.height / 2);
+	ctx.scale(pixelRatio, pixelRatio);
+	ctx.imageSmoothingQuality = "high";
+	ctx.save();
 
-	// draw rotated image
-	ctx.drawImage(image, 0, 0);
+	const cropX = crop.x * scaleX;
+	const cropY = crop.y * scaleY;
 
-	const croppedCanvas = document.createElement("canvas");
-	const croppedCtx = croppedCanvas.getContext("2d");
+	// Move the crop origin to the canvas origin (0,0)
+	ctx.translate(-cropX, -cropY);
+	ctx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight, 0, 0, image.naturalWidth, image.naturalHeight);
 
-	if (!croppedCtx) {
-		return null;
-	}
-
-	// Set the size of the cropped canvas
-	croppedCanvas.width = pixelCrop.width;
-	croppedCanvas.height = pixelCrop.height;
-
-	// Draw the cropped image onto the new canvas
-	croppedCtx.drawImage(canvas, pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height, 0, 0, pixelCrop.width, pixelCrop.height);
-
-	// As Base64 string
-	return croppedCanvas.toDataURL(imageType);
-}
+	ctx.restore();
+};
+export default setCanvasPreview;
