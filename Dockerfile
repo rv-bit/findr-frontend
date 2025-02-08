@@ -38,8 +38,9 @@
 # Use full Node image (not Alpine) to avoid missing dependencies
 FROM node:20 AS build-env
 
-# Install PNPM globally
+# Install PNPM globally and cross-env
 RUN npm i -g pnpm
+RUN npm i -g cross-env
 
 # Set working directory
 WORKDIR /app
