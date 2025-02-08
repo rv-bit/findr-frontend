@@ -7,9 +7,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { authClient } from "~/lib/auth";
-
 import * as constants from "~/constants/app";
+
+import { useSession } from "~/hooks/use-auth";
+
+import { authClient, type Session } from "~/lib/auth";
+import { prefetchSession } from "~/lib/auth-prefetches";
+import { queryClient } from "~/lib/query/query-client";
 
 import { FaGithub, FaGoogle } from "react-icons/fa";
 
@@ -18,10 +22,18 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "~/component
 import { Input } from "~/components/ui/input";
 
 export async function clientLoader({ serverLoader, params }: Route.ClientLoaderArgs) {
-	const { data: session, error } = await authClient.getSession();
-	if (session) {
+	const cachedData = queryClient.getQueryData<Session>(["session"]);
+	const data = cachedData ?? (await prefetchSession(queryClient));
+
+	const session = {
+		session: data.session,
+		user: data.user,
+	};
+
+	if (session.session || session.user) {
 		throw new Response("", { status: 302, headers: { Location: "/" } }); // Redirect to home page
 	}
+
 	return null;
 }
 
@@ -44,6 +56,7 @@ const formSchema = z
 
 export default function Register() {
 	const navigate = useNavigate();
+	const { refetch } = useSession();
 
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string>();
@@ -72,7 +85,9 @@ export default function Register() {
 				onRequest: () => {
 					setLoading(true);
 				},
-				onSuccess: () => {
+				onSuccess: async () => {
+					await refetch(); // Refetch session, because the user is now signed in, as its automatically done after sign up
+
 					setLoading(false);
 					navigate("/"); // Redirect to home page
 				},
@@ -211,7 +226,7 @@ export default function Register() {
 						</Button>
 					</div>
 				</div>
-				<div className="text-balance text-center text-xs text-neutral-500 dark:text-neutral-400 [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-neutral-900 dark:hover:[&_a]:text-neutral-50">
+				<div className="text-balance text-center text-xs text-neutral-500 dark:text-neutral-400 [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-neutral-900 dark:[&_a]:hover:text-neutral-50">
 					By clicking continue, you agree to our <Link to={{ pathname: "/legal" }}>Terms of Service</Link> and <Link to={{ pathname: "/legal" }}>Privacy Policy</Link>.
 				</div>
 			</div>

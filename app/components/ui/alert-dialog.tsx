@@ -13,7 +13,7 @@ const AlertDialogOverlay = React.forwardRef<React.ElementRef<typeof AlertDialogP
 	({ className, ...props }, ref) => (
 		<AlertDialogPrimitive.Overlay
 			className={cn(
-				"fixed inset-0 z-50 h-full w-full bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+				"fixed inset-0 z-50 h-full w-full bg-black/50 backdrop-blur-xs data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
 				className,
 			)}
 			{...props}
@@ -73,7 +73,7 @@ AlertDialogAction.displayName = AlertDialogPrimitive.Action.displayName;
 const AlertDialogCancel = React.forwardRef<React.ElementRef<typeof AlertDialogPrimitive.Cancel>, React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Cancel>>(({ className, ...props }, ref) => (
 	<AlertDialogPrimitive.Cancel
 		ref={ref}
-		className={cn(buttonVariants(), "mt-2 rounded-3xl bg-[#2B3236] p-5 py-6 sm:mt-0 dark:bg-[#2B3236] dark:text-white hover:dark:bg-[#2B3236]/40", className)}
+		className={cn(buttonVariants(), "mt-2 rounded-3xl bg-[#2B3236] p-5 py-6 sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40", className)}
 		{...props}
 	/>
 ));

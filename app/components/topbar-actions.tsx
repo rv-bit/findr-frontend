@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 
+import { useSession } from "~/hooks/use-auth";
 import { authClient } from "~/lib/auth";
 
 import { useTheme } from "~/providers/Theme";
@@ -28,7 +29,7 @@ export default function TopbarActions() {
 	const [open, setOpen] = useState(false);
 
 	const navigate = useNavigate();
-	const { data: session, isPending, error } = authClient.useSession();
+	const { data: sessionData, isPending, refetch } = useSession();
 
 	const dropDownActions: DropDownActions[] = React.useMemo(
 		() => [
@@ -51,6 +52,7 @@ export default function TopbarActions() {
 				icon: LogOut,
 				onClick: async () => {
 					await authClient.signOut();
+					await refetch();
 
 					navigate("/auth");
 					setOpen(false);
@@ -87,7 +89,7 @@ export default function TopbarActions() {
 			</div>
 
 			<div className="flex items-center justify-end gap-2">
-				{!session?.user ? (
+				{!sessionData?.user ? (
 					<Button
 						onClick={async () => {
 							navigate("/auth");
@@ -114,9 +116,9 @@ export default function TopbarActions() {
 							<DropdownMenuTrigger asChild>
 								<SidebarMenuButton variant={"link"} size="lg" className="h-auto p-1 rounded-full hover:bg-sidebar-foreground/20 hover:text-white dark:hover:bg-sidebar-accent">
 									<Avatar className="h-8 w-8 rounded-full">
-										{!isPending && <AvatarImage src={`${import.meta.env.VITE_CLOUD_FRONT_URL}/${session?.user.image}`} alt={session?.user.name} />}
+										{!isPending && <AvatarImage src={`${import.meta.env.VITE_CLOUD_FRONT_URL}/${sessionData?.user.image}`} alt={sessionData?.user.name} />}
 										<AvatarFallback className="rounded-lg bg-sidebar-foreground/50">
-											{session?.user.name
+											{sessionData?.user.name
 												?.split(" ")
 												.map((name) => name[0])
 												.join("")}
@@ -124,7 +126,7 @@ export default function TopbarActions() {
 									</Avatar>
 								</SidebarMenuButton>
 							</DropdownMenuTrigger>
-							<DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg dark:bg-modal border-none mt-3.5" side={"bottom"} align="end" sideOffset={4}>
+							<DropdownMenuContent className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg dark:bg-modal border-none mt-3.5" side={"bottom"} align="end" sideOffset={4}>
 								<DropdownMenuLabel className="p-0 font-normal">
 									<Button
 										onClick={() => {
@@ -135,9 +137,9 @@ export default function TopbarActions() {
 										className="w-full h-auto flex items-center justify-center gap-2 px-3 text-left text-sm hover:no-underline opacity-80 hover:opacity-100"
 									>
 										<Avatar className="h-8 w-8 rounded-full">
-											{!isPending && <AvatarImage src={`${import.meta.env.VITE_CLOUD_FRONT_URL}/${session?.user.image}`} alt={session?.user.name} />}
+											{!isPending && <AvatarImage src={`${import.meta.env.VITE_CLOUD_FRONT_URL}/${sessionData?.user.image}`} alt={sessionData?.user.name} />}
 											<AvatarFallback className="rounded-full">
-												{session?.user.name
+												{sessionData?.user.name
 													?.split(" ")
 													.map((name) => name[0])
 													.join("")}
@@ -145,7 +147,7 @@ export default function TopbarActions() {
 										</Avatar>
 										<div className="grid flex-1 text-left text-sm leading-tight">
 											<span className="truncate font-semibold">View Profile</span>
-											<span className="truncate text-xs">{session?.user.username!}</span>
+											<span className="truncate text-xs">{sessionData?.user.username!}</span>
 										</div>
 									</Button>
 								</DropdownMenuLabel>

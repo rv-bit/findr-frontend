@@ -1,7 +1,6 @@
 import { reactRouter } from "@react-router/dev/vite";
-import autoprefixer from "autoprefixer";
+import tailwindcss from "@tailwindcss/vite";
 import path from "path";
-import tailwindcss from "tailwindcss";
 import babel from "vite-plugin-babel";
 import tsconfigPaths from "vite-tsconfig-paths";
 
@@ -14,7 +13,7 @@ const devConfig = {
 		proxy: {
 			"/api": {
 				// api version
-				target: "http://localhost:5001/",
+				target: "http://localhost:5001",
 				changeOrigin: true,
 				secure: false,
 				ws: true,
@@ -62,11 +61,6 @@ const prodConfig = {
 const config = process.env.NODE_ENV === "development" ? devConfig : prodConfig;
 
 export default defineConfig({
-	css: {
-		postcss: {
-			plugins: [tailwindcss, autoprefixer],
-		},
-	},
 	plugins: [
 		reactRouter(),
 		tsconfigPaths(),
@@ -77,6 +71,8 @@ export default defineConfig({
 				plugins: [["babel-plugin-react-compiler"]],
 			},
 		}),
+		// @ts-ignore
+		tailwindcss(),
 	],
 
 	resolve: {

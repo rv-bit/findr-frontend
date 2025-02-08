@@ -3,7 +3,9 @@ import type { Route } from "./+types/_layout";
 import React from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 
-import { authClient } from "~/lib/auth";
+import { authClient, type Session } from "~/lib/auth";
+import { prefetchSession } from "~/lib/auth-prefetches";
+import { queryClient } from "~/lib/query/query-client";
 import { cn } from "~/lib/utils";
 
 import { ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
@@ -11,22 +13,35 @@ import { type IconType } from "react-icons";
 import { Button } from "~/components/ui/button";
 
 export async function clientLoader({ serverLoader, params }: Route.ClientLoaderArgs) {
-	const { data: session, error } = await authClient.getSession();
+	const cachedData = queryClient.getQueryData<Session>(["session"]);
+	const data = cachedData ?? (await prefetchSession(queryClient));
+
+	if (!data.session || !data.user) {
+		throw new Response("", { status: 302, headers: { Location: "/auth" } }); // Redirect to login
+	}
+
+	const session = {
+		session: data.session,
+		user: data.user,
+	};
+
 	if (!session) {
 		throw new Response("", { status: 302, headers: { Location: "/auth" } }); // Redirect to login
 	}
 
 	const { data: accountLists, error: errorAccountLists } = await authClient.listAccounts();
+	const { data: sessions } = await authClient.listSessions();
 
 	const hasPassword = accountLists?.some((account) => account.provider === "credential");
-	const hasEmailVerified = session.user.emailVerified;
+	const hasEmailVerified = session.user?.emailVerified;
 
 	return {
 		...session,
 		accountLists: accountLists,
+		sessions: sessions,
 		hasEmailVerified: hasEmailVerified,
 		hasPassword: hasPassword,
-		hasTwoFactor: session.user.twoFactorEnabled,
+		hasTwoFactor: session.user?.twoFactorEnabled,
 	};
 }
 
@@ -132,7 +147,7 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
 										navigate(typeof action.url === "string" ? action.url : action.url[1]);
 									}}
 									className={cn(
-										"group relative h-auto min-w-fit flex-shrink-0 items-center justify-center px-4 py-2 hover:no-underline rounded-none",
+										"group relative h-auto min-w-fit shrink-0 items-center justify-center px-4 py-2 hover:no-underline rounded-none",
 										isActive(action.url) ? "border-b-2 border-black dark:border-white" : "hover:border-b-2 hover:border-black/50 dark:hover:border-white/80",
 									)}
 								>
@@ -149,7 +164,7 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
 							))}
 						</nav>
 
-						<div className="absolute left-0 top-0 bg-gradient-to-l from-transparent from-0% to-sidebar to-30% pr-3">
+						<div className="absolute left-0 top-0 bg-linear-to-l from-transparent from-0% to-sidebar to-30% pr-3">
 							<button
 								ref={navGoLeftRef}
 								onClick={() => {
@@ -163,7 +178,7 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
 							</button>
 						</div>
 
-						<div className="absolute right-0 top-0 bg-gradient-to-r from-transparent from-0% to-sidebar to-30% pl-3">
+						<div className="absolute right-0 top-0 bg-linear-to-r from-transparent from-0% to-sidebar to-30% pl-3">
 							<button
 								ref={navGoRightRef}
 								onClick={() => {

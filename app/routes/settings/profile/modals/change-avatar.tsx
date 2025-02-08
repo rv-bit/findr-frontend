@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { useSession } from "~/hooks/use-auth";
 import { useToast } from "~/hooks/use-toast";
 
 import { authClient } from "~/lib/auth";
@@ -33,7 +34,7 @@ const newAvatarSchema = z.object({
 export default function Index({ open, onOpenChange }: ModalProps) {
 	const toast = useToast();
 	const navigate = useNavigate();
-	const { data: session, isPending, error } = authClient.useSession();
+	const { refetch } = useSession();
 
 	const [loading, setLoading] = React.useState(false);
 	const [step, setStep] = React.useState(0); // 0 = select image, 1 = crop image, 2 = confirm image
@@ -89,10 +90,12 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 					setLoading(true);
 				},
 
-				onSuccess() {
+				onSuccess: async () => {
 					onOpenChange(false);
 
-					authClient.signOut();
+					await authClient.signOut();
+					await refetch();
+
 					navigate("/auth");
 				},
 
@@ -193,7 +196,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 									{step === 0 && (
 										<Button
 											type="button"
-											className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white hover:dark:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+											className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
 											onClick={() => onOpenChange(false)}
 										>
 											Cancel
@@ -204,7 +207,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 										<React.Fragment>
 											<Button
 												type="button"
-												className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white hover:dark:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+												className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
 												onClick={() => setStep(0)}
 											>
 												Back
@@ -220,7 +223,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 										<React.Fragment>
 											<Button
 												type="button"
-												className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white hover:dark:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+												className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
 												onClick={() => onOpenChange(false)}
 											>
 												Cancel
