@@ -5,7 +5,6 @@ import { useNavigate } from "react-router";
 
 import { useToast } from "~/hooks/use-toast";
 
-import { authClient } from "~/lib/auth";
 import type { ModalProps } from "~/lib/types/modal";
 
 import { ChevronRight, type LucideIcon } from "lucide-react";
@@ -38,8 +37,6 @@ export default function Index({ matches }: Route.ComponentProps) {
 
 	const navigate = useNavigate();
 	const toast = useToast();
-
-	const { data: session, isPending, error } = authClient.useSession();
 
 	const actions: Actions[] = React.useMemo(
 		() => [

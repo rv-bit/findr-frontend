@@ -53,19 +53,6 @@ interface SessionsProps {
 	currentSession: string;
 }
 
-export async function clientLoader({ params }: Route.ClientLoaderArgs) {
-	const { data: session, error } = await authClient.getSession();
-	if (!session) {
-		throw new Response("", { status: 302, headers: { Location: "/auth" } }); // Redirect to login
-	}
-
-	const { data: sessions } = await authClient.listSessions();
-
-	return {
-		...sessions,
-	};
-}
-
 const Sessions = (props: SessionsProps) => {
 	return (
 		<Table containerClass="border rounded-xl border-sidebar-foreground dark:border-sidebar-accent">
@@ -142,11 +129,8 @@ const Sessions = (props: SessionsProps) => {
 };
 
 export default function Index({ matches }: Route.ComponentProps) {
-	const parentLoader = matches[1];
-	const sessionsLoader = matches[2];
-
-	const loaderData = parentLoader.data;
-	const sessionsData = sessionsLoader.data;
+	const loader = matches[1];
+	const loaderData = loader.data;
 
 	const navigate = useNavigate();
 	const toast = useToast();
@@ -194,7 +178,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 								<h1 className="text-2xl font-bricolage-grotesque tracking-tighter font-semibold capitalize text-black dark:text-white">{action.title}</h1>
 								{action.description && <p className="text-sm text-gray-500 dark:text-gray-400">{action.description}</p>}
 							</span>
-							{action.children && <action.children sessionsData={sessionsData} currentSession={loaderData.session.id} />}
+							{action.children && <action.children sessionsData={loaderData.sessions} currentSession={loaderData.session.id} />}
 
 							{action.items &&
 								action.items.map((item) => {

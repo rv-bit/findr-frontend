@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@daveyplate/better-auth-tanstack':
-        specifier: ^1.1.4
-        version: 1.1.4(@tanstack/query-core@5.66.0)(@tanstack/react-query@5.66.0(react@19.0.0-beta-26f2496093-20240514))(better-auth@1.1.16)(react-dom@19.0.0-beta-26f2496093-20240514(react@19.0.0-beta-26f2496093-20240514))(react@19.0.0-beta-26f2496093-20240514)
+        specifier: ^1.2.2
+        version: 1.2.2(@tanstack/query-core@5.66.0)(@tanstack/react-query@5.66.0(react@19.0.0-beta-26f2496093-20240514))(better-auth@1.1.16)(react-dom@19.0.0-beta-26f2496093-20240514(react@19.0.0-beta-26f2496093-20240514))(react@19.0.0-beta-26f2496093-20240514)
       '@hookform/resolvers':
         specifier: ^3.10.0
         version: 3.10.0(react-hook-form@7.54.2(react@19.0.0-beta-26f2496093-20240514))
@@ -424,8 +424,8 @@ packages:
       react: ^16.8.0 || ^17 || ^18 || ^19
       react-dom: ^16.8.0 || ^17 || ^18 || ^19
 
-  '@daveyplate/better-auth-tanstack@1.1.4':
-    resolution: {integrity: sha512-sg6+XSb8uLfpxlaO7BqOD1jMgK7SV/tKHHMF7qyozrZ29lzBIe4zm+KDeUq7uwUWYspHMwVjDPjGUfu/NUxMAg==}
+  '@daveyplate/better-auth-tanstack@1.2.2':
+    resolution: {integrity: sha512-dRMnBwnZDa8aNNJ3ctAYGGnZmXrBKiTnSiHk4OmQye4B962mM/niV9KbtDowgvuPta4HlFmjkOay+9p7zoXX+g==}
     peerDependencies:
       '@tanstack/query-core': '>=5.65.0'
       '@tanstack/react-query': '>=5.65.0'
@@ -4053,7 +4053,7 @@ snapshots:
       react-dom: 19.0.0-beta-26f2496093-20240514(react@19.0.0-beta-26f2496093-20240514)
       react-is: 17.0.2
 
-  '@daveyplate/better-auth-tanstack@1.1.4(@tanstack/query-core@5.66.0)(@tanstack/react-query@5.66.0(react@19.0.0-beta-26f2496093-20240514))(better-auth@1.1.16)(react-dom@19.0.0-beta-26f2496093-20240514(react@19.0.0-beta-26f2496093-20240514))(react@19.0.0-beta-26f2496093-20240514)':
+  '@daveyplate/better-auth-tanstack@1.2.2(@tanstack/query-core@5.66.0)(@tanstack/react-query@5.66.0(react@19.0.0-beta-26f2496093-20240514))(better-auth@1.1.16)(react-dom@19.0.0-beta-26f2496093-20240514(react@19.0.0-beta-26f2496093-20240514))(react@19.0.0-beta-26f2496093-20240514)':
     dependencies:
       '@tanstack/query-core': 5.66.0
       '@tanstack/react-query': 5.66.0(react@19.0.0-beta-26f2496093-20240514)

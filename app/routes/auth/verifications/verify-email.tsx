@@ -2,19 +2,34 @@ import type { Route } from "../verifications/+types/verify-email";
 
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router";
-import { authClient } from "~/lib/auth";
+
+import { useSession } from "~/hooks/use-auth";
+
+import { authClient, type Session } from "~/lib/auth";
+import { prefetchSession } from "~/lib/auth-prefetches";
+import { queryClient } from "~/lib/query/query-client";
 
 export async function clientLoader({ serverLoader, params }: Route.ClientLoaderArgs) {
-	const { data: session, error } = await authClient.getSession();
-	if (!session) {
+	const cachedData = queryClient.getQueryData<Session>(["session"]);
+	const data = cachedData ?? (await prefetchSession(queryClient));
+
+	const session = {
+		session: data.session,
+		user: data.user,
+	};
+
+	if (!session.session || !session.user) {
 		throw new Response("", { status: 302, headers: { Location: "/auth" } }); // Redirect to login
 	}
+
 	return null;
 }
 
 export default function Index() {
 	const navigate = useNavigate();
 	const [searchParams, setSearchParams] = useSearchParams();
+
+	const { refetch } = useSession();
 
 	const [loading, setLoading] = React.useState(false);
 	const [verified, setVerified] = React.useState(false);
@@ -29,11 +44,13 @@ export default function Index() {
 					{
 						query: {
 							token: token,
+							callbackURL: `${window.location.origin}/auth`,
 						},
 					},
 					{
-						onSuccess: () => {
-							console.log("Email has been verified");
+						onSuccess: async () => {
+							await authClient.signOut(); // try Sign out user
+							await refetch(); // try refetch session
 
 							setVerified(true);
 							setLoading(false);

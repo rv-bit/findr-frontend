@@ -4,6 +4,7 @@ import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, 
 import type { Route } from "./+types/root";
 import stylesheet from "./app.css?url";
 
+import { AuthQueryProvider } from "@daveyplate/better-auth-tanstack";
 import { QueryClientProvider } from "@tanstack/react-query";
 
 import type { LoadingBarRef } from "react-top-loading-bar";
@@ -71,31 +72,33 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<LoadingBar ref={loadingBarRef} color="#5060dd" shadow={false} transitionTime={100} waitingTime={300} />
 
 				<QueryClientProvider client={queryClient}>
-					<ThemeProvider>
-						<TopbarProvider>
-							<SidebarProvider>
-								<Topbar>
-									<TopbarInset>
-										<TopbarActions />
-									</TopbarInset>
-								</Topbar>
-								<SidebarActions />
-								<SidebarInset>
-									<main
-										style={{
-											height: "100%",
-											width: "100%",
-											flex: "1 1 0%",
-											overflowY: "auto",
-										}}
-									>
-										{children}
-									</main>
-									<Toaster />
-								</SidebarInset>
-							</SidebarProvider>
-						</TopbarProvider>
-					</ThemeProvider>
+					<AuthQueryProvider>
+						<ThemeProvider>
+							<TopbarProvider>
+								<SidebarProvider>
+									<Topbar>
+										<TopbarInset>
+											<TopbarActions />
+										</TopbarInset>
+									</Topbar>
+									<SidebarActions />
+									<SidebarInset>
+										<main
+											style={{
+												height: "100%",
+												width: "100%",
+												flex: "1 1 0%",
+												overflowY: "auto",
+											}}
+										>
+											{children}
+										</main>
+										<Toaster />
+									</SidebarInset>
+								</SidebarProvider>
+							</TopbarProvider>
+						</ThemeProvider>
+					</AuthQueryProvider>
 				</QueryClientProvider>
 				<ScrollRestoration />
 				<Scripts />

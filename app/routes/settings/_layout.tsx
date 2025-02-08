@@ -3,7 +3,9 @@ import type { Route } from "./+types/_layout";
 import React from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 
-import { authClient } from "~/lib/auth";
+import { authClient, type Session } from "~/lib/auth";
+import { prefetchSession } from "~/lib/auth-prefetches";
+import { queryClient } from "~/lib/query/query-client";
 import { cn } from "~/lib/utils";
 
 import { ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
@@ -11,22 +13,35 @@ import { type IconType } from "react-icons";
 import { Button } from "~/components/ui/button";
 
 export async function clientLoader({ serverLoader, params }: Route.ClientLoaderArgs) {
-	const { data: session, error } = await authClient.getSession();
+	const cachedData = queryClient.getQueryData<Session>(["session"]);
+	const data = cachedData ?? (await prefetchSession(queryClient));
+
+	if (!data.session || !data.user) {
+		throw new Response("", { status: 302, headers: { Location: "/auth" } }); // Redirect to login
+	}
+
+	const session = {
+		session: data.session,
+		user: data.user,
+	};
+
 	if (!session) {
 		throw new Response("", { status: 302, headers: { Location: "/auth" } }); // Redirect to login
 	}
 
 	const { data: accountLists, error: errorAccountLists } = await authClient.listAccounts();
+	const { data: sessions } = await authClient.listSessions();
 
 	const hasPassword = accountLists?.some((account) => account.provider === "credential");
-	const hasEmailVerified = session.user.emailVerified;
+	const hasEmailVerified = session.user?.emailVerified;
 
 	return {
 		...session,
 		accountLists: accountLists,
+		sessions: sessions,
 		hasEmailVerified: hasEmailVerified,
 		hasPassword: hasPassword,
-		hasTwoFactor: session.user.twoFactorEnabled,
+		hasTwoFactor: session.user?.twoFactorEnabled,
 	};
 }
 

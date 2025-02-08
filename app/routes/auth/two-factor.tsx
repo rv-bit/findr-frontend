@@ -14,6 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "~/components/ui/input-otp";
 import { Label } from "~/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
+import { useSession } from "~/hooks/use-auth";
 
 interface StepProps {
 	step: number;
@@ -56,6 +57,7 @@ const twoFactorCodeSchema = z.object({
 
 export default function Index() {
 	const navigate = useNavigate();
+	const { refetch } = useSession();
 
 	const [open, onOpenChange] = React.useState(true);
 	const [loading, setLoading] = React.useState(false);
@@ -105,6 +107,8 @@ export default function Index() {
 						},
 						{
 							onSuccess: async () => {
+								await refetch(); // Refetch session
+
 								setLoading(false);
 								navigate("/settings");
 							},
@@ -125,6 +129,8 @@ export default function Index() {
 						},
 						{
 							onSuccess: async () => {
+								await refetch(); // Refetch session
+
 								setLoading(false);
 								navigate("/settings");
 							},
@@ -146,6 +152,8 @@ export default function Index() {
 						},
 						{
 							onSuccess: async () => {
+								await refetch(); // Refetch session
+
 								setLoading(false);
 								navigate("/settings");
 							},

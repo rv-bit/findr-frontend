@@ -6,6 +6,8 @@ import { z } from "zod";
 
 import { QRCodeCanvas } from "qrcode.react";
 
+import { useSession } from "~/hooks/use-auth";
+
 import { authClient } from "~/lib/auth";
 import type { ModalProps } from "~/lib/types/modal";
 
@@ -35,6 +37,8 @@ const twoFactorCodeSchema = z.object({
 });
 
 export default function Index({ open, onOpenChange }: ModalProps) {
+	const { refetch } = useSession();
+
 	const [currentState, setCurrentState] = React.useState<StepProps>({
 		step: 1,
 		qr: {
@@ -112,7 +116,8 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 						step: 3, // display backup codes
 					}));
 
-					authClient.signOut(); // logout user after enabling 2fa
+					await authClient.signOut(); // logout user after enabling 2fa
+					await refetch();
 				},
 
 				onError: (context) => {

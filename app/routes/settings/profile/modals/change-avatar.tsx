@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { useSession } from "~/hooks/use-auth";
 import { useToast } from "~/hooks/use-toast";
 
 import { authClient } from "~/lib/auth";
@@ -33,7 +34,7 @@ const newAvatarSchema = z.object({
 export default function Index({ open, onOpenChange }: ModalProps) {
 	const toast = useToast();
 	const navigate = useNavigate();
-	const { data: session, isPending, error } = authClient.useSession();
+	const { refetch } = useSession();
 
 	const [loading, setLoading] = React.useState(false);
 	const [step, setStep] = React.useState(0); // 0 = select image, 1 = crop image, 2 = confirm image
@@ -89,10 +90,12 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 					setLoading(true);
 				},
 
-				onSuccess() {
+				onSuccess: async () => {
 					onOpenChange(false);
 
-					authClient.signOut();
+					await authClient.signOut();
+					await refetch();
+
 					navigate("/auth");
 				},
 
