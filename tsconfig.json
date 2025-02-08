@@ -12,6 +12,7 @@
 		"paths": {
 			"~/*": ["./app/*"]
 		},
+		"allowSyntheticDefaultImports": true,
 		"esModuleInterop": true,
 		"verbatimModuleSyntax": true,
 		"noEmit": true,
