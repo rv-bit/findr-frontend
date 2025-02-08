@@ -1,7 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router";
 
-import Cropper, { type Area } from "react-easy-crop";
+import ReactCrop, { centerCrop, convertToPixelCrop, makeAspectCrop, type Crop, type PixelCrop } from "react-image-crop";
+import "react-image-crop/dist/ReactCrop.css";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -11,16 +12,18 @@ import { useSession } from "~/hooks/use-auth";
 import { useToast } from "~/hooks/use-toast";
 
 import { authClient } from "~/lib/auth";
-import { getCroppedImg } from "~/lib/canvas";
 import type { ModalProps } from "~/lib/types/modal";
 
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import setCanvasPreview from "~/lib/canvas";
 
 const MAX_FILE_SIZE_BYTES = 1 * 1024 * 1024; // 5mb
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+const ASPECT_RATIO = 1;
+const MIN_DIMENSION = 150;
 
 const newAvatarSchema = z.object({
 	image: z
@@ -39,9 +42,11 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 	const [loading, setLoading] = React.useState(false);
 	const [step, setStep] = React.useState(0); // 0 = select image, 1 = crop image, 2 = confirm image
 
-	const [crop, setCrop] = React.useState({ x: 0, y: 0 });
-	const [zoom, setZoom] = React.useState(1);
-	const [croppedAreaPixels, setCroppedAreaPixels] = React.useState<Area>({ x: 0, y: 0, width: 0, height: 0 });
+	const [crop, setCrop] = React.useState<Crop>({ unit: "%", x: 0, y: 0, width: 50, height: 50 });
+	const [croppedArea, setCroppedArea] = React.useState<PixelCrop>({ unit: "px", x: 0, y: 0, width: 50, height: 50 });
+
+	const imageRef = React.useRef<HTMLImageElement>(null);
+	const canvasRef = React.useRef<HTMLCanvasElement>(null);
 	const [imageSource, setImageSource] = React.useState<string>("");
 
 	const newAvatarForm = useForm<z.infer<typeof newAvatarSchema>>({
@@ -58,26 +63,45 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 	const fileRef = newAvatarForm.register("image", { required: true });
 	const isFormIsValid = formState.isValid;
 
-	const handleOnCropComplete = (croppedArea: Area, croppedAreaPixels: Area) => {
-		setCroppedAreaPixels(croppedAreaPixels);
+	const handleOnCropComplete = (croppedAreaPixels: PixelCrop, croppedAreaPercentage: Crop) => {
+		setCroppedArea(croppedAreaPixels);
 	};
 
+	function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
+		const { width, height } = e.currentTarget;
+		const cropWidthInPercent = (MIN_DIMENSION / width) * 100;
+
+		const crop = makeAspectCrop(
+			{
+				unit: "%",
+				width: cropWidthInPercent,
+			},
+			ASPECT_RATIO,
+			width,
+			height,
+		);
+
+		const centeredCrop = centerCrop(crop, width, height);
+		setCrop(centeredCrop);
+	}
+
 	const handleSaveCroppedImage = async () => {
+		if (!imageRef.current) return;
+		if (!canvasRef.current) return;
+
 		setLoading(true);
 
 		const imageType = newAvatarForm.watch("image")?.[0].type;
-		try {
-			const croppedImage = await getCroppedImg(imageSource, imageType, croppedAreaPixels, 0);
-			newAvatarForm.setValue("croppedImage", croppedImage as string, { shouldValidate: true });
+		setCanvasPreview(imageRef.current, canvasRef.current, convertToPixelCrop(crop, imageRef.current.width, imageRef.current.height));
 
-			setTimeout(() => {
-				// Wait for the form to update
-				setLoading(false);
-				setStep(2);
-			}, 0);
-		} catch (e) {
-			console.error(e);
-		}
+		const croppedImage = canvasRef.current.toDataURL(imageType);
+		newAvatarForm.setValue("croppedImage", croppedImage as string, { shouldValidate: true });
+
+		setTimeout(() => {
+			// Wait for the form to update
+			setLoading(false);
+			setStep(2);
+		}, 0);
 	};
 
 	const handleSubmit = async (values: z.infer<typeof newAvatarSchema>) => {
@@ -156,26 +180,22 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 
 									{step === 1 && (
 										<div className="flex items-center justify-center">
-											<Cropper
-												image={imageSource}
+											<ReactCrop
+												circularCrop
+												keepSelection
+												aspect={ASPECT_RATIO}
+												minWidth={MIN_DIMENSION}
 												crop={crop}
-												zoom={zoom}
-												maxZoom={1.5}
-												aspect={1}
-												onCropChange={setCrop}
-												onZoomChange={setZoom}
-												onCropComplete={handleOnCropComplete}
+												onChange={setCrop}
+												onComplete={handleOnCropComplete}
 												style={{
-													containerStyle: {
-														width: "100%",
-														height: "500px",
-														position: "sticky",
-														top: "0",
-														left: "0",
-														backgroundColor: "transparent",
-													},
+													width: "100%",
+													maxHeight: "50%",
 												}}
-											/>
+											>
+												<img ref={imageRef} src={imageSource} onLoad={onImageLoad} alt="Crop" style={{ maxWidth: "100%", maxHeight: "100%" }} />
+											</ReactCrop>
+											<canvas ref={canvasRef} style={{ display: "none" }} />
 										</div>
 									)}
 
