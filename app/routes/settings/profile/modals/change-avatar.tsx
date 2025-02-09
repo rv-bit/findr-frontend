@@ -190,10 +190,13 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 												onComplete={handleOnCropComplete}
 												style={{
 													width: "100%",
-													maxHeight: "50%",
+													maxHeight: "500px",
+													display: "flex",
+													justifyContent: "center",
+													alignItems: "center",
 												}}
 											>
-												<img ref={imageRef} src={imageSource} onLoad={onImageLoad} alt="Crop" style={{ maxWidth: "100%", maxHeight: "100%" }} />
+												<img ref={imageRef} src={imageSource} onLoad={onImageLoad} alt="Crop" />
 											</ReactCrop>
 											<canvas ref={canvasRef} style={{ display: "none" }} />
 										</div>
