@@ -12,13 +12,13 @@ import { useSession } from "~/hooks/use-auth";
 import { useToast } from "~/hooks/use-toast";
 
 import { authClient } from "~/lib/auth";
+import setCanvasPreview from "~/lib/canvas";
 import type { ModalProps } from "~/lib/types/modal";
 
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import setCanvasPreview from "~/lib/canvas";
 
 const MAX_FILE_SIZE_BYTES = 1 * 1024 * 1024; // 5mb
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
