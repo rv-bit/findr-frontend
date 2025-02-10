@@ -9,9 +9,6 @@ export const authClient = createAuthClient({
 				about_description: {
 					type: "string",
 				},
-				slug: {
-					type: "string",
-				},
 			},
 		}),
 		twoFactorClient(),
