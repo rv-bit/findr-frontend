@@ -5,6 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { useSession } from "~/hooks/use-auth";
+
 import { authClient } from "~/lib/auth";
 import type { ModalProps } from "~/lib/types/modal";
 
@@ -21,7 +23,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 	const navigate = useNavigate();
 	const [loading, setLoading] = React.useState(false);
 
-	const { data: session, isPending, error } = authClient.useSession();
+	const { user, refetch } = useSession();
 
 	const newUsernameForm = useForm<z.infer<typeof newUsernameSchema>>({
 		mode: "onChange",
@@ -35,7 +37,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 	const isFormIsComplete = formState.isValid;
 
 	const handleSubmit = async (values: z.infer<typeof newUsernameSchema>) => {
-		if (values.username === session?.user.username) {
+		if (values.username === user?.username) {
 			newUsernameForm.setError("username", {
 				type: "manual",
 				message: "Username is the same as the current one",
@@ -52,21 +54,23 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 					setLoading(true);
 				},
 
-				onSuccess() {
+				onSuccess: async () => {
 					onOpenChange(false);
 
-					authClient.signOut();
+					await authClient.signOut();
+					await refetch();
+
 					navigate("/auth");
 				},
 
-				onError(context) {
+				onError: (context) => {
 					newUsernameForm.setError("username", {
 						type: "manual",
 						message: context.error.message,
 					});
 				},
 
-				onResponse(context) {
+				onResponse: (context) => {
 					setLoading(false);
 				},
 			},
