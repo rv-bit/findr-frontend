@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { useSession } from "~/hooks/use-auth";
 import { authClient } from "~/lib/auth";
 import type { ModalProps } from "~/lib/types/modal";
 
@@ -17,6 +18,7 @@ const twoFactorEnableSchema = z.object({
 });
 
 export default function Index({ open, onOpenChange }: ModalProps) {
+	const { refetch } = useSession();
 	const [loading, setLoading] = React.useState(false);
 
 	const twoFactorForm = useForm<z.infer<typeof twoFactorEnableSchema>>({
@@ -31,13 +33,27 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 	const isFormIsComplete = formState.isValid;
 
 	const handleEnableSubmit = async (values: z.infer<typeof twoFactorEnableSchema>) => {
-		setLoading(true);
-
-		const { data } = await authClient.twoFactor.enable({
+		await authClient.twoFactor.disable({
 			password: values.password,
-		});
+			fetchOptions: {
+				onRequest: () => {
+					setLoading(true);
+				},
+				onResponse: () => {
+					setLoading(false);
+				},
+				onSuccess: async () => {
+					onOpenChange(false);
 
-		setLoading(false);
+					await refetch();
+				},
+				onError: (ctx) => {
+					twoFactorForm.setError("password", {
+						message: ctx.error.message,
+					});
+				},
+			},
+		});
 	};
 
 	return (

@@ -7,7 +7,6 @@ import { z } from "zod";
 
 import { useSession } from "~/hooks/use-auth";
 
-import { authClient } from "~/lib/auth";
 import type { ModalProps } from "~/lib/types/modal";
 
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "~/components/ui/alert-dialog";
@@ -26,7 +25,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 	const [loading, setLoading] = React.useState(false);
 	const [currentCharacterCount, setCurrentCharacterCount] = React.useState(0);
 
-	const { user, refetch } = useSession();
+	const { user, refetch, updateUser } = useSession();
 
 	const newDescriptionForm = useForm<z.infer<typeof newDescriptionSchema>>({
 		mode: "onChange",
@@ -40,42 +39,31 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 	const isFormIsComplete = formState.isValid;
 
 	const handleSubmit = async (values: z.infer<typeof newDescriptionSchema>) => {
-		await authClient.updateUser(
-			{
-				about_description: values.description,
-			},
-			{
-				onRequest: () => {
-					setLoading(true);
-				},
+		setLoading(true);
 
-				onSuccess: async () => {
-					onOpenChange(false);
+		const { status, error } = await updateUser({
+			about_description: values.description,
+		});
 
-					await authClient.signOut();
-					await refetch();
+		setLoading(false);
 
-					navigate("/auth");
-				},
+		if (status) {
+			onOpenChange(false);
+			window.location.reload();
+		}
 
-				onError: (context) => {
-					newDescriptionForm.setError("description", {
-						type: "manual",
-						message: context.error.message,
-					});
-				},
-
-				onResponse: (context) => {
-					setLoading(false);
-				},
-			},
-		);
+		if (error) {
+			newDescriptionForm.setError("description", {
+				type: "manual",
+				message: error.message,
+			});
+		}
 	};
 
 	React.useEffect(() => {
 		if (user) {
-			newDescriptionForm.setValue("description", user.about_description);
-			setCurrentCharacterCount(user.about_description.length);
+			newDescriptionForm.setValue("description", user.about_description ?? "");
+			setCurrentCharacterCount(user.about_description?.length ?? 0);
 		}
 
 		return () => {

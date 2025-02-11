@@ -7,7 +7,6 @@ import { z } from "zod";
 
 import { useSession } from "~/hooks/use-auth";
 
-import { authClient } from "~/lib/auth";
 import type { ModalProps } from "~/lib/types/modal";
 
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "~/components/ui/alert-dialog";
@@ -23,7 +22,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 	const navigate = useNavigate();
 	const [loading, setLoading] = React.useState(false);
 
-	const { user, refetch } = useSession();
+	const { user, updateUser, refetch } = useSession();
 
 	const newUsernameForm = useForm<z.infer<typeof newUsernameSchema>>({
 		mode: "onChange",
@@ -45,36 +44,25 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 			return;
 		}
 
-		await authClient.updateUser(
-			{
-				username: values.username,
-			},
-			{
-				onRequest: () => {
-					setLoading(true);
-				},
+		setLoading(true);
 
-				onSuccess: async () => {
-					onOpenChange(false);
+		const { status, error } = await updateUser({
+			username: values.username,
+		});
 
-					await authClient.signOut();
-					await refetch();
+		setLoading(false);
 
-					navigate("/auth");
-				},
+		if (status) {
+			onOpenChange(false);
+			window.location.reload();
+		}
 
-				onError: (context) => {
-					newUsernameForm.setError("username", {
-						type: "manual",
-						message: context.error.message,
-					});
-				},
-
-				onResponse: (context) => {
-					setLoading(false);
-				},
-			},
-		);
+		if (error) {
+			newUsernameForm.setError("username", {
+				type: "manual",
+				message: error.message,
+			});
+		}
 	};
 
 	return (

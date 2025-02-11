@@ -41,20 +41,17 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 				onRequest: () => {
 					setLoading(true);
 				},
-
-				onSuccess() {
+				onResponse: (context) => {
+					setLoading(false);
+				},
+				onSuccess: () => {
 					onOpenChange(false);
 				},
-
-				onError(context) {
+				onError: (context) => {
 					newEmailForm.setError("newEmail", {
 						type: "manual",
 						message: context.error.message,
 					});
-				},
-
-				onResponse(context) {
-					setLoading(false);
 				},
 			},
 		);
