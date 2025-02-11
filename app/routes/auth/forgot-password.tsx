@@ -88,6 +88,8 @@ export default function ForgotPassword() {
 			});
 			return;
 		}
+
+		navigate("/auth");
 	};
 
 	const handleSubmit = async (values: z.infer<typeof newPasswordSchema>) => {
