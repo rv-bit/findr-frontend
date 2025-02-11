@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -85,6 +86,16 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 										name="currentPassword"
 										render={({ field }) => (
 											<FormItem>
+												<div className="flex items-center justify-end">
+													<Link
+														to={{
+															pathname: "/auth/forgot-password",
+														}}
+														className="text-xs text-neutral-500 dark:text-neutral-400 hover:underline"
+													>
+														Forgot password?
+													</Link>
+												</div>
 												<FormControl>
 													<Input type="password" placeholder="current password" required {...field} />
 												</FormControl>
