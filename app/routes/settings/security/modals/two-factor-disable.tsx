@@ -46,6 +46,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 					onOpenChange(false);
 
 					await refetch();
+					window.location.reload();
 				},
 				onError: (ctx) => {
 					twoFactorForm.setError("password", {
