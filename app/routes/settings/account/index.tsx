@@ -242,7 +242,6 @@ export default function Index({ matches }: Route.ComponentProps) {
 						message="Email is not verified"
 						title="Verify Email"
 						description="Please verify your email to continue."
-						buttonType="submit"
 					>
 						<Form {...emailVerifyForm}>
 							<form className="w-full" onSubmit={emailVerifyForm.handleSubmit(handleNewEmailSubmit)}>
