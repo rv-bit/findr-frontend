@@ -104,10 +104,6 @@ const Sessions = (props: {
 											<DropdownMenuLabel className="p-1 font-normal">
 												<Button
 													onClick={async () => {
-														if (props.currentSession === value.id) {
-															return;
-														}
-
 														await authClient.revokeSession({
 															token: value.token,
 														});
@@ -117,7 +113,7 @@ const Sessions = (props: {
 													variant={"link"}
 													className="w-full h-auto flex items-center justify-start gap-2 px-3 text-left text-sm hover:no-underline text-red-500 dark:text-red-500 hover:text-primary-400 transition-all duration-150 dark:hover:bg-primary-400/5 hover:bg-primary-400/10"
 												>
-													Revoke
+													{props.currentSession === value.id ? "Logout" : "Revoke"}
 												</Button>
 											</DropdownMenuLabel>
 										</DropdownMenuContent>
