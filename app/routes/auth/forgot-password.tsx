@@ -5,8 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { useToast } from "~/hooks/use-toast";
-
+import { toast } from "sonner";
 import { authClient } from "~/lib/auth";
 
 import { Button } from "~/components/ui/button";
@@ -30,7 +29,6 @@ const newPasswordSchema = z
 export default function ForgotPassword() {
 	const location = useLocation();
 	const navigate = useNavigate();
-	const toast = useToast();
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	const [currentStep, setCurrentStep] = useState(0); // 0 = email, 1 = new password
@@ -73,8 +71,7 @@ export default function ForgotPassword() {
 	const handleEmailSubmit = async (values: z.infer<typeof formSchema>) => {
 		setLoading(true);
 
-		toast.toast({
-			title: "Email Change",
+		toast.info("Email Change", {
 			description: "If the email exists in our system, you will receive an email with instructions to reset your password",
 		});
 
@@ -86,8 +83,7 @@ export default function ForgotPassword() {
 		setLoading(false);
 
 		if (error) {
-			toast.toast({
-				title: "Error",
+			toast.error("Error", {
 				description: error.message,
 			});
 			return;
@@ -105,15 +101,13 @@ export default function ForgotPassword() {
 		setLoading(false);
 
 		if (error) {
-			toast.toast({
-				title: "Error",
+			toast.error("Error", {
 				description: error.message,
 			});
 			return;
 		}
 
-		toast.toast({
-			title: "Success",
+		toast.error("Success", {
 			description: "Password reset successfully",
 		});
 
