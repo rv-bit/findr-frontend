@@ -15,7 +15,7 @@ import { queryClient } from "./lib/query/query-client";
 import { ThemeProvider } from "~/providers/Theme";
 
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
-import { Toaster } from "~/components/ui/toaster";
+import { Toaster } from "~/components/ui/sonner";
 import { Topbar, TopbarInset, TopbarProvider } from "~/components/ui/topbar";
 
 import SidebarActions from "~/components/sidebar-main";
