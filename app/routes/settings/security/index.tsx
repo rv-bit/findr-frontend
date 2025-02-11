@@ -2,18 +2,22 @@ import type { Route } from "../profile/+types/index"; // Import the Route type f
 
 import React from "react";
 import { useNavigate } from "react-router";
+import { UAParser } from "ua-parser-js";
 
-import { useToast } from "~/hooks/use-toast";
+import { toast } from "sonner";
 
 import { authClient } from "~/lib/auth";
 import type { ModalProps } from "~/lib/types/modal";
+import { formatTime } from "~/lib/utils";
 
-import { EllipsisVertical, ExternalLink, type LucideIcon } from "lucide-react";
+import { EllipsisVertical, ExternalLink, Laptop, type LucideIcon } from "lucide-react";
+import { type IconType } from "react-icons";
+import { CiMobile3 } from "react-icons/ci";
+
 import { Button } from "~/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table";
 
-import { formatTime, parseUserAgent } from "~/lib/utils";
 import TwoFactorDisableModal from "./modals/two-factor-disable";
 import TwoFactorEnableModal from "./modals/two-factor-enable";
 
@@ -22,7 +26,7 @@ interface Actions {
 	description?: string;
 	defaultValue?: string | number | boolean | undefined | null;
 	route?: string; // meaning like the url route
-	icon?: LucideIcon;
+	icon?: LucideIcon | IconType;
 	disabled?: boolean;
 
 	children?: React.FC<any>;
@@ -36,7 +40,7 @@ interface Actions {
 	items?: Actions[];
 }
 
-interface SessionsProps {
+const Sessions = (props: {
 	sessionsData: Record<
 		number,
 		{
@@ -51,9 +55,7 @@ interface SessionsProps {
 		}
 	>;
 	currentSession: string;
-}
-
-const Sessions = (props: SessionsProps) => {
+}) => {
 	return (
 		<Table containerClass="border rounded-xl border-sidebar-foreground dark:border-sidebar-accent">
 			<TableHeader className="rounded-full border-sidebar-foreground dark:border-sidebar-accent">
@@ -68,8 +70,6 @@ const Sessions = (props: SessionsProps) => {
 			<TableBody className="rounded-full">
 				{props?.sessionsData &&
 					Object.entries(props.sessionsData).map(([key, value]) => {
-						const name = parseUserAgent(value.userAgent);
-
 						const lastUsed = formatTime(new Date(value.updatedAt));
 						const firstCreated = formatTime(new Date(value.createdAt));
 						const expiresAt = formatTime(new Date(value.expiresAt));
@@ -78,7 +78,10 @@ const Sessions = (props: SessionsProps) => {
 							<TableRow key={key} className="border-sidebar-foreground dark:border-sidebar-accent">
 								<TableCell className="text-black dark:text-white tracking-tight">
 									<span className="flex flex-col gap-0.5">
-										<p className="text-md">{name}</p>
+										<span className="flex justify-start items-center gap-1">
+											{new UAParser(value.userAgent || "").getDevice().type === "mobile" ? <CiMobile3 size={16} /> : <Laptop size={16} />}
+											{new UAParser(value.userAgent || "").getOS().name}, {new UAParser(value.userAgent || "").getBrowser().name}
+										</span>
 										{value.id === props.currentSession && <p className="text-xs text-neutral-500 dark:text-neutral-400">(This Device)</p>}
 									</span>
 								</TableCell>
@@ -101,10 +104,6 @@ const Sessions = (props: SessionsProps) => {
 											<DropdownMenuLabel className="p-1 font-normal">
 												<Button
 													onClick={async () => {
-														if (props.currentSession === value.id) {
-															return;
-														}
-
 														await authClient.revokeSession({
 															token: value.token,
 														});
@@ -114,7 +113,7 @@ const Sessions = (props: SessionsProps) => {
 													variant={"link"}
 													className="w-full h-auto flex items-center justify-start gap-2 px-3 text-left text-sm hover:no-underline text-red-500 dark:text-red-500 hover:text-primary-400 transition-all duration-150 dark:hover:bg-primary-400/5 hover:bg-primary-400/10"
 												>
-													Revoke
+													{props.currentSession === value.id ? "Logout" : "Revoke"}
 												</Button>
 											</DropdownMenuLabel>
 										</DropdownMenuContent>
@@ -133,7 +132,6 @@ export default function Index({ matches }: Route.ComponentProps) {
 	const loaderData = loader.data;
 
 	const navigate = useNavigate();
-	const toast = useToast();
 
 	const actions: Actions[] = React.useMemo(
 		() => [
@@ -144,7 +142,6 @@ export default function Index({ matches }: Route.ComponentProps) {
 						title: "Two-Factor Authentication",
 						defaultValue: loaderData.hasTwoFactor ? "Enabled" : "Disabled",
 						icon: ExternalLink,
-						disabled: loaderData.hasTwoFactor ? true : false, // disable if two-factor is enabled, because there is no way to disable it just yet
 						modalActionOnClickCheck: () => {
 							const isValid = loaderData.hasEmailVerified && loaderData.hasPassword;
 							if (!isValid) {
@@ -207,8 +204,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 														const { success, error } = item.modalActionOnClickCheck();
 
 														if (!success) {
-															toast.toast({
-																title: "Error",
+															toast.error("Error", {
 																description: error,
 															});
 															return;

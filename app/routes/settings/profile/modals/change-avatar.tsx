@@ -1,24 +1,23 @@
 import React from "react";
 import { useNavigate } from "react-router";
 
-import ReactCrop, { centerCrop, convertToPixelCrop, makeAspectCrop, type Crop, type PixelCrop } from "react-image-crop";
+import ReactCrop, { centerCrop, convertToPixelCrop, makeAspectCrop, type Crop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { useSession } from "~/hooks/use-auth";
-import { useToast } from "~/hooks/use-toast";
 
-import { authClient } from "~/lib/auth";
+import setCanvasPreview from "~/lib/canvas";
 import type { ModalProps } from "~/lib/types/modal";
 
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import setCanvasPreview from "~/lib/canvas";
 
 const MAX_FILE_SIZE_BYTES = 1 * 1024 * 1024; // 5mb
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -35,15 +34,13 @@ const newAvatarSchema = z.object({
 });
 
 export default function Index({ open, onOpenChange }: ModalProps) {
-	const toast = useToast();
 	const navigate = useNavigate();
-	const { refetch } = useSession();
+	const { refetch, updateUser } = useSession();
 
 	const [loading, setLoading] = React.useState(false);
 	const [step, setStep] = React.useState(0); // 0 = select image, 1 = crop image, 2 = confirm image
 
 	const [crop, setCrop] = React.useState<Crop>({ unit: "%", x: 0, y: 0, width: 50, height: 50 });
-	const [croppedArea, setCroppedArea] = React.useState<PixelCrop>({ unit: "px", x: 0, y: 0, width: 50, height: 50 });
 
 	const imageRef = React.useRef<HTMLImageElement>(null);
 	const canvasRef = React.useRef<HTMLCanvasElement>(null);
@@ -62,10 +59,6 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 
 	const fileRef = newAvatarForm.register("image", { required: true });
 	const isFormIsValid = formState.isValid;
-
-	const handleOnCropComplete = (croppedAreaPixels: PixelCrop, croppedAreaPercentage: Crop) => {
-		setCroppedArea(croppedAreaPixels);
-	};
 
 	function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
 		const { width, height } = e.currentTarget;
@@ -105,36 +98,24 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 	};
 
 	const handleSubmit = async (values: z.infer<typeof newAvatarSchema>) => {
-		await authClient.updateUser(
-			{
-				image: values.croppedImage,
-			},
-			{
-				onRequest: () => {
-					setLoading(true);
-				},
+		setLoading(true);
 
-				onSuccess: async () => {
-					onOpenChange(false);
+		const { status, error } = await updateUser({
+			image: values.croppedImage,
+		});
 
-					await authClient.signOut();
-					await refetch();
+		setLoading(false);
 
-					navigate("/auth");
-				},
+		if (status) {
+			onOpenChange(false);
+			window.location.reload();
+		}
 
-				onError(context) {
-					toast.toast({
-						title: "Error",
-						description: context.error.message,
-					});
-				},
-
-				onResponse(context) {
-					setLoading(false);
-				},
-			},
-		);
+		if (error) {
+			toast.error("Error", {
+				description: error.message,
+			});
+		}
 	};
 
 	React.useEffect(() => {
@@ -187,13 +168,15 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 												minWidth={MIN_DIMENSION}
 												crop={crop}
 												onChange={setCrop}
-												onComplete={handleOnCropComplete}
 												style={{
 													width: "100%",
-													maxHeight: "50%",
+													maxHeight: "500px",
+													display: "flex",
+													justifyContent: "center",
+													alignItems: "center",
 												}}
 											>
-												<img ref={imageRef} src={imageSource} onLoad={onImageLoad} alt="Crop" style={{ maxWidth: "100%", maxHeight: "100%" }} />
+												<img ref={imageRef} src={imageSource} onLoad={onImageLoad} alt="Crop" />
 											</ReactCrop>
 											<canvas ref={canvasRef} style={{ display: "none" }} />
 										</div>

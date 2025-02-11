@@ -39,6 +39,7 @@ const twoFactorCodeSchema = z.object({
 export default function Index({ open, onOpenChange }: ModalProps) {
 	const { refetch } = useSession();
 
+	const [loading, setLoading] = React.useState(false);
 	const [currentState, setCurrentState] = React.useState<StepProps>({
 		step: 1,
 		qr: {
@@ -47,7 +48,6 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 			secret: "",
 		},
 	});
-	const [loading, setLoading] = React.useState(false);
 
 	const twoFactorForm = useForm<z.infer<typeof twoFactorEnableSchema>>({
 		mode: "onChange",
@@ -110,13 +110,16 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 					setLoading(true);
 				},
 
+				onResponse: (context) => {
+					setLoading(false);
+				},
+
 				onSuccess: async () => {
 					setCurrentState((prevData) => ({
 						...prevData,
 						step: 3, // display backup codes
 					}));
 
-					await authClient.signOut(); // logout user after enabling 2fa
 					await refetch();
 				},
 
@@ -125,10 +128,6 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 						type: "manual",
 						message: context.error.message,
 					});
-				},
-
-				onResponse(context) {
-					setLoading(false);
 				},
 			},
 		);
@@ -280,7 +279,10 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 								<Button
 									type="button"
 									className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
-									onClick={() => onOpenChange(false)}
+									onClick={() => {
+										onOpenChange(false);
+										window.location.reload();
+									}}
 								>
 									Close
 								</Button>

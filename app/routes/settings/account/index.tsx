@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { useToast } from "~/hooks/use-toast";
+import { toast } from "sonner";
 
 import { authClient } from "~/lib/auth";
 import type { ModalProps } from "~/lib/types/modal";
@@ -51,7 +51,6 @@ export default function Index({ matches }: Route.ComponentProps) {
 	const loaderData = loader.data;
 
 	const navigate = useNavigate();
-	const toast = useToast();
 
 	const actions: Actions[] = React.useMemo(
 		() => [
@@ -208,8 +207,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 
 		setLoading(false);
 
-		toast.toast({
-			title: "Info",
+		toast.info("Info", {
 			description: "If the email exists in our system, you will receive an email with instructions to verify your email",
 		});
 
@@ -244,7 +242,6 @@ export default function Index({ matches }: Route.ComponentProps) {
 						message="Email is not verified"
 						title="Verify Email"
 						description="Please verify your email to continue."
-						buttonType="submit"
 					>
 						<Form {...emailVerifyForm}>
 							<form className="w-full" onSubmit={emailVerifyForm.handleSubmit(handleNewEmailSubmit)}>
@@ -321,8 +318,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 														const { success, error } = item.modalActionOnClickCheck();
 
 														if (!success) {
-															toast.toast({
-																title: "Error",
+															toast.error("Error", {
 																description: error,
 															});
 															return;

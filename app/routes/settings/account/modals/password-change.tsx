@@ -47,26 +47,22 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 			{
 				currentPassword: values.currentPassword,
 				newPassword: values.newPassword,
-				revokeOtherSessions: true,
 			},
 			{
 				onRequest: () => {
 					setLoading(true);
 				},
-
-				onSuccess() {
+				onResponse: (context) => {
+					setLoading(false);
+				},
+				onSuccess: () => {
 					onOpenChange(false);
 				},
-
-				onError(context) {
+				onError: (context) => {
 					newPasswordForm.setError("currentPassword", {
 						type: "manual",
 						message: context.error.message,
 					});
-				},
-
-				onResponse(context) {
-					setLoading(false);
 				},
 			},
 		);

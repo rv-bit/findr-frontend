@@ -12,42 +12,37 @@ import type { ModalProps } from "~/lib/types/modal";
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
+import { Textarea } from "~/components/ui/textarea";
 
-const newUsernameSchema = z.object({
-	username: z.string().nonempty("Username is required"),
+const MAX_DESCRIPTION_LENGTH = 100;
+const newDescriptionSchema = z.object({
+	description: z.string().nonempty("Description is required").max(MAX_DESCRIPTION_LENGTH, "Description is too long"),
 });
 
 export default function Index({ open, onOpenChange }: ModalProps) {
 	const navigate = useNavigate();
+
 	const [loading, setLoading] = React.useState(false);
+	const [currentCharacterCount, setCurrentCharacterCount] = React.useState(0);
 
-	const { user, updateUser, refetch } = useSession();
+	const { user, refetch, updateUser } = useSession();
 
-	const newUsernameForm = useForm<z.infer<typeof newUsernameSchema>>({
+	const newDescriptionForm = useForm<z.infer<typeof newDescriptionSchema>>({
 		mode: "onChange",
-		resolver: zodResolver(newUsernameSchema),
+		resolver: zodResolver(newDescriptionSchema),
 		defaultValues: {
-			username: "",
+			description: "",
 		},
 	});
 
-	const { formState } = newUsernameForm;
+	const { formState } = newDescriptionForm;
 	const isFormIsComplete = formState.isValid;
 
-	const handleSubmit = async (values: z.infer<typeof newUsernameSchema>) => {
-		if (values.username === user?.username) {
-			newUsernameForm.setError("username", {
-				type: "manual",
-				message: "Username is the same as the current one",
-			});
-			return;
-		}
-
+	const handleSubmit = async (values: z.infer<typeof newDescriptionSchema>) => {
 		setLoading(true);
 
 		const { status, error } = await updateUser({
-			username: values.username,
+			about_description: values.description,
 		});
 
 		setLoading(false);
@@ -58,37 +53,69 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 		}
 
 		if (error) {
-			newUsernameForm.setError("username", {
+			newDescriptionForm.setError("description", {
 				type: "manual",
 				message: error.message,
 			});
 		}
 	};
 
+	React.useEffect(() => {
+		if (user) {
+			newDescriptionForm.setValue("description", user.about_description ?? "");
+			setCurrentCharacterCount(user.about_description?.length ?? 0);
+		}
+
+		return () => {
+			newDescriptionForm.reset();
+		};
+	}, [user]);
+
+	React.useEffect(() => {
+		const { unsubscribe } = newDescriptionForm.watch((value) => {
+			newDescriptionForm.trigger("description").then((isValid) => {
+				if (!isValid) {
+					return;
+				}
+
+				const newDescription = newDescriptionForm.watch("description");
+				setCurrentCharacterCount(newDescription.length);
+			});
+		});
+
+		return () => unsubscribe();
+	}, [newDescriptionForm.watch, newDescriptionForm.trigger]);
+
 	return (
 		<AlertDialog open={open} onOpenChange={(open) => onOpenChange(open)}>
 			<AlertDialogContent className="w-[calc(95vw-20px)]">
 				<AlertDialogHeader>
-					<AlertDialogTitle>Change Username</AlertDialogTitle>
-					<AlertDialogDescription className="space-y-0">Change your username to something new.</AlertDialogDescription>
+					<AlertDialogTitle>Change Description</AlertDialogTitle>
+					<AlertDialogDescription className="space-y-0">Change your description to something new.</AlertDialogDescription>
 				</AlertDialogHeader>
 				<section className="flex flex-col gap-2">
-					<Form {...newUsernameForm}>
-						<form className="w-full" onSubmit={newUsernameForm.handleSubmit(handleSubmit)}>
+					<Form {...newDescriptionForm}>
+						<form className="w-full" onSubmit={newDescriptionForm.handleSubmit(handleSubmit)}>
 							<div className="flex flex-col gap-4">
 								<div className="flex flex-col gap-2">
 									<FormField
-										control={newUsernameForm.control}
-										name="username"
+										control={newDescriptionForm.control}
+										name="description"
 										render={({ field }) => (
 											<FormItem>
 												<FormControl>
-													<Input type="text" placeholder="username" required {...field} />
+													<Textarea maxLength={MAX_DESCRIPTION_LENGTH} placeholder="description" required {...field} />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
 										)}
 									/>
+
+									<span className="w-full text-right text-sm text-gray-500 dark:text-gray-400">
+										<span className="text-gray-500 dark:text-gray-400 ">{currentCharacterCount}</span>
+										<span className="text-gray-500 dark:text-gray-400">/</span>
+										<span className="text-gray-500 dark:text-gray-400">{MAX_DESCRIPTION_LENGTH}</span>
+									</span>
 
 									<span className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
 										By continuing with this, you are going to be logged out and you will need to login again with the new username.

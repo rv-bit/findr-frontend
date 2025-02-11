@@ -3,7 +3,7 @@ import type { Route } from "../profile/+types/index"; // Import the Route type f
 import React from "react";
 import { useNavigate } from "react-router";
 
-import { useToast } from "~/hooks/use-toast";
+import { toast } from "sonner";
 
 import type { ModalProps } from "~/lib/types/modal";
 
@@ -11,6 +11,7 @@ import { ChevronRight, type LucideIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 
 import AvatarChangeModal from "./modals/change-avatar";
+import DescriptionChangeModal from "./modals/change-description";
 import UsernameChangeModal from "./modals/change-username";
 
 interface Actions {
@@ -36,7 +37,6 @@ export default function Index({ matches }: Route.ComponentProps) {
 	const loaderData = loader.data;
 
 	const navigate = useNavigate();
-	const toast = useToast();
 
 	const actions: Actions[] = React.useMemo(
 		() => [
@@ -70,6 +70,8 @@ export default function Index({ matches }: Route.ComponentProps) {
 
 							return { success: true, error: null };
 						},
+
+						componentLoad: DescriptionChangeModal,
 					},
 					{
 						title: "Avatar",
@@ -132,8 +134,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 														const { success, error } = item.modalActionOnClickCheck();
 
 														if (!success) {
-															toast.toast({
-																title: "Error",
+															toast.error("Error", {
 																description: error,
 															});
 															return;
