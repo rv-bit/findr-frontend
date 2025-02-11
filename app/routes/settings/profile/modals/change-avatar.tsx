@@ -6,10 +6,10 @@ import "react-image-crop/dist/ReactCrop.css";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { useSession } from "~/hooks/use-auth";
-import { useToast } from "~/hooks/use-toast";
 
 import setCanvasPreview from "~/lib/canvas";
 import type { ModalProps } from "~/lib/types/modal";
@@ -34,7 +34,6 @@ const newAvatarSchema = z.object({
 });
 
 export default function Index({ open, onOpenChange }: ModalProps) {
-	const toast = useToast();
 	const navigate = useNavigate();
 	const { refetch, updateUser } = useSession();
 
@@ -113,8 +112,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 		}
 
 		if (error) {
-			toast.toast({
-				title: "Error",
+			toast.error("Error", {
 				description: error.message,
 			});
 		}

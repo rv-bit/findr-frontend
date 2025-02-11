@@ -4,7 +4,7 @@ import React from "react";
 import { useNavigate } from "react-router";
 import { UAParser } from "ua-parser-js";
 
-import { useToast } from "~/hooks/use-toast";
+import { toast } from "sonner";
 
 import { authClient } from "~/lib/auth";
 import type { ModalProps } from "~/lib/types/modal";
@@ -136,7 +136,6 @@ export default function Index({ matches }: Route.ComponentProps) {
 	const loaderData = loader.data;
 
 	const navigate = useNavigate();
-	const toast = useToast();
 
 	const actions: Actions[] = React.useMemo(
 		() => [
@@ -209,8 +208,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 														const { success, error } = item.modalActionOnClickCheck();
 
 														if (!success) {
-															toast.toast({
-																title: "Error",
+															toast.error("Error", {
 																description: error,
 															});
 															return;

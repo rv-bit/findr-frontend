@@ -1,5 +1,5 @@
 import React from "react";
-import { useToast } from "~/hooks/use-toast";
+import { toast } from "sonner";
 
 import type { ModalProps } from "~/lib/types/modal";
 
@@ -8,8 +8,6 @@ import { Button } from "~/components/ui/button";
 
 export default function Index({ open, onOpenChange, onClickAction }: ModalProps) {
 	const [loading, setLoading] = React.useState(false);
-
-	const toast = useToast();
 
 	return (
 		<AlertDialog open={open} onOpenChange={(open) => onOpenChange(open)}>
@@ -33,8 +31,7 @@ export default function Index({ open, onOpenChange, onClickAction }: ModalProps)
 
 								onOpenChange(false);
 
-								toast.toast({
-									title: "Account Deletion",
+								toast.error("Account Deletion", {
 									description: "If the email exists in our system, you will receive an email with instructions to delete your account",
 								});
 							}
