@@ -1,6 +1,7 @@
+import React from "react";
 import type { Route } from "./+types/onboard";
 
-import { useState } from "react";
+import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,12 +15,15 @@ import { useSession } from "~/hooks/use-auth";
 import { authClient, type Session } from "~/lib/auth";
 import { prefetchSession } from "~/lib/auth-prefetches";
 import { queryClient } from "~/lib/query/query-client";
+import { cn } from "~/lib/utils";
 
+import { Eye, EyeOff } from "lucide-react";
 import { FaGithub, FaGoogle } from "react-icons/fa";
 
 import { Button } from "~/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { getPasswordStrength, strengthVariants } from "~/styles/variants/password-variants";
 
 export async function clientLoader({ serverLoader, params }: Route.ClientLoaderArgs) {
 	const cachedData = queryClient.getQueryData<Session>(["session"]);
@@ -43,25 +47,28 @@ const formSchema = z
 		name: z.string().nonempty("Name is required"),
 		username: z.string().nonempty("Username is required"),
 		password: z.string().min(8, "Password must be at least 8 characters long"),
-		confirmPassword: z.string().min(8, "Password must be at least 8 characters long"),
-	})
-	.refine((data) => data.password === data.confirmPassword, {
-		message: "Passwords do not match",
-		path: ["confirmPassword"],
+		confirmPassword: z.string(),
 	})
 	.refine((data) => !data.username.includes("@"), {
 		message: "Username cannot contain '@'",
 		path: ["username"],
+	})
+	.refine((data) => data.password === data.confirmPassword, {
+		message: "Passwords do not match",
+		path: ["confirmPassword"],
 	});
 
 export default function Register() {
 	const navigate = useNavigate();
 	const { refetch } = useSession();
 
-	const [loading, setLoading] = useState(false);
-	const [error, setError] = useState<string>();
+	const [loading, setLoading] = React.useState(false);
+	const [error, setError] = React.useState<string>();
+
+	const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
 
 	const form = useForm<z.infer<typeof formSchema>>({
+		mode: "onChange",
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			email: "",
@@ -79,7 +86,8 @@ export default function Register() {
 				name: values.name,
 				username: values.username,
 				password: values.password,
-				callbackURL: "/auth/verify-email", // this is so it can send an email to verify the email
+				callbackURL: "/auth/verify-email",
+				about_description: "",
 			},
 			{
 				onRequest: () => {
@@ -98,6 +106,25 @@ export default function Register() {
 			},
 		);
 	};
+
+	function handlePasswordVisibilityToggle(e: React.MouseEvent<HTMLButtonElement>) {
+		e.preventDefault();
+		setIsPasswordVisible(!isPasswordVisible);
+	}
+
+	const passwordStrength = React.useMemo(() => {
+		const value = form.watch("password");
+		const score = getPasswordStrength(value?.toString() ?? "");
+
+		return strengthVariants[score as keyof typeof strengthVariants];
+	}, [form.watch]);
+
+	const passwordConfirmStrength = React.useMemo(() => {
+		const value = form.watch("confirmPassword");
+		const score = getPasswordStrength(value?.toString() ?? "");
+
+		return strengthVariants[score as keyof typeof strengthVariants];
+	}, [form.watch]);
 
 	return (
 		<div className="flex h-full w-full flex-col items-center justify-center gap-6 px-2">
@@ -167,8 +194,39 @@ export default function Register() {
 										name="password"
 										render={({ field }) => (
 											<FormItem>
+												<FormLabel>
+													<motion.div
+														key={passwordStrength.verdict}
+														initial={{ opacity: 0, y: 10, scale: 0.9 }}
+														animate={{ opacity: 1, y: 0, scale: 1 }}
+														exit={{ opacity: 0, y: -10, scale: 0.9 }}
+														transition={{ type: "spring", stiffness: 500, damping: 30 }}
+														className={cn(`text-right text-muted-foreground h-4 text-xs mb-1.5 ${form.watch("password").length > 0 ? "block" : "hidden"}`)}
+													>
+														{passwordStrength.verdict}
+													</motion.div>
+												</FormLabel>
 												<FormControl>
-													<Input type="password" placeholder="password" required className="text-black dark:text-white" {...field} />
+													<div className="relative">
+														<Input
+															type={isPasswordVisible ? "text" : "password"}
+															placeholder="password"
+															required
+															className={cn("duration-350 pe-9 text-black dark:text-white", passwordStrength.styles)}
+															{...field}
+														/>
+														<Button
+															className="text-muted-foreground absolute inset-y-0 end-0"
+															onClick={handlePasswordVisibilityToggle}
+															aria-hidden="true"
+															variant="link"
+															tabIndex={-1}
+															type="button"
+															size="icon"
+														>
+															{isPasswordVisible ? <EyeOff className="size-4" strokeWidth={2} /> : <Eye className="size-4" strokeWidth={2} />}
+														</Button>
+													</div>
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -179,8 +237,39 @@ export default function Register() {
 										name="confirmPassword"
 										render={({ field }) => (
 											<FormItem>
+												<FormLabel>
+													<motion.div
+														key={passwordConfirmStrength.verdict}
+														initial={{ opacity: 0, y: 10, scale: 0.9 }}
+														animate={{ opacity: 1, y: 0, scale: 1 }}
+														exit={{ opacity: 0, y: -10, scale: 0.9 }}
+														transition={{ type: "spring", stiffness: 500, damping: 30 }}
+														className={cn(`text-right text-muted-foreground h-4 text-xs mb-1.5 ${form.watch("confirmPassword").length > 0 ? "block" : "hidden"}`)}
+													>
+														{passwordConfirmStrength.verdict}
+													</motion.div>
+												</FormLabel>
 												<FormControl>
-													<Input type="password" placeholder="confirm password" required className="text-black dark:text-white" {...field} />
+													<div className="relative">
+														<Input
+															type={isPasswordVisible ? "text" : "password"}
+															placeholder="confirm password"
+															required
+															className={cn("duration-350 pe-9 text-black dark:text-white", passwordConfirmStrength.styles)}
+															{...field}
+														/>
+														<Button
+															className="text-muted-foreground absolute inset-y-0 end-0"
+															onClick={handlePasswordVisibilityToggle}
+															aria-hidden="true"
+															variant="link"
+															tabIndex={-1}
+															type="button"
+															size="icon"
+														>
+															{isPasswordVisible ? <EyeOff className="size-4" strokeWidth={2} /> : <Eye className="size-4" strokeWidth={2} />}
+														</Button>
+													</div>
 												</FormControl>
 												<FormMessage />
 											</FormItem>

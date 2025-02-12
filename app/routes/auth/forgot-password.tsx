@@ -1,5 +1,8 @@
-import { useEffect, useState } from "react";
+// organize-imports-ignore
+
+import React from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router";
+import { motion } from "framer-motion";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -7,10 +10,14 @@ import { z } from "zod";
 
 import { toast } from "sonner";
 import { authClient } from "~/lib/auth";
+import { cn } from "~/lib/utils";
+
+import { Eye, EyeOff } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { getPasswordStrength, strengthVariants } from "~/styles/variants/password-variants";
 
 const formSchema = z.object({
 	email: z.string().email().nonempty("Email is required"),
@@ -31,27 +38,10 @@ export default function ForgotPassword() {
 	const navigate = useNavigate();
 	const [searchParams, setSearchParams] = useSearchParams();
 
-	const [currentStep, setCurrentStep] = useState(0); // 0 = email, 1 = new password
-	const [loading, setLoading] = useState(false);
+	const [currentStep, setCurrentStep] = React.useState(0); // 0 = email, 1 = new password
+	const [loading, setLoading] = React.useState(false);
 
-	useEffect(() => {
-		const token = searchParams.get("token"); // Check if token is present
-		if (token) {
-			setCurrentStep(1); // Show new password form
-		}
-	}, [searchParams]);
-
-	useEffect(() => {
-		const locationState = location.state;
-
-		if (locationState) {
-			if (locationState.from === "create-password") {
-				if (locationState.email) {
-					form.setValue("email", locationState.email);
-				}
-			}
-		}
-	}, [location]);
+	const [isPasswordVisible, setIsPasswordVisible] = React.useState(false);
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -116,6 +106,44 @@ export default function ForgotPassword() {
 		navigate("/auth");
 	};
 
+	function handlePasswordVisibilityToggle(e: React.MouseEvent<HTMLButtonElement>) {
+		e.preventDefault();
+		setIsPasswordVisible(!isPasswordVisible);
+	}
+
+	const passwordStrength = React.useMemo(() => {
+		const value = newPasswordForm.watch("password");
+		const score = getPasswordStrength(value?.toString() ?? "");
+
+		return strengthVariants[score as keyof typeof strengthVariants];
+	}, [newPasswordForm.watch]);
+
+	const passwordConfirmStrength = React.useMemo(() => {
+		const value = newPasswordForm.watch("confirmPassword");
+		const score = getPasswordStrength(value?.toString() ?? "");
+
+		return strengthVariants[score as keyof typeof strengthVariants];
+	}, [newPasswordForm.watch]);
+
+	React.useEffect(() => {
+		const token = searchParams.get("token"); // Check if token is present
+		if (token) {
+			setCurrentStep(1); // Show new password form
+		}
+	}, [searchParams]);
+
+	React.useEffect(() => {
+		const locationState = location.state;
+
+		if (locationState) {
+			if (locationState.from === "create-password") {
+				if (locationState.email) {
+					form.setValue("email", locationState.email);
+				}
+			}
+		}
+	}, [location]);
+
 	return (
 		<div className="flex h-full w-full flex-col items-center justify-center gap-6 px-2">
 			<div className="flex w-full max-w-lg flex-col gap-6">
@@ -161,8 +189,39 @@ export default function ForgotPassword() {
 											name="password"
 											render={({ field }) => (
 												<FormItem>
+													<FormLabel>
+														<motion.div
+															key={passwordStrength.verdict}
+															initial={{ opacity: 0, y: 10, scale: 0.9 }}
+															animate={{ opacity: 1, y: 0, scale: 1 }}
+															exit={{ opacity: 0, y: -10, scale: 0.9 }}
+															transition={{ type: "spring", stiffness: 500, damping: 30 }}
+															className={cn(`text-right text-muted-foreground h-4 text-xs mb-1.5 ${newPasswordForm.watch("password").length > 0 ? "block" : "hidden"}`)}
+														>
+															{passwordStrength.verdict}
+														</motion.div>
+													</FormLabel>
 													<FormControl>
-														<Input type="password" placeholder="password" required {...field} />
+														<div className="relative">
+															<Input
+																type={isPasswordVisible ? "text" : "password"}
+																placeholder="password"
+																required
+																className={cn("duration-350 pe-9 text-black dark:text-white", passwordStrength.styles)}
+																{...field}
+															/>
+															<Button
+																className="text-muted-foreground absolute inset-y-0 end-0"
+																onClick={handlePasswordVisibilityToggle}
+																aria-hidden="true"
+																variant="link"
+																tabIndex={-1}
+																type="button"
+																size="icon"
+															>
+																{isPasswordVisible ? <EyeOff className="size-4" strokeWidth={2} /> : <Eye className="size-4" strokeWidth={2} />}
+															</Button>
+														</div>
 													</FormControl>
 													<FormMessage />
 												</FormItem>
@@ -173,8 +232,39 @@ export default function ForgotPassword() {
 											name="confirmPassword"
 											render={({ field }) => (
 												<FormItem>
+													<FormLabel>
+														<motion.div
+															key={passwordConfirmStrength.verdict}
+															initial={{ opacity: 0, y: 10, scale: 0.9 }}
+															animate={{ opacity: 1, y: 0, scale: 1 }}
+															exit={{ opacity: 0, y: -10, scale: 0.9 }}
+															transition={{ type: "spring", stiffness: 500, damping: 30 }}
+															className={cn(`text-right text-muted-foreground h-4 text-xs mb-1.5 ${newPasswordForm.watch("password").length > 0 ? "block" : "hidden"}`)}
+														>
+															{passwordConfirmStrength.verdict}
+														</motion.div>
+													</FormLabel>
 													<FormControl>
-														<Input type="password" placeholder="confirm password" required {...field} />
+														<div className="relative">
+															<Input
+																type={isPasswordVisible ? "text" : "password"}
+																placeholder="confirm password"
+																required
+																className={cn("duration-350 pe-9 text-black dark:text-white", passwordConfirmStrength.styles)}
+																{...field}
+															/>
+															<Button
+																className="text-muted-foreground absolute inset-y-0 end-0"
+																onClick={handlePasswordVisibilityToggle}
+																aria-hidden="true"
+																variant="link"
+																tabIndex={-1}
+																type="button"
+																size="icon"
+															>
+																{isPasswordVisible ? <EyeOff className="size-4" strokeWidth={2} /> : <Eye className="size-4" strokeWidth={2} />}
+															</Button>
+														</div>
 													</FormControl>
 													<FormMessage />
 												</FormItem>
