@@ -10,56 +10,10 @@ const devConfig = {
 	server: {
 		port: 3000,
 		cors: true,
-		proxy: {
-			"/api": {
-				// api version
-				target: "http://localhost:5001",
-				changeOrigin: true,
-				secure: false,
-				ws: true,
-				rewrite: (path: string) => path.replace(/^\/api/, ""),
-				configure: (proxy: any, _options: any) => {
-					proxy.on("error", (err: any, _req: any, _res: any) => {
-						console.log("proxy error", err);
-					});
-					proxy.on("proxyReq", (proxyReq: any, req: any, _res: any) => {
-						console.log("Sending Request to the Target:", req.method, req.url);
-					});
-					proxy.on("proxyRes", (proxyRes: any, req: any, _res: any) => {
-						console.log("Received Response from the Target:", proxyRes.statusCode, req.url);
-					});
-				},
-			},
-		},
 	},
 };
 
-const prodConfig = {
-	server: {
-		proxy: {
-			"/api": {
-				// api version
-				target: process.env.VITE_API_URL,
-				changeOrigin: true,
-				secure: true,
-				rewrite: (path: string) => path.replace(/^\/api/, ""),
-				configure: (proxy: any, _options: any) => {
-					proxy.on("error", (err: any, _req: any, _res: any) => {
-						console.log("proxy error", err);
-					});
-					proxy.on("proxyReq", (proxyReq: any, req: any, _res: any) => {
-						console.log("Sending Request to the Target:", req.method, req.url);
-					});
-					proxy.on("proxyRes", (proxyRes: any, req: any, _res: any) => {
-						console.log("Received Response from the Target:", proxyRes.statusCode, req.url);
-					});
-				},
-			},
-		},
-	},
-};
-
-const config = process.env.NODE_ENV === "development" ? devConfig : prodConfig;
+const config = process.env.NODE_ENV === "development" ? devConfig : {};
 
 export default defineConfig({
 	plugins: [

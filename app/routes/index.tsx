@@ -3,6 +3,8 @@ import type { Route } from "./+types/index";
 
 import React, { useEffect } from "react";
 
+import axiosInstance from "~/lib/axios-instance";
+
 // export async function loader({ params }: Route.LoaderArgs) {
 // 	const data = await queryClient.prefetchInfiniteQuery({
 // 		queryKey: ["posts"],
@@ -46,15 +48,14 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 	const inViewportRef = React.useRef(null);
 
 	const fetchPosts = async ({ pageParam: pageParam = 0 }) => {
-		const res = await fetch("/api/v0/post/", {
-			method: "GET",
-			body: JSON.stringify({ pageParam }),
+		const res = await axiosInstance.get("/api/v0/post/", {
+			// body: JSON.stringify({ pageParam }),
 			headers: {
 				"Content-Type": "application/json",
 			},
 		});
 
-		return res.json();
+		return res.data;
 	};
 
 	const {
@@ -98,8 +99,8 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 	) : (
 		<div className="flex h-full w-full flex-col items-center justify-start max-md:w-screen">
 			<div className="overflow-hidden flex w-full max-w-5xl flex-col gap-1 px-10 pt-8 max-sm:px-4">
-				{/* <div>
-					{data?.pages.map((group, i) => (
+				<div>
+					{posts?.pages.map((group, i) => (
 						<React.Fragment key={i}>
 							{group.data.map((project: any) => (
 								<p key={project.id}>{project.name}</p>
@@ -108,17 +109,11 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 					))}
 					{hasNextPage && (
 						<div ref={inViewportRef}>
-							{isFetchingNextPage && (
-								<p>Loading more...</p>
-							)}
-							{!isFetchingNextPage && (
-								<button onClick={() => fetchNextPage()}>
-									{hasNextPage ? 'Load More' : 'Nothing more to load'}
-								</button>
-							)}
+							{isFetchingNextPage && <p>Loading more...</p>}
+							{!isFetchingNextPage && <button onClick={() => fetchNextPage()}>{hasNextPage ? "Load More" : "Nothing more to load"}</button>}
 						</div>
 					)}
-				</div> */}
+				</div>
 			</div>
 		</div>
 	);
