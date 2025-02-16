@@ -44,7 +44,7 @@ export default function Index() {
 					{
 						query: {
 							token: token,
-							callbackURL: `${window.location.origin}/auth`,
+							// callbackURL: `${window.location.origin}/auth`,
 						},
 					},
 					{
