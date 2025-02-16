@@ -86,7 +86,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 								<AlertDialogFooter>
 									<Button
 										type="button"
-										className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+										className="mt-2 rounded-3xl bg-[#2B3236] p-5 py-6 sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40"
 										onClick={() => onOpenChange(false)}
 									>
 										Cancel
