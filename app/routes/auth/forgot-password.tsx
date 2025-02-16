@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -196,7 +196,7 @@ export default function ForgotPassword() {
 															animate={{ opacity: 1, y: 0, scale: 1 }}
 															exit={{ opacity: 0, y: -10, scale: 0.9 }}
 															transition={{ type: "spring", stiffness: 500, damping: 30 }}
-															className={cn(`text-right text-muted-foreground h-4 text-xs mb-1.5 ${newPasswordForm.watch("password").length > 0 ? "block" : "hidden"}`)}
+															className={cn(`text-muted-foreground mb-1.5 h-4 text-right text-xs ${newPasswordForm.watch("password").length > 0 ? "block" : "hidden"}`)}
 														>
 															{passwordStrength.verdict}
 														</motion.div>
@@ -207,7 +207,7 @@ export default function ForgotPassword() {
 																type={isPasswordVisible ? "text" : "password"}
 																placeholder="password"
 																required
-																className={cn("duration-350 pe-9 text-black dark:text-white", passwordStrength.styles)}
+																className={cn("pe-9 text-black duration-350 dark:text-white", passwordStrength.styles)}
 																{...field}
 															/>
 															<Button
@@ -239,7 +239,7 @@ export default function ForgotPassword() {
 															animate={{ opacity: 1, y: 0, scale: 1 }}
 															exit={{ opacity: 0, y: -10, scale: 0.9 }}
 															transition={{ type: "spring", stiffness: 500, damping: 30 }}
-															className={cn(`text-right text-muted-foreground h-4 text-xs mb-1.5 ${newPasswordForm.watch("password").length > 0 ? "block" : "hidden"}`)}
+															className={cn(`text-muted-foreground mb-1.5 h-4 text-right text-xs ${newPasswordForm.watch("password").length > 0 ? "block" : "hidden"}`)}
 														>
 															{passwordConfirmStrength.verdict}
 														</motion.div>
@@ -250,7 +250,7 @@ export default function ForgotPassword() {
 																type={isPasswordVisible ? "text" : "password"}
 																placeholder="confirm password"
 																required
-																className={cn("duration-350 pe-9 text-black dark:text-white", passwordConfirmStrength.styles)}
+																className={cn("pe-9 text-black duration-350 dark:text-white", passwordConfirmStrength.styles)}
 																{...field}
 															/>
 															<Button

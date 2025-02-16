@@ -1,7 +1,7 @@
 import React from "react";
 import type { Route } from "./+types/onboard";
 
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { Link, useNavigate } from "react-router";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -132,7 +132,7 @@ export default function Register() {
 				<div className="flex flex-col gap-6">
 					<div className="flex flex-col items-center gap-1">
 						<h1 className="text-center text-xl font-semibold text-neutral-500 dark:text-neutral-400">Welcome to {constants.APP_NAME}</h1>
-						<div className="text-balance text-center text-sm text-neutral-500 dark:text-neutral-400">
+						<div className="text-center text-sm text-balance text-neutral-500 dark:text-neutral-400">
 							Already have an account?
 							<Link
 								to={{
@@ -201,7 +201,7 @@ export default function Register() {
 														animate={{ opacity: 1, y: 0, scale: 1 }}
 														exit={{ opacity: 0, y: -10, scale: 0.9 }}
 														transition={{ type: "spring", stiffness: 500, damping: 30 }}
-														className={cn(`text-right text-muted-foreground h-4 text-xs mb-1.5 ${form.watch("password").length > 0 ? "block" : "hidden"}`)}
+														className={cn(`text-muted-foreground mb-1.5 h-4 text-right text-xs ${form.watch("password").length > 0 ? "block" : "hidden"}`)}
 													>
 														{passwordStrength.verdict}
 													</motion.div>
@@ -212,7 +212,7 @@ export default function Register() {
 															type={isPasswordVisible ? "text" : "password"}
 															placeholder="password"
 															required
-															className={cn("duration-350 pe-9 text-black dark:text-white", passwordStrength.styles)}
+															className={cn("pe-9 text-black duration-350 dark:text-white", passwordStrength.styles)}
 															{...field}
 														/>
 														<Button
@@ -244,7 +244,7 @@ export default function Register() {
 														animate={{ opacity: 1, y: 0, scale: 1 }}
 														exit={{ opacity: 0, y: -10, scale: 0.9 }}
 														transition={{ type: "spring", stiffness: 500, damping: 30 }}
-														className={cn(`text-right text-muted-foreground h-4 text-xs mb-1.5 ${form.watch("confirmPassword").length > 0 ? "block" : "hidden"}`)}
+														className={cn(`text-muted-foreground mb-1.5 h-4 text-right text-xs ${form.watch("confirmPassword").length > 0 ? "block" : "hidden"}`)}
 													>
 														{passwordConfirmStrength.verdict}
 													</motion.div>
@@ -255,7 +255,7 @@ export default function Register() {
 															type={isPasswordVisible ? "text" : "password"}
 															placeholder="confirm password"
 															required
-															className={cn("duration-350 pe-9 text-black dark:text-white", passwordConfirmStrength.styles)}
+															className={cn("pe-9 text-black duration-350 dark:text-white", passwordConfirmStrength.styles)}
 															{...field}
 														/>
 														<Button
@@ -315,7 +315,7 @@ export default function Register() {
 						</Button>
 					</div>
 				</div>
-				<div className="text-balance text-center text-xs text-neutral-500 dark:text-neutral-400 [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-neutral-900 dark:[&_a]:hover:text-neutral-50">
+				<div className="text-center text-xs text-balance text-neutral-500 dark:text-neutral-400 [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-neutral-900 dark:[&_a]:hover:text-neutral-50">
 					By clicking continue, you agree to our <Link to={{ pathname: "/legal" }}>Terms of Service</Link> and <Link to={{ pathname: "/legal" }}>Privacy Policy</Link>.
 				</div>
 			</div>

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Link } from "react-router";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -120,7 +120,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 														to={{
 															pathname: "/auth/forgot-password",
 														}}
-														className="text-xs text-neutral-500 dark:text-neutral-400 hover:underline"
+														className="text-xs text-neutral-500 hover:underline dark:text-neutral-400"
 													>
 														Forgot password?
 													</Link>
@@ -144,7 +144,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 														animate={{ opacity: 1, y: 0, scale: 1 }}
 														exit={{ opacity: 0, y: -10, scale: 0.9 }}
 														transition={{ type: "spring", stiffness: 500, damping: 30 }}
-														className={cn(`text-right text-muted-foreground h-4 text-xs mb-1.5 ${newPasswordForm.watch("newPassword").length > 0 ? "block" : "hidden"}`)}
+														className={cn(`text-muted-foreground mb-1.5 h-4 text-right text-xs ${newPasswordForm.watch("newPassword").length > 0 ? "block" : "hidden"}`)}
 													>
 														{passwordStrength.verdict}
 													</motion.div>
@@ -155,7 +155,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 															type={isPasswordVisible ? "text" : "password"}
 															placeholder="new password"
 															required
-															className={cn("duration-350 pe-9 text-black dark:text-white", passwordStrength.styles)}
+															className={cn("pe-9 text-black duration-350 dark:text-white", passwordStrength.styles)}
 															{...field}
 														/>
 														<Button
@@ -188,7 +188,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 														exit={{ opacity: 0, y: -10, scale: 0.9 }}
 														transition={{ type: "spring", stiffness: 500, damping: 30 }}
 														className={cn(
-															`text-right text-muted-foreground h-4 text-xs mb-1.5 ${newPasswordForm.watch("newPasswordConfirm").length > 0 ? "block" : "hidden"}`,
+															`text-muted-foreground mb-1.5 h-4 text-right text-xs ${newPasswordForm.watch("newPasswordConfirm").length > 0 ? "block" : "hidden"}`,
 														)}
 													>
 														{passwordConfirmStrength.verdict}
@@ -200,7 +200,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 															type={isPasswordVisible ? "text" : "password"}
 															placeholder="confirm new password"
 															required
-															className={cn("duration-350 pe-9 text-black dark:text-white", passwordConfirmStrength.styles)}
+															className={cn("pe-9 text-black duration-350 dark:text-white", passwordConfirmStrength.styles)}
 															{...field}
 														/>
 														<Button
@@ -225,7 +225,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 								<AlertDialogFooter>
 									<Button
 										type="button"
-										className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+										className="mt-2 rounded-3xl bg-[#2B3236] p-5 py-6 sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40"
 										onClick={() => onOpenChange(false)}
 									>
 										Cancel
