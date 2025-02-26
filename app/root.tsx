@@ -119,15 +119,15 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 	if (isRouteErrorResponse(error)) {
 		// 404 error page
 		return (
-			<main className="h-full w-full container mx-auto flex flex-col justify-center items-center gap-2">
+			<main className="container mx-auto flex h-full w-full flex-col items-center justify-center gap-2">
 				<ErrorIcon width={300} height={300} />
 
-				<h1 className="max-sm:text-lg text-balance text-center text-3xl text-black dark:text-white">
+				<h1 className="text-center text-3xl text-balance text-black max-sm:text-lg dark:text-white">
 					{error.status === 404 ? "Oops! We couldn't find that page" : error.statusText || "Error"}
 				</h1>
-				<p className="max-sm:text-sm text-md text-balance text-center">
+				<p className="text-md text-center text-balance max-sm:text-sm">
 					You can go back to the{" "}
-					<a className="hover:underline font-bold italic" href="/">
+					<a className="font-bold italic hover:underline" href="/">
 						home page
 					</a>{" "}
 					or try again later.
@@ -142,7 +142,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 	}
 
 	return (
-		<main className="h-full w-full container mx-auto flex justify-center items-center">
+		<main className="container mx-auto flex h-full w-full items-center justify-center">
 			<p>{details}</p>
 
 			{stack && (
