@@ -3,7 +3,6 @@ const plugin = require("tailwindcss/plugin");
 const { fontFamily } = require("tailwindcss/defaultTheme");
 
 export default {
-	darkMode: "selector",
 	content: ["./app/**/**/*.{js,jsx,ts,tsx}"],
 	theme: {
 		extend: {
@@ -76,12 +75,10 @@ export default {
 			addVariant("current", "&.active");
 		}),
 
-		// @ts-ignore
-		function ({ matchVariant }) {
+		function ({ matchVariant }: any) {
 			matchVariant(
 				"has",
-				// @ts-ignore
-				(value) => {
+				(value: any) => {
 					return `&:has(${value})`;
 				},
 				{
