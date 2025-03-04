@@ -6,7 +6,8 @@ import { UAParser } from "ua-parser-js";
 
 import { toast } from "sonner";
 
-import { authClient } from "~/lib/auth";
+import { useListSessions } from "~/hooks/use-auth";
+
 import type { ModalProps } from "~/lib/types/modal";
 import { formatTime } from "~/lib/utils";
 
@@ -40,22 +41,13 @@ interface Actions {
 	items?: Actions[];
 }
 
-const Sessions = (props: {
-	sessionsData: Record<
-		number,
-		{
-			id: string;
-			createdAt: Date;
-			updatedAt: Date;
-			userId: string;
-			expiresAt: Date;
-			token: string;
-			ipAddress?: string | null | undefined | undefined;
-			userAgent?: string | null | undefined;
-		}
-	>;
-	currentSession: string;
-}) => {
+const Sessions = (props: { currentSession: string }) => {
+	const { sessions: sessionsData, revokeSession, revokeSessionError, revokeSessions, revokeSessionsError, isPending, error } = useListSessions();
+
+	if (isPending) {
+		return <div>Loading...</div>;
+	}
+
 	return (
 		<Table containerClass="border rounded-xl border-sidebar-foreground dark:border-sidebar-accent">
 			<TableHeader className="rounded-full border-sidebar-foreground dark:border-sidebar-accent">
@@ -68,17 +60,17 @@ const Sessions = (props: {
 				</TableRow>
 			</TableHeader>
 			<TableBody className="rounded-full">
-				{props?.sessionsData &&
-					Object.entries(props.sessionsData).map(([key, value]) => {
+				{sessionsData &&
+					Object.entries(sessionsData).map(([key, value]) => {
 						const lastUsed = formatTime(new Date(value.updatedAt));
 						const firstCreated = formatTime(new Date(value.createdAt));
 						const expiresAt = formatTime(new Date(value.expiresAt));
 
 						return (
 							<TableRow key={key} className="border-sidebar-foreground dark:border-sidebar-accent">
-								<TableCell className="text-black dark:text-white tracking-tight">
+								<TableCell className="tracking-tight text-black dark:text-white">
 									<span className="flex flex-col gap-0.5">
-										<span className="flex justify-start items-center gap-1">
+										<span className="flex items-center justify-start gap-1">
 											{new UAParser(value.userAgent || "").getDevice().type === "mobile" ? <CiMobile3 size={16} /> : <Laptop size={16} />}
 											{new UAParser(value.userAgent || "").getOS().name}, {new UAParser(value.userAgent || "").getBrowser().name}
 										</span>
@@ -91,12 +83,12 @@ const Sessions = (props: {
 								<TableCell className="text-right text-black dark:text-white">
 									<DropdownMenu>
 										<DropdownMenuTrigger asChild>
-											<Button variant="link" className="hover:no-underline hover:text-sidebar-foreground/50">
+											<Button variant="link" className="hover:text-sidebar-foreground/50 hover:no-underline">
 												<EllipsisVertical />
 											</Button>
 										</DropdownMenuTrigger>
 										<DropdownMenuContent
-											className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg dark:bg-modal border border-sidebar-foreground dark:border-sidebar-accent mt-3.5"
+											className="mt-3.5 w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg border border-sidebar-foreground dark:border-sidebar-accent dark:bg-modal"
 											side={"bottom"}
 											align="end"
 											sideOffset={4}
@@ -104,14 +96,12 @@ const Sessions = (props: {
 											<DropdownMenuLabel className="p-1 font-normal">
 												<Button
 													onClick={async () => {
-														await authClient.revokeSession({
-															token: value.token,
-														});
+														await revokeSession(value.token);
 
 														window.location.reload();
 													}}
 													variant={"link"}
-													className="w-full h-auto flex items-center justify-start gap-2 px-3 text-left text-sm hover:no-underline text-red-500 dark:text-red-500 hover:text-primary-400 transition-all duration-150 dark:hover:bg-primary-400/5 hover:bg-primary-400/10"
+													className="flex h-auto w-full items-center justify-start gap-2 px-3 text-left text-sm text-red-500 transition-all duration-150 hover:bg-primary-400/10 hover:text-primary-400 hover:no-underline dark:text-red-500 dark:hover:bg-primary-400/5"
 												>
 													{props.currentSession === value.id ? "Logout" : "Revoke"}
 												</Button>
@@ -172,10 +162,10 @@ export default function Index({ matches }: Route.ComponentProps) {
 					return (
 						<React.Fragment key={action.title}>
 							<span key={action.title} className="mb-2">
-								<h1 className="text-2xl font-bricolage-grotesque tracking-tighter font-semibold capitalize text-black dark:text-white">{action.title}</h1>
+								<h1 className="font-bricolage-grotesque text-2xl font-semibold tracking-tighter text-black capitalize dark:text-white">{action.title}</h1>
 								{action.description && <p className="text-sm text-gray-500 dark:text-gray-400">{action.description}</p>}
 							</span>
-							{action.children && <action.children sessionsData={loaderData.sessions} currentSession={loaderData.session.id} />}
+							{action.children && <action.children currentSession={loaderData.session.id} />}
 
 							{action.items &&
 								action.items.map((item) => {
@@ -193,7 +183,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 												key={item.title}
 												variant={"link"}
 												disabled={item.disabled}
-												className="group flex w-full items-center justify-between gap-4 bg-none p-0 h-auto hover:no-underline"
+												className="group flex h-auto w-full items-center justify-between gap-4 bg-none p-0 hover:no-underline"
 												onClick={(e) => {
 													if (item.route) {
 														navigate(item.route);
@@ -221,9 +211,9 @@ export default function Index({ matches }: Route.ComponentProps) {
 													}
 												}}
 											>
-												<div className="flex flex-col items-start justify-center gap-[0.15rem] w-fit">
+												<div className="flex w-fit flex-col items-start justify-center gap-[0.15rem]">
 													<span>{item.title}</span>
-													{item.description && <span className="text-balance text-left text-xs text-gray-500 dark:text-gray-400">{item.description}</span>}
+													{item.description && <span className="text-left text-xs text-balance text-gray-500 dark:text-gray-400">{item.description}</span>}
 												</div>
 												<div className="flex items-center justify-center gap-2">
 													<h1 className="">{item?.defaultValue}</h1>

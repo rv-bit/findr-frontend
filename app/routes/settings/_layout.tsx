@@ -30,7 +30,6 @@ export async function clientLoader({ serverLoader, params }: Route.ClientLoaderA
 	}
 
 	const { data: accountLists, error: errorAccountLists } = await authClient.listAccounts();
-	const { data: sessions } = await authClient.listSessions();
 
 	const hasPassword = accountLists?.some((account) => account.provider === "credential");
 	const hasEmailVerified = session.user?.emailVerified;
@@ -38,7 +37,6 @@ export async function clientLoader({ serverLoader, params }: Route.ClientLoaderA
 	return {
 		...session,
 		accountLists: accountLists,
-		sessions: sessions,
 		hasEmailVerified: hasEmailVerified,
 		hasPassword: hasPassword,
 		hasTwoFactor: session.user?.twoFactorEnabled,
@@ -134,7 +132,7 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
 		<React.Fragment>
 			<div className="flex h-full w-full flex-col items-center justify-start max-md:w-screen">
 				<div className="flex w-full max-w-7xl flex-col gap-5 px-10 pt-8 max-sm:px-4">
-					<h1 className="text-4xl font-bricolage-grotesque tracking-tighter font-semibold capitalize text-black dark:text-white">Settings</h1>
+					<h1 className="font-bricolage-grotesque text-4xl font-semibold tracking-tighter text-black capitalize dark:text-white">Settings</h1>
 					<section className="relative w-full">
 						<nav ref={navRef} className="no-scrollbar flex h-full w-full flex-nowrap items-start justify-start gap-2 overflow-x-auto overflow-y-visible">
 							{actions.map((action, index) => (
@@ -147,7 +145,7 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
 										navigate(typeof action.url === "string" ? action.url : action.url[1]);
 									}}
 									className={cn(
-										"group relative h-auto min-w-fit shrink-0 items-center justify-center px-4 py-2 hover:no-underline rounded-none",
+										"group relative h-auto min-w-fit shrink-0 items-center justify-center rounded-none px-4 py-2 hover:no-underline",
 										isActive(action.url) ? "border-b-2 border-black dark:border-white" : "hover:border-b-2 hover:border-black/50 dark:hover:border-white/80",
 									)}
 								>
@@ -164,7 +162,7 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
 							))}
 						</nav>
 
-						<div className="absolute left-0 top-0 bg-linear-to-l from-transparent from-0% to-sidebar to-30% pr-3">
+						<div className="absolute top-0 left-0 bg-linear-to-l from-transparent from-0% to-sidebar to-30% pr-3">
 							<button
 								ref={navGoLeftRef}
 								onClick={() => {
@@ -178,7 +176,7 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
 							</button>
 						</div>
 
-						<div className="absolute right-0 top-0 bg-linear-to-r from-transparent from-0% to-sidebar to-30% pl-3">
+						<div className="absolute top-0 right-0 bg-linear-to-r from-transparent from-0% to-sidebar to-30% pl-3">
 							<button
 								ref={navGoRightRef}
 								onClick={() => {
