@@ -94,7 +94,7 @@ export default function Login() {
 				<div className="flex flex-col gap-6">
 					<div className="flex flex-col items-center gap-1">
 						<h1 className="text-center text-xl font-semibold text-neutral-500 dark:text-neutral-400">Welcome back!</h1>
-						<div className="text-balance text-center text-sm text-neutral-500 dark:text-neutral-400">
+						<div className="text-center text-sm text-balance text-neutral-500 dark:text-neutral-400">
 							Don&apos;t have an account?
 							<Link
 								to={{
@@ -198,7 +198,7 @@ export default function Login() {
 						</Button>
 					</div>
 				</div>
-				<div className="text-balance text-center text-xs text-neutral-500 dark:text-neutral-400 [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-neutral-900 dark:[&_a]:hover:text-neutral-50">
+				<div className="text-center text-xs text-balance text-neutral-500 dark:text-neutral-400 [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-neutral-900 dark:[&_a]:hover:text-neutral-50">
 					By clicking continue, you agree to our <Link to={{ pathname: "/legal" }}>Terms of Service</Link> and <Link to={{ pathname: "/legal" }}>Privacy Policy</Link>.
 				</div>
 			</div>
