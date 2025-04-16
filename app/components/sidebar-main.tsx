@@ -182,7 +182,7 @@ export default function SidebarActions() {
 
 	return (
 		<Sidebar variant="sidebar" collapsible="offcanvas" className="group">
-			<SidebarContent className="mr-[0.175rem] p-2 pr-3 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:invisible [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:group-hover:visible dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500/50 [&::-webkit-scrollbar-track]:bg-gray-100 dark:[&::-webkit-scrollbar-track]:bg-transparent">
+			<SidebarContent className="mr-[0.175rem] p-2 pr-3 group-data-[collapsible=offcanvas]:hidden [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:invisible [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:group-hover:visible dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500/50 [&::-webkit-scrollbar-track]:bg-gray-100 dark:[&::-webkit-scrollbar-track]:bg-transparent">
 				<SidebarGroup>
 					<SidebarGroupContent>
 						<SidebarMenu className="gap-0">

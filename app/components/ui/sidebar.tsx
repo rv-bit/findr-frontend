@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { Slot } from "@radix-ui/react-slot";
 import { type VariantProps, cva } from "class-variance-authority";
-import { Menu } from "lucide-react";
+import { ChevronLeft, Menu } from "lucide-react";
 
 import { useIsTablet } from "~/hooks/use-tablet";
 import { cn } from "~/lib/utils";
@@ -194,7 +194,7 @@ const Sidebar = React.forwardRef<
 			{/* This is what handles the sidebar gap on desktop */}
 			<div
 				className={cn(
-					"relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
+					"relative w-(--sidebar-width) bg-transparent transition-[width] delay-50 duration-200 ease-in-out",
 					"group-data-[collapsible=offcanvas]:w-0",
 					"group-data-[side=right]:rotate-180",
 					variant === "floating" || variant === "inset"
@@ -209,8 +209,8 @@ const Sidebar = React.forwardRef<
 				className={cn(
 					"fixed inset-y-0 z-10 hidden w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex",
 					side === "left"
-						? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
-						: "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
+						? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-0.80)]"
+						: "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-0.80)]",
 					// Adjust the padding for floating and inset variants.
 					variant === "floating" || variant === "inset"
 						? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
@@ -223,6 +223,10 @@ const Sidebar = React.forwardRef<
 					data-sidebar="sidebar"
 					className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow-sm"
 				>
+					<div className="absolute top-5 left-59.5 z-20">
+						<SidebarTrigger className="rounded-full border border-gray-200/30 hover:bg-sidebar/35" />
+					</div>
+
 					{children}
 				</div>
 			</div>
@@ -232,7 +236,7 @@ const Sidebar = React.forwardRef<
 Sidebar.displayName = "Sidebar";
 
 const SidebarTrigger = React.forwardRef<React.ElementRef<typeof Button>, React.ComponentProps<typeof Button>>(({ className, onClick, ...props }, ref) => {
-	const { toggleSidebar } = useSidebar();
+	const { isTablet, toggleSidebar, state } = useSidebar();
 	const { theme } = useTheme();
 
 	return (
@@ -241,14 +245,21 @@ const SidebarTrigger = React.forwardRef<React.ElementRef<typeof Button>, React.C
 			data-sidebar="trigger"
 			variant="ghost"
 			size="icon"
-			className={cn("h-10 w-10 [&_svg]:size-6", className)}
+			className={cn(
+				"size-9 [&_svg]:size-4",
+				{
+					"size-10 [&_svg]:size-6": isTablet,
+				},
+				className,
+			)}
 			onClick={(event) => {
 				onClick?.(event);
 				toggleSidebar();
 			}}
 			{...props}
 		>
-			<Menu color={theme === "dark" ? "#fff" : "#000"} size={34} />
+			{!isTablet && (state === "collapsed" ? <Menu size={28} className="text-black dark:text-white" /> : <ChevronLeft size={28} className="text-black dark:text-white" />)}
+			{isTablet && <Menu size={28} className="text-black dark:text-white" />}
 		</Button>
 	);
 });

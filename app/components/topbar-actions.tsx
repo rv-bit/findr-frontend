@@ -9,7 +9,7 @@ import { useTheme } from "~/providers/Theme";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList, CommandSeparator } from "~/components/ui/command";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
-import { SidebarMenuButton, SidebarTrigger } from "~/components/ui/sidebar";
+import { SidebarMenuButton, SidebarTrigger, useSidebar } from "~/components/ui/sidebar";
 import { Button } from "./ui/button";
 import { Switch } from "./ui/switch";
 
@@ -101,10 +101,12 @@ function SearchBar() {
 }
 
 export default function TopbarActions() {
-	const [open, setOpen] = useState(false);
+	const { isTablet } = useSidebar();
 
 	const navigate = useNavigate();
 	const { data: sessionData, isPending, refetch } = useSession();
+
+	const [open, setOpen] = useState(false);
 
 	const dropDownActions: DropDownActions[] = React.useMemo(
 		() => [
@@ -150,7 +152,7 @@ export default function TopbarActions() {
 			}}
 		>
 			<section className="flex items-center justify-start gap-2">
-				<SidebarTrigger className="rounded-full hover:bg-primary-500/15" />
+				{isTablet && <SidebarTrigger className="rounded-full hover:bg-primary-500/15" />}
 
 				<Button
 					variant={"link"}
