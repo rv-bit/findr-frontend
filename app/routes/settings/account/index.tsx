@@ -264,7 +264,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 									<AlertDialogFooter>
 										<Button
 											type="button"
-											className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+											className="mt-2 rounded-3xl bg-[#2B3236] p-5 py-6 sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40"
 											onClick={() =>
 												setShowWarningModal({
 													...showWarningModal,
@@ -287,7 +287,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 				{actions.map((action) => {
 					return (
 						<React.Fragment key={action.title}>
-							<h1 key={action.title} className="text-2xl font-bricolage-grotesque tracking-tighter font-semibold capitalize text-black dark:text-white mb-2">
+							<h1 key={action.title} className="mb-2 font-bricolage text-2xl font-semibold tracking-tighter text-black capitalize dark:text-white">
 								{action.title}
 							</h1>
 

@@ -132,7 +132,7 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
 		<React.Fragment>
 			<div className="flex h-full w-full flex-col items-center justify-start max-md:w-screen">
 				<div className="flex w-full max-w-7xl flex-col gap-5 px-10 pt-8 max-sm:px-4">
-					<h1 className="font-bricolage-grotesque text-4xl font-semibold tracking-tighter text-black capitalize dark:text-white">Settings</h1>
+					<h1 className="font-bricolage text-4xl font-semibold tracking-tighter text-black capitalize dark:text-white">Settings</h1>
 					<section className="relative w-full">
 						<nav ref={navRef} className="no-scrollbar flex h-full w-full flex-nowrap items-start justify-start gap-2 overflow-x-auto overflow-y-visible">
 							{actions.map((action, index) => (

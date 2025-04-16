@@ -162,7 +162,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 					return (
 						<React.Fragment key={action.title}>
 							<span key={action.title} className="mb-2">
-								<h1 className="font-bricolage-grotesque text-2xl font-semibold tracking-tighter text-black capitalize dark:text-white">{action.title}</h1>
+								<h1 className="font-bricolage text-2xl font-semibold tracking-tighter text-black capitalize dark:text-white">{action.title}</h1>
 								{action.description && <p className="text-sm text-gray-500 dark:text-gray-400">{action.description}</p>}
 							</span>
 							{action.children && <action.children currentSession={loaderData.session.id} />}
