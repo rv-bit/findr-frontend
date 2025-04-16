@@ -1,8 +1,10 @@
-import { useEffect, useRef } from "react";
-import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useNavigation } from "react-router";
+import stylesheet from "./app.css?url";
 
 import type { Route } from "./+types/root";
-import stylesheet from "./app.css?url";
+
+import { parse } from "cookie";
+import React from "react";
+import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData, useNavigation, type LoaderFunctionArgs } from "react-router";
 
 import { AuthQueryProvider } from "@daveyplate/better-auth-tanstack";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -12,7 +14,7 @@ import LoadingBar from "react-top-loading-bar";
 
 import { queryClient } from "./lib/query/query-client";
 
-import { ThemeProvider } from "~/providers/Theme";
+import { THEME_COOKIE_NAME, ThemeProvider } from "~/providers/Theme";
 
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { Toaster } from "~/components/ui/sonner";
@@ -45,11 +47,26 @@ export const links: Route.LinksFunction = () => [
 	{ rel: "stylesheet", href: stylesheet },
 ];
 
-export function Layout({ children }: { children: React.ReactNode }) {
-	const navigation = useNavigation();
-	const loadingBarRef = useRef<LoadingBarRef>(null);
+export function loader({ request }: LoaderFunctionArgs) {
+	const cookie = parse(request.headers.get("cookie") ?? "");
+	const cachedTheme = cookie[THEME_COOKIE_NAME] ?? null;
 
-	useEffect(() => {
+	// const cookieMatch = document.cookie.match(new RegExp(`(^| )${THEME_COOKIE_NAME}=([^;]+)`));
+	// const cachedTheme = cookieMatch ? (cookieMatch[2] as "dark" | "light") : "light";
+
+	return {
+		theme: cachedTheme,
+	};
+}
+
+export function Layout({ children }: { children: React.ReactNode }) {
+	const { theme: cookieTheme } = useLoaderData<typeof loader>();
+	const theme = cookieTheme ?? (typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+
+	const navigation = useNavigation();
+	const loadingBarRef = React.useRef<LoadingBarRef>(null);
+
+	React.useEffect(() => {
 		if (navigation.state === "loading" || navigation.state === "submitting") {
 			loadingBarRef.current?.continuousStart();
 		}
@@ -60,13 +77,28 @@ export function Layout({ children }: { children: React.ReactNode }) {
 	}, [navigation.state]);
 
 	return (
-		<html lang="en">
+		<html lang="en" className={theme}>
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
 				<script crossOrigin="anonymous" src="//unpkg.com/react-scan/dist/auto.global.js" />
+
 				<Meta />
 				<Links />
+
+				{/* To avoid FOUC aka Flash of Unstyled Content */}
+				<script
+					dangerouslySetInnerHTML={{
+						__html: `
+							(function() {
+								const cookieMatch = document.cookie.match(new RegExp("(^| )${THEME_COOKIE_NAME}=([^;]+)"))
+								const cachedTheme = cookieMatch ? (cookieMatch[2]) : 'light'
+
+								document.documentElement.classList.toggle('dark', cachedTheme === 'dark' || (!(document.cookie.match(new RegExp("(^| )${THEME_COOKIE_NAME}=([^;]+)"))) && window.matchMedia('(prefers-color-scheme: dark)').matches))
+							})();
+						`,
+					}}
+				/>
 			</head>
 			<body>
 				<LoadingBar ref={loadingBarRef} color="#5060dd" shadow={false} transitionTime={100} waitingTime={300} />
