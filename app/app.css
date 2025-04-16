@@ -78,6 +78,10 @@
 	}
 }
 
+@theme {
+	--font-bricolage: "Bricolage Grotesque", sans-serif;
+}
+
 .dark input:-webkit-autofill,
 .dark input:-webkit-autofill:hover,
 .dark input:-webkit-autofill:focus,
