@@ -14,8 +14,6 @@ import { Sheet, SheetContent } from "~/components/ui/sheet";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip";
 
-import { useTheme } from "~/providers/Theme";
-
 const SIDEBAR_COOKIE_NAME = "sidebar:state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 const SIDEBAR_WIDTH = "16rem";
@@ -224,7 +222,7 @@ const Sidebar = React.forwardRef<
 					className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow-sm"
 				>
 					<div className="absolute top-5 left-59.5 z-20">
-						<SidebarTrigger className="rounded-full border border-gray-200/30 hover:bg-sidebar/35" />
+						<SidebarTrigger />
 					</div>
 
 					{children}
@@ -237,16 +235,14 @@ Sidebar.displayName = "Sidebar";
 
 const SidebarTrigger = React.forwardRef<React.ElementRef<typeof Button>, React.ComponentProps<typeof Button>>(({ className, onClick, ...props }, ref) => {
 	const { isTablet, toggleSidebar, state } = useSidebar();
-	const { theme } = useTheme();
 
 	return (
 		<Button
 			ref={ref}
 			data-sidebar="trigger"
-			variant="ghost"
 			size="icon"
 			className={cn(
-				"size-9 [&_svg]:size-4",
+				"size-9 rounded-full border border-black/50 bg-white hover:bg-sidebar-accent/50 focus-visible:ring-2 focus-visible:ring-sidebar-accent-foreground dark:border-gray-300/30 dark:bg-sidebar hover:dark:bg-sidebar-accent/80 [&_svg]:size-4",
 				{
 					"size-10 [&_svg]:size-6": isTablet,
 				},

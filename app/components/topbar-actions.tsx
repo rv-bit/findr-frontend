@@ -152,7 +152,7 @@ export default function TopbarActions() {
 			}}
 		>
 			<section className="flex items-center justify-start gap-2">
-				{isTablet && <SidebarTrigger className="rounded-full hover:bg-primary-500/15" />}
+				{isTablet && <SidebarTrigger className="rounded-full border-none shadow-none hover:bg-primary-500/15" />}
 
 				<Button
 					variant={"link"}
