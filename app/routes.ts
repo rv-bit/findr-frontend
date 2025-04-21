@@ -1,7 +1,7 @@
 import { type RouteConfig, index, layout, prefix, route } from "@react-router/dev/routes";
 
 export default [
-	index("routes/index.tsx"), // This is the default route which will be the home page
+	index("routes/home.tsx"), // This is the default route which will be the home page
 	route("legal", "routes/static/legal.tsx"), // This is the legal page which is a static page, so it doesn't need a layout and it pre renders the content at build time
 
 	...prefix("auth", [
