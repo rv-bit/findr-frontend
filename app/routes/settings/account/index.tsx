@@ -10,7 +10,8 @@ import { z } from "zod";
 import { toast } from "sonner";
 
 import { authClient } from "~/lib/auth";
-import type { ModalProps } from "~/lib/types/modal";
+
+import type { ModalProps } from "~/lib/types/ui/modal";
 
 import { AlertDialogFooter } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";

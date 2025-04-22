@@ -9,7 +9,7 @@ import { QRCodeCanvas } from "qrcode.react";
 import { useSession } from "~/hooks/use-auth";
 
 import { authClient } from "~/lib/auth";
-import type { ModalProps } from "~/lib/types/modal";
+import type { ModalProps } from "~/lib/types/ui/modal";
 
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
@@ -167,7 +167,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 									<AlertDialogFooter>
 										<Button
 											type="button"
-											className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+											className="mt-2 rounded-3xl bg-[#2B3236] p-5 py-6 sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40"
 											onClick={() => onOpenChange(false)}
 										>
 											Cancel
@@ -191,7 +191,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 											<div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-neutral-200 dark:after:border-neutral-800">
 												<span className="relative z-10 bg-modal px-2 text-neutral-500 dark:text-neutral-400">Or</span>
 											</div>
-											<p className="break-all text-sm text-gray-500 dark:text-gray-400">{currentState.qr.secret}</p>
+											<p className="text-sm break-all text-gray-500 dark:text-gray-400">{currentState.qr.secret}</p>
 										</span>
 									</div>
 
@@ -225,11 +225,11 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 											control={twoFactorCodeForm.control}
 											name="trustDevice"
 											render={({ field }) => (
-												<FormItem className="flex justify-start items-start gap-2 space-y-0 mt-2">
+												<FormItem className="mt-2 flex items-start justify-start gap-2 space-y-0">
 													<FormControl>
 														<Checkbox checked={field.value} onCheckedChange={field.onChange}></Checkbox>
 													</FormControl>
-													<div className="flex flex-col gap-1 justify-center items-start">
+													<div className="flex flex-col items-start justify-center gap-1">
 														<FormLabel>Trust this device</FormLabel>
 														<FormDescription>Don't ask for a code again on this device for (60) days</FormDescription>
 													</div>
@@ -246,7 +246,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 									<AlertDialogFooter>
 										<Button
 											type="button"
-											className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+											className="mt-2 rounded-3xl bg-[#2B3236] p-5 py-6 sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40"
 											onClick={() => onOpenChange(false)}
 										>
 											Cancel
@@ -278,7 +278,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 							<AlertDialogFooter>
 								<Button
 									type="button"
-									className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+									className="mt-2 rounded-3xl bg-[#2B3236] p-5 py-6 sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40"
 									onClick={() => {
 										onOpenChange(false);
 										window.location.reload();

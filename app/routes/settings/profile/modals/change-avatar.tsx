@@ -12,7 +12,7 @@ import { z } from "zod";
 import { useSession } from "~/hooks/use-auth";
 
 import setCanvasPreview from "~/lib/canvas";
-import type { ModalProps } from "~/lib/types/modal";
+import type { ModalProps } from "~/lib/types/ui/modal";
 
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
@@ -199,7 +199,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 									{step === 0 && (
 										<Button
 											type="button"
-											className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+											className="mt-2 rounded-3xl bg-[#2B3236] p-5 py-6 sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40"
 											onClick={() => onOpenChange(false)}
 										>
 											Cancel
@@ -210,7 +210,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 										<React.Fragment>
 											<Button
 												type="button"
-												className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+												className="mt-2 rounded-3xl bg-[#2B3236] p-5 py-6 sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40"
 												onClick={() => setStep(0)}
 											>
 												Back
@@ -226,7 +226,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 										<React.Fragment>
 											<Button
 												type="button"
-												className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+												className="mt-2 rounded-3xl bg-[#2B3236] p-5 py-6 sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40"
 												onClick={() => onOpenChange(false)}
 											>
 												Cancel

@@ -7,7 +7,7 @@ import { z } from "zod";
 
 import { useSession } from "~/hooks/use-auth";
 
-import type { ModalProps } from "~/lib/types/modal";
+import type { ModalProps } from "~/lib/types/ui/modal";
 
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
@@ -112,7 +112,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 									/>
 
 									<span className="w-full text-right text-sm text-gray-500 dark:text-gray-400">
-										<span className="text-gray-500 dark:text-gray-400 ">{currentCharacterCount}</span>
+										<span className="text-gray-500 dark:text-gray-400">{currentCharacterCount}</span>
 										<span className="text-gray-500 dark:text-gray-400">/</span>
 										<span className="text-gray-500 dark:text-gray-400">{MAX_DESCRIPTION_LENGTH}</span>
 									</span>
@@ -125,7 +125,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 								<AlertDialogFooter>
 									<Button
 										type="button"
-										className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+										className="mt-2 rounded-3xl bg-[#2B3236] p-5 py-6 sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40"
 										onClick={() => onOpenChange(false)}
 									>
 										Cancel

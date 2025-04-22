@@ -5,7 +5,7 @@ import { useNavigate } from "react-router";
 
 import { toast } from "sonner";
 
-import type { ModalProps } from "~/lib/types/modal";
+import type { ModalProps } from "~/lib/types/ui/modal";
 
 import { ChevronRight, type LucideIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";

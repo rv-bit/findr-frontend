@@ -8,8 +8,9 @@ import { toast } from "sonner";
 
 import { useListSessions } from "~/hooks/use-auth";
 
-import type { ModalProps } from "~/lib/types/modal";
 import { formatTime } from "~/lib/utils";
+
+import type { ModalProps } from "~/lib/types/ui/modal";
 
 import { EllipsisVertical, ExternalLink, Laptop, type LucideIcon } from "lucide-react";
 import { type IconType } from "react-icons";
