@@ -7,12 +7,12 @@ import React from "react";
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData, useNavigation, type LoaderFunctionArgs } from "react-router";
 
 import { AuthQueryProvider } from "@daveyplate/better-auth-tanstack";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 
 import type { LoadingBarRef } from "react-top-loading-bar";
 import LoadingBar from "react-top-loading-bar";
 
-import queryClient from "./lib/query/query-client";
+import queryClient, { persister } from "./lib/query/query-client";
 
 import { THEME_COOKIE_NAME, ThemeProvider } from "~/providers/Theme";
 
@@ -74,7 +74,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 	}, [navigation.state]);
 
 	return (
-		<html lang="en" className={theme}>
+		<html lang="en" className={theme} suppressHydrationWarning>
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -100,8 +100,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
 			<body>
 				<LoadingBar ref={loadingBarRef} color="#5060dd" shadow={false} transitionTime={100} waitingTime={300} />
 
-				<QueryClientProvider client={queryClient}>
-					<AuthQueryProvider>
+				<PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>
+					<AuthQueryProvider
+						queryOptions={{
+							staleTime: 1000 * 60 * 1, // 1 minute
+						}}
+						optimistic={false}
+					>
 						<ThemeProvider>
 							<TopbarProvider>
 								<SidebarProvider>
@@ -128,7 +133,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 							</TopbarProvider>
 						</ThemeProvider>
 					</AuthQueryProvider>
-				</QueryClientProvider>
+				</PersistQueryClientProvider>
 				<ScrollRestoration />
 				<Scripts />
 			</body>
