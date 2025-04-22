@@ -4,8 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { useSession } from "~/hooks/use-auth";
-
 import type { ModalProps } from "~/lib/types/ui/modal";
 
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "~/components/ui/alert-dialog";
@@ -23,7 +21,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 	const [loading, setLoading] = React.useState(false);
 	const [currentCharacterCount, setCurrentCharacterCount] = React.useState(0);
 
-	const { user } = useSession();
+	const { data: session, error, isPending } = authClient.useSession();
 
 	const newDescriptionForm = useForm<z.infer<typeof newDescriptionSchema>>({
 		mode: "onChange",
@@ -64,26 +62,20 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 	};
 
 	React.useEffect(() => {
-		if (user) {
-			newDescriptionForm.setValue("description", user.about_description ?? "");
-			setCurrentCharacterCount(user.about_description?.length ?? 0);
+		if (session?.user) {
+			newDescriptionForm.setValue("description", session.user.about_description ?? "");
+			setCurrentCharacterCount(session.user.about_description?.length ?? 0);
 		}
 
 		return () => {
 			newDescriptionForm.reset();
 		};
-	}, [user]);
+	}, [session]);
 
 	React.useEffect(() => {
 		const { unsubscribe } = newDescriptionForm.watch((value) => {
-			newDescriptionForm.trigger("description").then((isValid) => {
-				if (!isValid) {
-					return;
-				}
-
-				const newDescription = newDescriptionForm.watch("description");
-				setCurrentCharacterCount(newDescription.length);
-			});
+			const newDescription = newDescriptionForm.watch("description");
+			setCurrentCharacterCount(newDescription.length);
 		});
 
 		return () => unsubscribe();
@@ -118,10 +110,6 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 										<span className="text-gray-500 dark:text-gray-400">{currentCharacterCount}</span>
 										<span className="text-gray-500 dark:text-gray-400">/</span>
 										<span className="text-gray-500 dark:text-gray-400">{MAX_DESCRIPTION_LENGTH}</span>
-									</span>
-
-									<span className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
-										By continuing with this, you are going to be logged out and you will need to login again with the new username.
 									</span>
 								</div>
 
