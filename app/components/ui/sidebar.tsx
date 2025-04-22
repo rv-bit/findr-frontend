@@ -201,7 +201,7 @@ const Sidebar = React.forwardRef<
 			<div
 				className={cn(
 					"relative w-(--sidebar-width) bg-transparent transition-[width] delay-50 duration-200 ease-in-out",
-					"group-data-[collapsible=offcanvas]:w-0",
+					"group-data-[collapsible=offcanvas]:w-10",
 					"group-data-[side=right]:rotate-180",
 					variant === "floating" || variant === "inset"
 						? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
@@ -215,8 +215,8 @@ const Sidebar = React.forwardRef<
 				className={cn(
 					"fixed inset-y-0 z-10 hidden w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex",
 					side === "left"
-						? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-0.80)]"
-						: "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-0.80)]",
+						? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-0.85)]"
+						: "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-0.85)]",
 					// Adjust the padding for floating and inset variants.
 					variant === "floating" || variant === "inset"
 						? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
