@@ -12,7 +12,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import type { LoadingBarRef } from "react-top-loading-bar";
 import LoadingBar from "react-top-loading-bar";
 
-import { queryClient } from "./lib/query/query-client";
+import queryClient from "./lib/query/query-client";
 
 import { THEME_COOKIE_NAME, ThemeProvider } from "~/providers/Theme";
 
@@ -50,9 +50,6 @@ export const links: Route.LinksFunction = () => [
 export function loader({ request }: LoaderFunctionArgs) {
 	const cookie = parse(request.headers.get("cookie") ?? "");
 	const cachedTheme = cookie[THEME_COOKIE_NAME] ?? null;
-
-	// const cookieMatch = document.cookie.match(new RegExp(`(^| )${THEME_COOKIE_NAME}=([^;]+)`));
-	// const cachedTheme = cookieMatch ? (cookieMatch[2] as "dark" | "light") : "light";
 
 	return {
 		theme: cachedTheme,
