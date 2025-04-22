@@ -211,7 +211,8 @@ export default function TopbarActions() {
 								<DropdownMenuLabel className="p-0 font-normal">
 									<Button
 										onClick={() => {
-											navigate("/profile");
+											const slug = sessionData?.user.username?.replace(/@/g, "");
+											navigate(`/users/${slug}`);
 											setOpen(false);
 										}}
 										variant={"link"}
