@@ -6,8 +6,6 @@ import { UAParser } from "ua-parser-js";
 
 import { toast } from "sonner";
 
-import { useListSessions } from "~/hooks/use-auth";
-
 import { formatTime } from "~/lib/utils";
 
 import type { ModalProps } from "~/lib/types/ui/modal";
@@ -20,6 +18,9 @@ import { Button } from "~/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table";
 
+import queryClient from "~/lib/query/query-client";
+
+import { useListSessions, useRevokeSession } from "~/hooks/use-auth";
 import TwoFactorDisableModal from "./modals/two-factor-disable";
 import TwoFactorEnableModal from "./modals/two-factor-enable";
 
@@ -43,7 +44,8 @@ interface Actions {
 }
 
 const Sessions = (props: { currentSession: string }) => {
-	const { sessions: sessionsData, revokeSession, revokeSessionError, revokeSessions, revokeSessionsError, isPending, error } = useListSessions();
+	const { data: sessions, isPending, error } = useListSessions();
+	const { mutate: revokeSession } = useRevokeSession();
 
 	if (isPending) {
 		return <div>Loading...</div>;
@@ -61,14 +63,14 @@ const Sessions = (props: { currentSession: string }) => {
 				</TableRow>
 			</TableHeader>
 			<TableBody className="rounded-full">
-				{sessionsData &&
-					Object.entries(sessionsData).map(([key, value]) => {
+				{sessions &&
+					sessions.map((value, index) => {
 						const lastUsed = formatTime(new Date(value.updatedAt));
 						const firstCreated = formatTime(new Date(value.createdAt));
 						const expiresAt = formatTime(new Date(value.expiresAt));
 
 						return (
-							<TableRow key={key} className="border-sidebar-foreground dark:border-sidebar-accent">
+							<TableRow key={index} className="border-sidebar-foreground dark:border-sidebar-accent">
 								<TableCell className="tracking-tight text-black dark:text-white">
 									<span className="flex flex-col gap-0.5">
 										<span className="flex items-center justify-start gap-1">
@@ -97,7 +99,11 @@ const Sessions = (props: { currentSession: string }) => {
 											<DropdownMenuLabel className="p-1 font-normal">
 												<Button
 													onClick={async () => {
-														await revokeSession(value.token);
+														await revokeSession({
+															token: value.token,
+														});
+
+														queryClient.invalidateQueries({ queryKey: ["listSessions"] });
 
 														window.location.reload();
 													}}
@@ -119,8 +125,8 @@ const Sessions = (props: { currentSession: string }) => {
 };
 
 export default function Index({ matches }: Route.ComponentProps) {
-	const loader = matches[1];
-	const loaderData = loader.data;
+	const shared = matches[1];
+	const sharedData = shared.data;
 
 	const navigate = useNavigate();
 
@@ -131,17 +137,17 @@ export default function Index({ matches }: Route.ComponentProps) {
 				items: [
 					{
 						title: "Two-Factor Authentication",
-						defaultValue: loaderData.hasTwoFactor ? "Enabled" : "Disabled",
+						defaultValue: sharedData.hasTwoFactor ? "Enabled" : "Disabled",
 						icon: ExternalLink,
 						modalActionOnClickCheck: () => {
-							const isValid = loaderData.hasEmailVerified && loaderData.hasPassword;
+							const isValid = sharedData.hasEmailVerified && sharedData.hasPassword;
 							if (!isValid) {
 								return { success: false, error: "Please verify your email and create a password" };
 							}
 
 							return { success: true, error: null };
 						},
-						componentLoad: !loaderData.hasTwoFactor ? TwoFactorEnableModal : TwoFactorDisableModal,
+						componentLoad: !sharedData.hasTwoFactor ? TwoFactorEnableModal : TwoFactorDisableModal,
 					},
 				],
 			},
@@ -151,7 +157,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 				children: Sessions,
 			},
 		],
-		[loaderData],
+		[sharedData],
 	);
 
 	const [showModal, setShowModal] = React.useState<{ [key: string]: boolean }>({});
@@ -166,7 +172,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 								<h1 className="font-bricolage text-2xl font-semibold tracking-tighter text-black capitalize dark:text-white">{action.title}</h1>
 								{action.description && <p className="text-sm text-gray-500 dark:text-gray-400">{action.description}</p>}
 							</span>
-							{action.children && <action.children currentSession={loaderData.session.id} />}
+							{action.children && <action.children currentSession={sharedData.session.id} />}
 
 							{action.items &&
 								action.items.map((item) => {
