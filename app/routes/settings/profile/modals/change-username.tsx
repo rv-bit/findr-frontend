@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { useSession } from "~/hooks/use-auth";
 import { authClient } from "~/lib/auth";
 
 import type { ModalProps } from "~/lib/types/ui/modal";
@@ -21,7 +20,7 @@ const newUsernameSchema = z.object({
 export default function Index({ open, onOpenChange }: ModalProps) {
 	const [loading, setLoading] = React.useState(false);
 
-	const { user } = useSession();
+	const { data: session, error, isPending } = authClient.useSession();
 
 	const newUsernameForm = useForm<z.infer<typeof newUsernameSchema>>({
 		mode: "onChange",
@@ -34,40 +33,43 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 	const { formState } = newUsernameForm;
 	const isFormIsComplete = formState.isValid;
 
-	const handleSubmit = async (values: z.infer<typeof newUsernameSchema>) => {
-		if (values.username === user?.username) {
-			newUsernameForm.setError("username", {
-				type: "manual",
-				message: "Username is the same as the current one",
-			});
-			return;
-		}
+	const handleSubmit = React.useCallback(
+		async (values: z.infer<typeof newUsernameSchema>) => {
+			if (values.username === session?.user?.username) {
+				newUsernameForm.setError("username", {
+					type: "manual",
+					message: "Username is the same as the current one",
+				});
+				return;
+			}
 
-		await authClient.updateUser(
-			{
-				username: values.username,
-			},
-			{
-				onRequest: () => {
-					setLoading(true);
+			await authClient.updateUser(
+				{
+					username: values.username,
 				},
-				onResponse: (context) => {
-					setLoading(false);
-				},
-				onError: (context) => {
-					newUsernameForm.setError("username", {
-						type: "manual",
-						message: context.error.message,
-					});
-				},
-				onSuccess: () => {
-					onOpenChange(false);
+				{
+					onRequest: () => {
+						setLoading(true);
+					},
+					onResponse: (context) => {
+						setLoading(false);
+					},
+					onError: (context) => {
+						newUsernameForm.setError("username", {
+							type: "manual",
+							message: context.error.message,
+						});
+					},
+					onSuccess: () => {
+						onOpenChange(false);
 
-					window.location.reload();
+						window.location.reload();
+					},
 				},
-			},
-		);
-	};
+			);
+		},
+		[session, onOpenChange],
+	);
 
 	return (
 		<AlertDialog open={open} onOpenChange={(open) => onOpenChange(open)}>

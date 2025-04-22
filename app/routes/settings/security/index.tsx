@@ -18,9 +18,9 @@ import { Button } from "~/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table";
 
+import { authClient } from "~/lib/auth";
 import queryClient from "~/lib/query/query-client";
 
-import { useListSessions, useRevokeSession } from "~/hooks/use-auth";
 import TwoFactorDisableModal from "./modals/two-factor-disable";
 import TwoFactorEnableModal from "./modals/two-factor-enable";
 
@@ -43,13 +43,20 @@ interface Actions {
 	items?: Actions[];
 }
 
-const Sessions = (props: { currentSession: string }) => {
-	const { data: sessions, isPending, error } = useListSessions();
-	const { mutate: revokeSession } = useRevokeSession();
-
-	if (isPending) {
-		return <div>Loading...</div>;
-	}
+const Sessions = (props: {
+	currentSession: string;
+	sessions: {
+		id: string;
+		createdAt: Date;
+		updatedAt: Date;
+		userId: string;
+		expiresAt: Date;
+		token: string;
+		ipAddress?: string | null | undefined | undefined;
+		userAgent?: string | null | undefined | undefined;
+	}[];
+}) => {
+	console.log(props.sessions);
 
 	return (
 		<Table containerClass="border rounded-xl border-sidebar-foreground dark:border-sidebar-accent">
@@ -63,8 +70,8 @@ const Sessions = (props: { currentSession: string }) => {
 				</TableRow>
 			</TableHeader>
 			<TableBody className="rounded-full">
-				{sessions &&
-					sessions.map((value, index) => {
+				{props.sessions &&
+					props.sessions.map((value, index) => {
 						const lastUsed = formatTime(new Date(value.updatedAt));
 						const firstCreated = formatTime(new Date(value.createdAt));
 						const expiresAt = formatTime(new Date(value.expiresAt));
@@ -99,7 +106,7 @@ const Sessions = (props: { currentSession: string }) => {
 											<DropdownMenuLabel className="p-1 font-normal">
 												<Button
 													onClick={async () => {
-														await revokeSession({
+														await authClient.revokeSession({
 															token: value.token,
 														});
 
@@ -172,7 +179,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 								<h1 className="font-bricolage text-2xl font-semibold tracking-tighter text-black capitalize dark:text-white">{action.title}</h1>
 								{action.description && <p className="text-sm text-gray-500 dark:text-gray-400">{action.description}</p>}
 							</span>
-							{action.children && <action.children currentSession={sharedData.session.id} />}
+							{action.children && <action.children currentSession={sharedData.session.id} sessions={sharedData.listSessions} />}
 
 							{action.items &&
 								action.items.map((item) => {

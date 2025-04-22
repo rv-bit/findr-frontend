@@ -6,7 +6,6 @@ import { parse } from "cookie";
 import React from "react";
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData, useNavigation, type LoaderFunctionArgs } from "react-router";
 
-import { AuthQueryProvider } from "@daveyplate/better-auth-tanstack";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 
 import type { LoadingBarRef } from "react-top-loading-bar";
@@ -78,7 +77,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
-				<script crossOrigin="anonymous" src="//unpkg.com/react-scan/dist/auto.global.js" />
 
 				<Meta />
 				<Links />
@@ -101,38 +99,31 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<LoadingBar ref={loadingBarRef} color="#5060dd" shadow={false} transitionTime={100} waitingTime={300} />
 
 				<PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>
-					<AuthQueryProvider
-						queryOptions={{
-							staleTime: 1000 * 60 * 1, // 1 minute
-						}}
-						optimistic={false}
-					>
-						<ThemeProvider>
-							<TopbarProvider>
-								<SidebarProvider>
-									<Topbar>
-										<TopbarInset>
-											<TopbarActions />
-										</TopbarInset>
-									</Topbar>
-									<SidebarActions />
-									<SidebarInset>
-										<main
-											style={{
-												height: "100%",
-												width: "100%",
-												flex: "1 1 0%",
-												overflowY: "auto",
-											}}
-										>
-											{children}
-										</main>
-										<Toaster />
-									</SidebarInset>
-								</SidebarProvider>
-							</TopbarProvider>
-						</ThemeProvider>
-					</AuthQueryProvider>
+					<ThemeProvider>
+						<TopbarProvider>
+							<SidebarProvider>
+								<Topbar>
+									<TopbarInset>
+										<TopbarActions />
+									</TopbarInset>
+								</Topbar>
+								<SidebarActions />
+								<SidebarInset>
+									<main
+										style={{
+											height: "100%",
+											width: "100%",
+											flex: "1 1 0%",
+											overflowY: "auto",
+										}}
+									>
+										{children}
+									</main>
+									<Toaster />
+								</SidebarInset>
+							</SidebarProvider>
+						</TopbarProvider>
+					</ThemeProvider>
 				</PersistQueryClientProvider>
 				<ScrollRestoration />
 				<Scripts />

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 
-import { useSession } from "~/hooks/use-auth";
 import { authClient } from "~/lib/auth";
 
 import { useTheme } from "~/providers/Theme";
@@ -104,7 +103,7 @@ export default function TopbarActions() {
 	const { isTablet } = useSidebar();
 
 	const navigate = useNavigate();
-	const { data: sessionData, isPending, refetch } = useSession();
+	const { data: sessionData, error, isPending } = authClient.useSession();
 
 	const [open, setOpen] = useState(false);
 
@@ -129,7 +128,6 @@ export default function TopbarActions() {
 				icon: LogOut,
 				onClick: async () => {
 					await authClient.signOut();
-					await refetch();
 
 					navigate("/auth");
 					setOpen(false);

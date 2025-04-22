@@ -7,12 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { useSession } from "~/hooks/use-auth";
-
-import { authClient, type Session } from "~/lib/auth";
-import { prefetchSession } from "~/lib/auth-prefetches";
-
-import queryClient from "~/lib/query/query-client";
+import { authClient } from "~/lib/auth";
 
 import { FaGithub, FaGoogle } from "react-icons/fa";
 
@@ -21,16 +16,9 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "~/component
 import { Input } from "~/components/ui/input";
 
 export async function clientLoader({ serverLoader, params }: Route.ClientLoaderArgs) {
-	const cachedData = queryClient.getQueryData<Session>(["session"]);
-	const data = cachedData ?? (await prefetchSession(queryClient));
-
-	const session = {
-		session: data.session,
-		user: data.user,
-	};
-
-	if (session.session || session.user) {
-		throw new Response("", { status: 302, headers: { Location: "/" } }); // Redirect to home page
+	const { data: sessionData } = await authClient.getSession();
+	if (sessionData && sessionData.session && sessionData.user) {
+		throw new Response("", { status: 302, headers: { Location: "/" } }); // Redirect to home
 	}
 
 	return null;
@@ -43,7 +31,6 @@ const formSchema = z.object({
 
 export default function Login() {
 	const navigate = useNavigate();
-	const { refetch } = useSession();
 
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string>();
@@ -74,7 +61,6 @@ export default function Login() {
 						return;
 					}
 
-					await refetch(); // Refetch session
 					navigate("/settings"); // Redirect to home page
 				},
 
@@ -169,7 +155,6 @@ export default function Login() {
 								});
 
 								if (data.data) {
-									await refetch(); // Refetch session
 									navigate("/settings"); // Redirect to home page
 								}
 							}}
@@ -187,7 +172,6 @@ export default function Login() {
 								});
 
 								if (data.data) {
-									await refetch(); // Refetch session
 									navigate("/settings"); // Redirect to home page
 								}
 							}}
