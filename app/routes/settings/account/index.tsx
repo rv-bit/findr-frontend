@@ -22,6 +22,8 @@ import WarningComponent from "~/components/warning-dialog";
 
 import { ChevronRight, TriangleAlert, type LucideIcon } from "lucide-react";
 
+import queryClient from "~/lib/query/query-client";
+
 import DeleteModal from "./modals/delete-account";
 import EmailModal from "./modals/email-change";
 import PasswordChangeModal from "./modals/password-change";
@@ -48,8 +50,8 @@ const emailVerifySchema = z.object({
 });
 
 export default function Index({ matches }: Route.ComponentProps) {
-	const loader = matches[1];
-	const loaderData = loader.data;
+	const shared = matches[1];
+	const sharedData = shared.data;
 
 	const navigate = useNavigate();
 
@@ -60,10 +62,10 @@ export default function Index({ matches }: Route.ComponentProps) {
 				items: [
 					{
 						title: "Email Address",
-						defaultValue: loaderData.user.email,
+						defaultValue: sharedData.user.email,
 						icon: ChevronRight,
 						modalActionOnClickCheck: () => {
-							const isValid = loaderData.hasEmailVerified && loaderData.hasPassword;
+							const isValid = sharedData.hasEmailVerified && sharedData.hasPassword;
 							if (!isValid) {
 								return { success: false, error: "Please verify your email and create a password" };
 							}
@@ -76,7 +78,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 						title: "Password",
 						icon: ChevronRight,
 						modalActionOnClickCheck: () => {
-							const isValid = loaderData.hasEmailVerified && loaderData.hasPassword;
+							const isValid = sharedData.hasEmailVerified && sharedData.hasPassword;
 							if (!isValid) {
 								return { success: false, error: "Please verify your email and create a password" };
 							}
@@ -93,10 +95,10 @@ export default function Index({ matches }: Route.ComponentProps) {
 				items: [
 					{
 						title: "Google",
-						defaultValue: loaderData.accountLists?.some((account) => account.provider === "google") ? "Connected" : "Not Connected",
+						defaultValue: sharedData.accountLists?.some((account) => account.provider === "google") ? "Connected" : "Not Connected",
 						icon: ChevronRight,
 						onClick: async () => {
-							const hasLinked = loaderData.accountLists?.some((account) => account.provider === "google");
+							const hasLinked = sharedData.accountLists?.some((account) => account.provider === "google");
 
 							if (!hasLinked) {
 								await authClient.linkSocial({
@@ -110,15 +112,16 @@ export default function Index({ matches }: Route.ComponentProps) {
 								providerId: "google",
 							});
 
+							queryClient.invalidateQueries({ queryKey: ["listAccounts"] });
 							window.location.reload();
 						},
 					},
 					{
 						title: "Github",
-						defaultValue: loaderData.accountLists?.some((account) => account.provider === "github") ? "Connected" : "Not Connected",
+						defaultValue: sharedData.accountLists?.some((account) => account.provider === "github") ? "Connected" : "Not Connected",
 						icon: ChevronRight,
 						onClick: async () => {
-							const hasLinked = loaderData.accountLists?.some((account) => account.provider === "github");
+							const hasLinked = sharedData.accountLists?.some((account) => account.provider === "github");
 
 							if (!hasLinked) {
 								await authClient.linkSocial({
@@ -132,6 +135,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 								providerId: "github",
 							});
 
+							queryClient.invalidateQueries({ queryKey: ["listAccounts"] });
 							window.location.reload();
 						},
 					},
@@ -144,17 +148,17 @@ export default function Index({ matches }: Route.ComponentProps) {
 						title: "Delete Account",
 						icon: ChevronRight,
 						modalActionOnClickCheck: () => {
-							const isValid = loaderData.hasEmailVerified && loaderData.hasPassword;
+							const isValid = sharedData.hasEmailVerified && sharedData.hasPassword;
 							if (!isValid) {
 								return { success: false, error: "Please verify your email and create a password" };
 							}
 
-							const hasLinked = loaderData.accountLists?.some((account) => account.provider !== "credential");
+							const hasLinked = sharedData.accountLists?.some((account) => account.provider !== "credential");
 							if (hasLinked) {
 								return { success: false, error: "You need to unlink your social account/s first" };
 							}
 
-							const hasTwoFactor = loaderData.hasTwoFactor;
+							const hasTwoFactor = sharedData.hasTwoFactor;
 							if (hasTwoFactor) {
 								return { success: false, error: "You need to disable two-factor authentication first" };
 							}
@@ -172,7 +176,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 				],
 			},
 		],
-		[loaderData],
+		[sharedData],
 	);
 
 	const [loading, setLoading] = React.useState(false);
@@ -191,7 +195,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 	const isFormIsComplete = formState.isValid;
 
 	const handleNewEmailSubmit = async (values: z.infer<typeof emailVerifySchema>) => {
-		if (loaderData?.user?.email !== values.email) {
+		if (sharedData?.user?.email !== values.email) {
 			emailVerifyForm.setError("email", {
 				type: "manual",
 				message: "Email does not match the email in our system",
@@ -221,7 +225,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 	return (
 		<React.Fragment>
 			<div className="flex h-full w-full flex-col items-start justify-center gap-2">
-				{!loaderData.hasPassword && (
+				{!sharedData.hasPassword && (
 					<WarningComponent
 						open={showWarningModal.createPassword}
 						onChangeState={() => setShowWarningModal({ ...showWarningModal, createPassword: !showWarningModal.createPassword })}
@@ -230,12 +234,12 @@ export default function Index({ matches }: Route.ComponentProps) {
 						title="Create Password"
 						description="Create a password to secure your account."
 						onContinue={(e) => {
-							navigate("/auth/forgot-password", { state: { from: "create-password", email: loaderData.user.email } });
+							navigate("/auth/forgot-password", { state: { from: "create-password", email: sharedData.user.email } });
 						}}
 					/>
 				)}
 
-				{loaderData.hasPassword && !loaderData.hasEmailVerified && (
+				{sharedData.hasPassword && !sharedData.hasEmailVerified && (
 					<WarningComponent
 						open={showWarningModal.emailVerify}
 						onChangeState={() => setShowWarningModal({ ...showWarningModal, emailVerify: !showWarningModal.emailVerify })}
