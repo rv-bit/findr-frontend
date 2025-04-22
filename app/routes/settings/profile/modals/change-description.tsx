@@ -1,5 +1,4 @@
 import React from "react";
-import { useNavigate } from "react-router";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -13,6 +12,7 @@ import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFoo
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
 import { Textarea } from "~/components/ui/textarea";
+import { authClient } from "~/lib/auth";
 
 const MAX_DESCRIPTION_LENGTH = 100;
 const newDescriptionSchema = z.object({
@@ -20,12 +20,10 @@ const newDescriptionSchema = z.object({
 });
 
 export default function Index({ open, onOpenChange }: ModalProps) {
-	const navigate = useNavigate();
-
 	const [loading, setLoading] = React.useState(false);
 	const [currentCharacterCount, setCurrentCharacterCount] = React.useState(0);
 
-	const { user, refetch, updateUser } = useSession();
+	const { user } = useSession();
 
 	const newDescriptionForm = useForm<z.infer<typeof newDescriptionSchema>>({
 		mode: "onChange",
@@ -39,25 +37,30 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 	const isFormIsComplete = formState.isValid;
 
 	const handleSubmit = async (values: z.infer<typeof newDescriptionSchema>) => {
-		setLoading(true);
+		await authClient.updateUser(
+			{
+				about_description: values.description,
+			},
+			{
+				onRequest: () => {
+					setLoading(true);
+				},
+				onResponse: (context) => {
+					setLoading(false);
+				},
+				onError: (context) => {
+					newDescriptionForm.setError("description", {
+						type: "manual",
+						message: context.error.message,
+					});
+				},
+				onSuccess: () => {
+					onOpenChange(false);
 
-		const { status, error } = await updateUser({
-			about_description: values.description,
-		});
-
-		setLoading(false);
-
-		if (status) {
-			onOpenChange(false);
-			window.location.reload();
-		}
-
-		if (error) {
-			newDescriptionForm.setError("description", {
-				type: "manual",
-				message: error.message,
-			});
-		}
+					window.location.reload();
+				},
+			},
+		);
 	};
 
 	React.useEffect(() => {

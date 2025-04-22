@@ -1,13 +1,13 @@
 import React from "react";
-import { useNavigate } from "react-router";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { useSession } from "~/hooks/use-auth";
+import { authClient } from "~/lib/auth";
 
-import type { ModalProps } from "~/lib/types/modal";
+import type { ModalProps } from "~/lib/types/ui/modal";
 
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
@@ -19,10 +19,9 @@ const newUsernameSchema = z.object({
 });
 
 export default function Index({ open, onOpenChange }: ModalProps) {
-	const navigate = useNavigate();
 	const [loading, setLoading] = React.useState(false);
 
-	const { user, updateUser, refetch } = useSession();
+	const { user } = useSession();
 
 	const newUsernameForm = useForm<z.infer<typeof newUsernameSchema>>({
 		mode: "onChange",
@@ -44,25 +43,30 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 			return;
 		}
 
-		setLoading(true);
+		await authClient.updateUser(
+			{
+				username: values.username,
+			},
+			{
+				onRequest: () => {
+					setLoading(true);
+				},
+				onResponse: (context) => {
+					setLoading(false);
+				},
+				onError: (context) => {
+					newUsernameForm.setError("username", {
+						type: "manual",
+						message: context.error.message,
+					});
+				},
+				onSuccess: () => {
+					onOpenChange(false);
 
-		const { status, error } = await updateUser({
-			username: values.username,
-		});
-
-		setLoading(false);
-
-		if (status) {
-			onOpenChange(false);
-			window.location.reload();
-		}
-
-		if (error) {
-			newUsernameForm.setError("username", {
-				type: "manual",
-				message: error.message,
-			});
-		}
+					window.location.reload();
+				},
+			},
+		);
 	};
 
 	return (
@@ -98,7 +102,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 								<AlertDialogFooter>
 									<Button
 										type="button"
-										className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+										className="mt-2 rounded-3xl bg-[#2B3236] p-5 py-6 sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40"
 										onClick={() => onOpenChange(false)}
 									>
 										Cancel

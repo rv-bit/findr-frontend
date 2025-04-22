@@ -1,5 +1,4 @@
 import React from "react";
-import { useNavigate } from "react-router";
 
 import ReactCrop, { centerCrop, convertToPixelCrop, makeAspectCrop, type Crop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
@@ -9,8 +8,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { useSession } from "~/hooks/use-auth";
-
 import setCanvasPreview from "~/lib/canvas";
 import type { ModalProps } from "~/lib/types/ui/modal";
 
@@ -18,6 +15,7 @@ import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFoo
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { authClient } from "~/lib/auth";
 
 const MAX_FILE_SIZE_BYTES = 1 * 1024 * 1024; // 5mb
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -34,9 +32,6 @@ const newAvatarSchema = z.object({
 });
 
 export default function Index({ open, onOpenChange }: ModalProps) {
-	const navigate = useNavigate();
-	const { refetch, updateUser } = useSession();
-
 	const [loading, setLoading] = React.useState(false);
 	const [step, setStep] = React.useState(0); // 0 = select image, 1 = crop image, 2 = confirm image
 
@@ -44,6 +39,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 
 	const imageRef = React.useRef<HTMLImageElement>(null);
 	const canvasRef = React.useRef<HTMLCanvasElement>(null);
+
 	const [imageSource, setImageSource] = React.useState<string>("");
 
 	const newAvatarForm = useForm<z.infer<typeof newAvatarSchema>>({
@@ -98,24 +94,29 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 	};
 
 	const handleSubmit = async (values: z.infer<typeof newAvatarSchema>) => {
-		setLoading(true);
+		await authClient.updateUser(
+			{
+				image: values.croppedImage,
+			},
+			{
+				onRequest: () => {
+					setLoading(true);
+				},
+				onResponse: (context) => {
+					setLoading(false);
+				},
+				onError: (context) => {
+					toast.error("Error", {
+						description: context.error.message,
+					});
+				},
+				onSuccess: () => {
+					onOpenChange(false);
 
-		const { status, error } = await updateUser({
-			image: values.croppedImage,
-		});
-
-		setLoading(false);
-
-		if (status) {
-			onOpenChange(false);
-			window.location.reload();
-		}
-
-		if (error) {
-			toast.error("Error", {
-				description: error.message,
-			});
-		}
+					window.location.reload();
+				},
+			},
+		);
 	};
 
 	React.useEffect(() => {
