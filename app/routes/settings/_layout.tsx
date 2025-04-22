@@ -5,7 +5,8 @@ import { Outlet, useLocation, useNavigate } from "react-router";
 
 import { authClient, type Session } from "~/lib/auth";
 import { prefetchSession } from "~/lib/auth-prefetches";
-import { queryClient } from "~/lib/query/query-client";
+import queryClient from "~/lib/query/query-client";
+
 import { cn } from "~/lib/utils";
 
 import { ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";

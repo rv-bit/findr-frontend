@@ -12,9 +12,10 @@ import * as constants from "~/constants/app";
 
 import { useSession } from "~/hooks/use-auth";
 
-import { authClient, type Session } from "~/lib/auth";
+import { type Session, authClient } from "~/lib/auth";
 import { prefetchSession } from "~/lib/auth-prefetches";
-import { queryClient } from "~/lib/query/query-client";
+import queryClient from "~/lib/query/query-client";
+
 import { cn } from "~/lib/utils";
 
 import { Eye, EyeOff } from "lucide-react";

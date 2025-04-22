@@ -11,7 +11,8 @@ import { useSession } from "~/hooks/use-auth";
 
 import { authClient, type Session } from "~/lib/auth";
 import { prefetchSession } from "~/lib/auth-prefetches";
-import { queryClient } from "~/lib/query/query-client";
+
+import queryClient from "~/lib/query/query-client";
 
 import { FaGithub, FaGoogle } from "react-icons/fa";
 

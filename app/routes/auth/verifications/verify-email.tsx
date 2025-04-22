@@ -7,7 +7,8 @@ import { useSession } from "~/hooks/use-auth";
 
 import { authClient, type Session } from "~/lib/auth";
 import { prefetchSession } from "~/lib/auth-prefetches";
-import { queryClient } from "~/lib/query/query-client";
+
+import queryClient from "~/lib/query/query-client";
 
 export async function clientLoader({ serverLoader, params }: Route.ClientLoaderArgs) {
 	const cachedData = queryClient.getQueryData<Session>(["session"]);
