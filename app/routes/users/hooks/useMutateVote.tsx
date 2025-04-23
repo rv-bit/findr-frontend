@@ -3,7 +3,6 @@ import axiosInstance from "~/lib/axios-instance";
 
 type VoteVariables = {
 	postId: string;
-	userId: string;
 	type: "upvote" | "downvote";
 };
 
