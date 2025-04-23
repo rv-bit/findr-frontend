@@ -15,9 +15,10 @@ import { Button } from "~/components/ui/button";
 import { ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 
-import Card from "../post/components/card";
+import type { Comments, Post, User } from "~/routes/users/profile.types";
 
-import type { Post, User } from "~/routes/users/profile.types";
+import CommentsCard from "./components/comments.card";
+import PostsCard from "./components/posts.card";
 
 export const links: Route.LinksFunction = () => [
 	{ rel: "stylesheet", href: editor_stylesheet }, // override styles
@@ -121,23 +122,14 @@ export default function Index() {
 
 	const fetchData = React.useCallback(
 		async (page: number) => {
-			const { data } = await axiosInstance.get(`/api/v0/users/getData/${user.id}?page=${page}&type=${searchParams.get("type")}`);
-			console.log("data", data);
+			const { data } = await axiosInstance.get(`/api/v0/users/getData/${user.username}?page=${page}&type=${searchParams.get("type")}`);
 			return data;
 		},
 		[user],
 	);
 
-	const {
-		data: posts,
-		error,
-		fetchNextPage,
-		hasNextPage,
-		isFetching,
-		isFetchingNextPage,
-		status,
-	} = useInfiniteQuery({
-		staleTime: 0,
+	const { data, error, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status } = useInfiniteQuery({
+		staleTime: 1000 * 60 * 1, // 1 minute
 		queryKey: ["userData", user.id, searchParams.get("type")],
 		initialPageParam: 1,
 		queryFn: ({ pageParam }) => fetchData(pageParam),
@@ -191,8 +183,15 @@ export default function Index() {
 
 	React.useEffect(() => {
 		const params = searchParams.get("type");
+		const paramExists = types.some((type) => type.query === params);
 
 		if (!params) {
+			setSearchParams({
+				type: "overview",
+			});
+		}
+
+		if (!paramExists) {
 			setSearchParams({
 				type: "overview",
 			});
@@ -338,19 +337,116 @@ export default function Index() {
 						<p>Loading...</p>
 					) : (
 						<div className="flex w-full flex-col gap-1">
-							{posts?.pages.map((group, i) => (
+							{data?.pages.length === 0 && (
+								<p className="text-center text-sm font-semibold text-black dark:text-white">
+									No results found for <span className="text-red-500">{searchParams.get("type")}</span>
+								</p>
+							)}
+
+							{data?.pages.map((group, i) => (
 								<React.Fragment key={i}>
-									{group.data.map((post: Post) => (
-										<Card key={post.id} content={post.content} username={user.username} title={post.title} likes={0} comments={0} createdAt={post.createdAt} />
-									))}
+									{searchParams.get("type") === "overview" ? (
+										<React.Fragment>
+											{group.data.posts
+												.sort((a: Post, b: Post) => {
+													if (currentSortOption === "new") {
+														return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+													} else if (currentSortOption === "top") {
+														return b.likesCount - a.likesCount;
+													} else {
+														return 0;
+													}
+												})
+												.map((post: Post) => (
+													<PostsCard
+														key={post.id}
+														content={post.content}
+														username={user.username}
+														title={post.title}
+														likesCount={post.likesCount}
+														commentsCount={post.commentsCount}
+														createdAt={post.createdAt}
+														onHandleUpvote={() => {
+															console.log("Upvote clicked");
+														}}
+														onHandleDownvote={() => {
+															console.log("Downvote clicked");
+														}}
+													/>
+												))}
+											{group.data.comments
+												.sort((a: Comments, b: Comments) => {
+													if (currentSortOption === "new") {
+														return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+													} else if (currentSortOption === "top") {
+														return 0; // it should have been sorted by how many likes a comment has, but we don't have that data yet
+													} else {
+														return 0;
+													}
+												})
+												.map((comment: Comments) => (
+													<CommentsCard
+														key={comment.id}
+														content={comment.text || ""}
+														username={user.username}
+														title={comment.postTitle || "Comment"}
+														createdAt={comment.createdAt}
+													/>
+												))}
+										</React.Fragment>
+									) : searchParams.get("type") === "comments" ? (
+										group.data
+											.sort((a: Comments, b: Comments) => {
+												if (currentSortOption === "new") {
+													return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+												} else if (currentSortOption === "top") {
+													return 0; // it should have been sorted by how many likes a comment has, but we don't have that data yet
+												} else {
+													return 0;
+												}
+											})
+											.map((comment: Comments) => (
+												<CommentsCard
+													key={comment.id}
+													content={comment.text || ""}
+													username={user.username}
+													title={comment.postTitle || "Comment"}
+													createdAt={comment.createdAt}
+												/>
+											))
+									) : searchParams.get("type") === "posts" ? (
+										group.data
+											.sort((a: Post, b: Post) => {
+												if (currentSortOption === "new") {
+													return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+												} else if (currentSortOption === "top") {
+													return b.likesCount - a.likesCount;
+												} else {
+													return 0;
+												}
+											})
+											.map((post: Post) => (
+												<PostsCard
+													key={post.id}
+													content={post.content}
+													username={user.username}
+													title={post.title}
+													likesCount={post.likesCount}
+													commentsCount={post.commentsCount}
+													createdAt={post.createdAt}
+													onHandleUpvote={() => {
+														console.log("Upvote clicked");
+													}}
+													onHandleDownvote={() => {
+														console.log("Downvote clicked");
+													}}
+												/>
+											))
+									) : null}
 								</React.Fragment>
 							))}
-							{hasNextPage && (
-								<div ref={inViewportRef}>
-									{isFetchingNextPage && <p>Loading more...</p>}
-									{!isFetchingNextPage && <button onClick={() => fetchNextPage()}>{hasNextPage ? "Load More" : "Nothing more to load"}</button>}
-								</div>
-							)}
+							{isFetching && <p>Loading...</p>}
+							{hasNextPage && <div ref={inViewportRef}>{isFetchingNextPage && <p>Loading more...</p>}</div>}
 							{error && <div>Error: {error.message}</div>}
 						</div>
 					)}

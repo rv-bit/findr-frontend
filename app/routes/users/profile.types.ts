@@ -5,13 +5,15 @@ export type User = {
 	about_description: string | null | undefined;
 };
 
-export type CommentResponse = {
+export type Comments = {
 	id: number;
-	text: string;
+	postId: number | null;
+	text: string | null;
 	userId: string;
-	postId: number;
 	createdAt: Date;
 	updatedAt: Date;
+
+	postTitle?: string | null;
 };
 
 export type Post = {
@@ -24,5 +26,6 @@ export type Post = {
 	updatedAt: Date;
 
 	likesCount: number;
-	comments: CommentResponse[];
+	commentsCount: number;
+	liked?: boolean;
 };
