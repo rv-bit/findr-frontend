@@ -16,7 +16,12 @@ import { toast } from "sonner";
 import { authClient } from "~/lib/auth";
 import type { Post } from "../profile.types";
 
-export default function PostsCard({ data }: { data: Post }) {
+export default function PostsCard({
+	className,
+	data,
+}: React.ComponentProps<"article"> & {
+	data: Post;
+}) {
 	const { data: session } = authClient.useSession();
 
 	const userId = useParams().userId as string;
@@ -46,7 +51,7 @@ export default function PostsCard({ data }: { data: Post }) {
 	}, [data.createdAt]);
 
 	return (
-		<article className="flex h-auto max-h-96 min-h-28 w-full flex-col justify-between gap-3 rounded-xl px-4 py-2 hover:bg-sidebar-foreground/10 dark:hover:bg-sidebar-accent/50">
+		<article className={cn("flex h-auto max-h-96 min-h-28 w-full flex-col justify-between gap-3 rounded-xl px-4 py-2 hover:bg-sidebar-foreground/10 dark:hover:bg-sidebar-accent/50", className)}>
 			<span className="flex items-center justify-start gap-1">
 				<span className="flex items-center justify-center gap-2">
 					<Avatar className="size-6 rounded-full">

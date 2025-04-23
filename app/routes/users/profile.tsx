@@ -226,117 +226,119 @@ export default function Index() {
 
 	return (
 		<main className="mx-auto flex h-full w-full flex-col items-center justify-start max-md:w-screen">
-			<div className="flex w-full max-w-[85rem] flex-col gap-5 px-10 pt-5 max-sm:px-4">
-				<div className="flex items-center justify-between gap-4">
-					<span className="size-fit rounded-full bg-sidebar-foreground/20 p-1 dark:bg-sidebar-accent">
-						<Avatar className="size-18 rounded-full">
-							<AvatarImage src={`${import.meta.env.VITE_CLOUD_FRONT_URL}/${user.image}`} alt={user.username} />
-							<AvatarFallback className="rounded-lg bg-sidebar-foreground/50">
-								{user.username
-									?.split(" ")
-									.map((name) => name[0])
-									.join("")}
-							</AvatarFallback>
-						</Avatar>
-					</span>
-
-					<div className="flex w-full flex-col gap-1">
-						<span className="flex flex-col -space-y-1 leading-tight">
-							<p className="text-lg leading-tight font-semibold break-all text-black dark:text-white">{user.username}</p>
-							<p className="text-sm leading-tight font-light break-all text-black dark:text-white">u/{user.username}</p>
+			<div className="flex w-full max-w-[85rem] flex-col px-10 pt-5 max-sm:px-4">
+				<section id="top-information" className="flex flex-col items-start gap-4">
+					<section className="flex items-center justify-between gap-4">
+						<span className="size-fit rounded-full bg-sidebar-foreground/20 p-1 dark:bg-sidebar-accent">
+							<Avatar className="size-18 rounded-full">
+								<AvatarImage loading="lazy" src={`${import.meta.env.VITE_CLOUD_FRONT_URL}/${user.image}`} alt={user.username} />
+								<AvatarFallback className="rounded-lg bg-sidebar-foreground/50">
+									{user.username
+										?.split(" ")
+										.map((name) => name[0])
+										.join("")}
+								</AvatarFallback>
+							</Avatar>
 						</span>
-						<p className="text-sm break-all text-neutral-500 dark:text-neutral-400">{user.about_description}</p>
-					</div>
-				</div>
-				<section className="flex w-full flex-col gap-2 border-b border-sidebar-border pb-5">
-					<div className="relative w-full">
-						<nav ref={navRef} className="no-scrollbar flex h-full w-full flex-nowrap items-start justify-start gap-2 overflow-x-auto overflow-y-visible">
-							{types.map((action, index) => (
-								<Button
-									key={index}
-									variant={"link"}
-									disabled={action.disabled}
-									onClick={(e) => {
-										e.preventDefault();
 
-										navigate(action.url, {
-											replace: true,
-										});
-										setSearchParams({
-											[action.queryKey!]: action.query!,
-										});
-									}}
-									className={cn(
-										"group relative h-auto min-w-fit shrink-0 items-center justify-center rounded-full px-4 py-3 hover:no-underline",
-										isActive(action.url, action?.queryKey, action?.query)
-											? "bg-sidebar-foreground/50 dark:bg-sidebar-accent"
-											: "hover:bg-sidebar-accent-foreground/20 dark:hover:bg-sidebar-accent/50",
-									)}
-								>
-									{action.icon && <action.icon />}
-									<h1
+						<div className="flex w-full flex-col gap-1">
+							<span className="flex flex-col -space-y-1 leading-tight">
+								<p className="text-lg leading-tight font-semibold break-all text-black dark:text-white">{user.username}</p>
+								<p className="text-sm leading-tight font-light break-all text-black dark:text-white">u/{user.username}</p>
+							</span>
+							<p className="text-sm break-all text-neutral-500 dark:text-neutral-400">{user.about_description}</p>
+						</div>
+					</section>
+					<section className="flex w-full flex-col gap-2 border-b border-sidebar-border pb-5">
+						<div className="relative w-full">
+							<nav ref={navRef} className="no-scrollbar flex h-full w-full flex-nowrap items-start justify-start gap-2 overflow-x-auto overflow-y-visible">
+								{types.map((action, index) => (
+									<Button
+										key={index}
+										variant={"link"}
+										disabled={action.disabled}
+										onClick={(e) => {
+											e.preventDefault();
+
+											navigate(action.url, {
+												replace: true,
+											});
+											setSearchParams({
+												[action.queryKey!]: action.query!,
+											});
+										}}
 										className={cn(
-											"inline-flex text-black",
+											"group relative h-auto min-w-fit shrink-0 items-center justify-center rounded-full px-4 py-3 hover:no-underline",
 											isActive(action.url, action?.queryKey, action?.query)
-												? "text-black dark:text-white"
-												: "group-hover:text-black/50 dark:text-[#8BA2AE] dark:group-hover:text-white/80",
+												? "bg-sidebar-foreground/50 dark:bg-sidebar-accent"
+												: "hover:bg-sidebar-accent-foreground/20 dark:hover:bg-sidebar-accent/50",
 										)}
 									>
-										{action.title}
-									</h1>
-								</Button>
-							))}
-						</nav>
+										{action.icon && <action.icon />}
+										<h1
+											className={cn(
+												"inline-flex text-black",
+												isActive(action.url, action?.queryKey, action?.query)
+													? "text-black dark:text-white"
+													: "group-hover:text-black/50 dark:text-[#8BA2AE] dark:group-hover:text-white/80",
+											)}
+										>
+											{action.title}
+										</h1>
+									</Button>
+								))}
+							</nav>
 
-						<div className="absolute top-0 left-0 bg-linear-to-l from-transparent from-0% to-sidebar to-30% pr-3">
-							<button
-								ref={navGoLeftRef}
-								onClick={() => {
-									if (navRef.current) {
-										navRef.current.scrollBy({ left: -100, behavior: "smooth" });
-									}
-								}}
-								className="flex size-11 items-center justify-center rounded-full bg-transparent hover:bg-gray-600/60 dark:hover:bg-gray-500/40"
-							>
-								<ChevronLeft className="h-6 w-6 text-black dark:text-white" />
-							</button>
+							<div className="absolute top-0 left-0 bg-linear-to-l from-transparent from-0% to-sidebar to-30% pr-3">
+								<button
+									ref={navGoLeftRef}
+									onClick={() => {
+										if (navRef.current) {
+											navRef.current.scrollBy({ left: -100, behavior: "smooth" });
+										}
+									}}
+									className="flex size-11 items-center justify-center rounded-full bg-transparent hover:bg-gray-600/60 dark:hover:bg-gray-500/40"
+								>
+									<ChevronLeft className="h-6 w-6 text-black dark:text-white" />
+								</button>
+							</div>
+
+							<div className="absolute top-0 right-0 bg-linear-to-r from-transparent from-0% to-sidebar to-30% pl-3">
+								<button
+									ref={navGoRightRef}
+									onClick={() => {
+										if (navRef.current) {
+											navRef.current.scrollBy({ left: 100, behavior: "smooth" });
+										}
+									}}
+									className="flex size-11 items-center justify-center rounded-full bg-transparent hover:bg-gray-600/60 dark:hover:bg-gray-500/40"
+								>
+									<ChevronRight className="h-6 w-6 text-black dark:text-white" />
+								</button>
+							</div>
 						</div>
 
-						<div className="absolute top-0 right-0 bg-linear-to-r from-transparent from-0% to-sidebar to-30% pl-3">
-							<button
-								ref={navGoRightRef}
-								onClick={() => {
-									if (navRef.current) {
-										navRef.current.scrollBy({ left: 100, behavior: "smooth" });
-									}
-								}}
-								className="flex size-11 items-center justify-center rounded-full bg-transparent hover:bg-gray-600/60 dark:hover:bg-gray-500/40"
-							>
-								<ChevronRight className="h-6 w-6 text-black dark:text-white" />
-							</button>
-						</div>
-					</div>
-
-					<Select defaultValue={currentSortOption} onValueChange={setCurrentSortOption}>
-						<SelectTrigger className="min-h-5 w-fit min-w-6 gap-1 rounded-full border-0 pl-4 text-black shadow-none focus-visible:border-0 focus-visible:ring-0 data-[placeholder]:text-black dark:dark:bg-transparent dark:text-white dark:dark:hover:bg-sidebar-accent/60 dark:focus-visible:border-0 dark:focus-visible:ring-0 dark:data-[placeholder]:text-white">
-							<SelectValue placeholder="Theme" />
-						</SelectTrigger>
-						<SelectContent className="w-20 rounded-sm border-0 p-0 shadow-none dark:bg-modal">
-							<h1 className="px-2 pt-2 pb-3 text-sm font-semibold text-black dark:text-white">Sort by</h1>
-							{sortOptions.map((option) => (
-								<SelectItem key={option.value} value={option.value} className="cursor-pointer py-2 text-left hover:bg-sidebar-accent/50 dark:hover:bg-sidebar-accent">
-									{option.title}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
+						<Select defaultValue={currentSortOption} onValueChange={setCurrentSortOption}>
+							<SelectTrigger className="min-h-5 w-fit min-w-6 gap-1 rounded-full border-0 pl-4 text-black shadow-none focus-visible:border-0 focus-visible:ring-0 data-[placeholder]:text-black dark:dark:bg-transparent dark:text-white dark:dark:hover:bg-sidebar-accent/60 dark:focus-visible:border-0 dark:focus-visible:ring-0 dark:data-[placeholder]:text-white">
+								<SelectValue placeholder="Theme" />
+							</SelectTrigger>
+							<SelectContent className="w-20 rounded-sm border-0 p-0 shadow-none dark:bg-modal">
+								<h1 className="px-2 pt-2 pb-3 text-sm font-semibold text-black dark:text-white">Sort by</h1>
+								{sortOptions.map((option) => (
+									<SelectItem key={option.value} value={option.value} className="cursor-pointer py-2 text-left hover:bg-sidebar-accent/50 dark:hover:bg-sidebar-accent">
+										{option.title}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</section>
 				</section>
 
-				<section className="flex w-full flex-col gap-2">
+				<section id="content" className="flex w-full flex-col gap-2">
 					{status === "pending" ? (
 						<p>Loading...</p>
 					) : (
-						<div className="flex w-full flex-col gap-1">
+						<div className="flex w-full flex-col">
 							{data?.pages.length === 0 && (
 								<p className="text-center text-sm font-semibold text-black dark:text-white">
 									No results found for <span className="text-red-500">{searchParams.get("type")}</span>
@@ -358,7 +360,10 @@ export default function Index() {
 													}
 												})
 												.map((post: Post) => (
-													<PostsCard key={post.id} data={post} />
+													<React.Fragment key={post.id}>
+														<PostsCard className="my-1" data={post} />
+														<hr className="h-[0.2px] w-full border-b border-sidebar-border" />
+													</React.Fragment>
 												))}
 											{group.data.comments
 												.sort((a: Comments, b: Comments) => {
@@ -371,13 +376,10 @@ export default function Index() {
 													}
 												})
 												.map((comment: Comments) => (
-													<CommentsCard
-														key={comment.id}
-														content={comment.text || ""}
-														username={user.username}
-														title={comment.postTitle || "Comment"}
-														createdAt={comment.createdAt}
-													/>
+													<React.Fragment key={comment.id}>
+														<CommentsCard key={comment.id} data={comment} />
+														<hr className="h-[0.2px] w-full border-b border-sidebar-border" />
+													</React.Fragment>
 												))}
 										</React.Fragment>
 									) : searchParams.get("type") === "comments" ? (
@@ -392,13 +394,10 @@ export default function Index() {
 												}
 											})
 											.map((comment: Comments) => (
-												<CommentsCard
-													key={comment.id}
-													content={comment.text || ""}
-													username={user.username}
-													title={comment.postTitle || "Comment"}
-													createdAt={comment.createdAt}
-												/>
+												<React.Fragment key={comment.id}>
+													<CommentsCard key={comment.id} data={comment} />
+													<hr className="h-[0.2px] w-full border-b border-sidebar-border" />
+												</React.Fragment>
 											))
 									) : searchParams.get("type") === "posts" ? (
 										group.data
@@ -411,7 +410,12 @@ export default function Index() {
 													return 0;
 												}
 											})
-											.map((post: Post) => <PostsCard key={post.id} data={post} />)
+											.map((post: Post) => (
+												<React.Fragment key={post.id}>
+													<PostsCard className="my-1" data={post} />
+													<hr className="h-[0.2px] w-full border-b border-sidebar-border" />
+												</React.Fragment>
+											))
 									) : null}
 								</React.Fragment>
 							))}
