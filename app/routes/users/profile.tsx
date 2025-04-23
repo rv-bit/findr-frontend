@@ -320,7 +320,7 @@ export default function Index() {
 
 						<Select defaultValue={currentSortOption} onValueChange={setCurrentSortOption}>
 							<SelectTrigger className="min-h-5 w-fit min-w-6 gap-1 rounded-full border-0 pl-4 text-black shadow-none focus-visible:border-0 focus-visible:ring-0 data-[placeholder]:text-black dark:dark:bg-transparent dark:text-white dark:dark:hover:bg-sidebar-accent/60 dark:focus-visible:border-0 dark:focus-visible:ring-0 dark:data-[placeholder]:text-white">
-								<SelectValue placeholder="Theme" />
+								<SelectValue placeholder="Sort by" />
 							</SelectTrigger>
 							<SelectContent className="w-20 rounded-sm border-0 p-0 shadow-none dark:bg-modal">
 								<h1 className="px-2 pt-2 pb-3 text-sm font-semibold text-black dark:text-white">Sort by</h1>
