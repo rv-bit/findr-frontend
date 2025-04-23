@@ -23,5 +23,5 @@ export default [
 	]),
 
 	...prefix("users", [route(":username", "./routes/users/profile.tsx")]),
-	...prefix("post", [route(":id", "./routes/post/index.tsx"), route("new", "./routes/post/new.tsx")]),
+	...prefix("post", [route(":id", "./routes/post/$post.tsx"), route("new", "./routes/post/new.tsx")]),
 ] satisfies RouteConfig;
