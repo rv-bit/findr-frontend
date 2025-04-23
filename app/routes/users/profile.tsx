@@ -17,42 +17,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~
 
 import Card from "../post/components/card";
 
+import type { Post, User } from "~/routes/users/profile.types";
+
 export const links: Route.LinksFunction = () => [
 	{ rel: "stylesheet", href: editor_stylesheet }, // override styles
 ];
 
-type User = {
-	id: string;
-	username: string;
-	image: string | null | undefined;
-	about_description: string | null | undefined;
-};
-
-type Post = {
-	id: number;
-	slug: string;
-	title: string;
-	content: string;
-	userId: string;
-	createdAt: Date;
-	updatedAt: Date;
-};
-
-interface PostsResponse {
-	data: Post[];
-	nextCursor: number | null;
-	prevCursor: number | null;
-}
-
 export async function loader({ params }: Route.LoaderArgs) {
-	const { id } = params;
-	const slug = id as string;
+	const { username } = params;
 
-	if (!slug) {
+	if (!username) {
 		throw new Response("", { status: 302, headers: { Location: "/" } }); // Redirect to home
 	}
 
-	const response = await axiosInstance.get(`/api/v0/users/${slug}`);
+	const response = await axiosInstance.get(`/api/v0/users/${username}`);
 	if (response.status !== 200) {
 		throw new Response("", { status: 302, headers: { Location: "/" } }); // Redirect to home
 	}
@@ -144,6 +122,7 @@ export default function Index() {
 	const fetchData = React.useCallback(
 		async (page: number) => {
 			const { data } = await axiosInstance.get(`/api/v0/users/getData/${user.id}?page=${page}&type=${searchParams.get("type")}`);
+			console.log("data", data);
 			return data;
 		},
 		[user],
