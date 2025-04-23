@@ -1,6 +1,3 @@
-import editor_stylesheet from "~/styles/card.posts.mdx.css?url";
-import type { Route } from "../+types/index"; // Import the Route type from the parent directory
-
 import { codeBlockPlugin, headingsPlugin, listsPlugin, markdownShortcutPlugin, MDXEditor, quotePlugin, thematicBreakPlugin } from "@mdxeditor/editor";
 import { ClientOnly } from "remix-utils/client-only";
 
@@ -9,10 +6,6 @@ import { MessageCircle, ThumbsDown, ThumbsUp } from "lucide-react";
 import { Avatar } from "@radix-ui/react-avatar";
 import { AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
-
-export const links: Route.LinksFunction = () => [
-	{ rel: "stylesheet", href: editor_stylesheet }, // override styles
-];
 
 interface PostProps {
 	username: string;
@@ -55,7 +48,7 @@ export default function Card(props: PostProps) {
 			</span>
 
 			<span className="flex h-full flex-col items-start justify-start gap-1 overflow-hidden text-ellipsis">
-				<h1 className="text-lg font-bold text-black dark:text-white">{props.title}</h1>
+				<h1 className="w-full text-lg font-bold break-all text-black dark:text-white">{props.title}</h1>
 				<ClientOnly>
 					{() => (
 						<MDXEditor
@@ -71,7 +64,8 @@ export default function Card(props: PostProps) {
 								thematicBreakPlugin(),
 								markdownShortcutPlugin(),
 							]}
-							contentEditableClassName="text-ellipsis line-clamp-10 text-black dark:text-white"
+							className="w-full overflow-hidden text-ellipsis"
+							contentEditableClassName="text-ellipsis line-clamp-10 text-gray-500 dark:text-gray-400 w-full"
 							readOnly={true}
 						/>
 					)}

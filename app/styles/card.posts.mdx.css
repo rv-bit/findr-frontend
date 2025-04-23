@@ -2,7 +2,7 @@
 @config '../../tailwind.config.ts';
 
 .mdxeditor {
-	@apply mr-[0.175rem] flex max-h-[350px] min-h-[250px] w-full flex-col items-start justify-start gap-2 overflow-y-auto rounded-md border border-neutral-200 bg-transparent text-base shadow-sm placeholder:text-neutral-500 md:text-sm dark:border-neutral-800 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:visible [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500/50 [&::-webkit-scrollbar-track]:bg-gray-100 dark:[&::-webkit-scrollbar-track]:bg-transparent;
+	@apply flex max-h-[350px] w-full flex-col items-start justify-start gap-2 overflow-y-auto rounded-md bg-transparent text-base shadow-sm placeholder:text-neutral-500 md:text-sm [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:visible [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500/50 [&::-webkit-scrollbar-track]:bg-gray-100 dark:[&::-webkit-scrollbar-track]:bg-transparent;
 }
 
 .mdxeditor-popup-container {
@@ -10,11 +10,11 @@
 }
 
 .mdxeditor-root-contenteditable {
-	@apply h-full min-h-full w-full flex-1 text-black focus-visible:outline-none dark:text-white dark:focus-visible:outline-none;
+	@apply h-full min-h-full w-full flex-1 text-black focus-visible:outline-none dark:text-gray-500 dark:focus-visible:outline-none;
 }
 
 .mdxeditor-root-contenteditable div {
-	@apply h-full min-h-[250px] w-full focus-visible:outline-none dark:focus-visible:outline-none;
+	@apply h-full w-full focus-visible:outline-none dark:focus-visible:outline-none;
 }
 
 ._contentEditable_uazmk_379 {
@@ -195,8 +195,6 @@
 ._listItemChecked_1tncs_73:after {
 	content: "";
 	cursor: pointer;
-	border-color: var(--baseBase);
-	border-style: solid;
 	position: absolute;
 	display: block;
 	top: var(--spacing-0_5);
@@ -205,7 +203,6 @@
 	right: var(--spacing-1_5);
 	height: var(--spacing-2);
 	transform: rotate(45deg);
-	border-width: 0 var(--spacing-0_5) var(--spacing-0_5) 0;
 }
 
 ._nestedListItem_1tncs_59 {

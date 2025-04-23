@@ -1,3 +1,4 @@
+import editor_stylesheet from "~/styles/card.posts.mdx.css?url";
 import type { Route } from "./+types/profile";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -13,7 +14,12 @@ import { Button } from "~/components/ui/button";
 
 import { ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
+
 import Card from "../post/components/card";
+
+export const links: Route.LinksFunction = () => [
+	{ rel: "stylesheet", href: editor_stylesheet }, // override styles
+];
 
 type User = {
 	id: string;
@@ -221,12 +227,9 @@ export default function Index() {
 	}, [searchParams]);
 
 	React.useEffect(() => {
-		console.log("inViewportRef", inViewportRef.current);
-
 		if (!inViewportRef.current) return;
 
 		if (status === "success") {
-			console.log("inViewportRefss", inViewportRef.current);
 			const observer = new IntersectionObserver(
 				(entries) => {
 					if (entries[0].isIntersecting) {
