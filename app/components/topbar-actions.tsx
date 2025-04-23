@@ -195,7 +195,7 @@ export default function TopbarActions() {
 							<DropdownMenuTrigger asChild>
 								<SidebarMenuButton variant={"link"} size="lg" className="h-auto rounded-full p-1 hover:bg-sidebar-foreground/20 hover:text-white dark:hover:bg-sidebar-accent">
 									<Avatar className="h-8 w-8 rounded-full">
-										{!isPending && <AvatarImage src={`${import.meta.env.VITE_CLOUD_FRONT_URL}/${sessionData?.user.image}`} alt={sessionData?.user.name} />}
+										{!isPending && <AvatarImage loading="lazy" src={`${import.meta.env.VITE_CLOUD_FRONT_URL}/${sessionData?.user.image}`} alt={sessionData?.user.name} />}
 										<AvatarFallback className="rounded-lg bg-sidebar-foreground/50">
 											{sessionData?.user.name
 												?.split(" ")
