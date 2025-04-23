@@ -1,7 +1,7 @@
 import editor_stylesheet from "~/styles/card.posts.mdx.css?url";
 import type { Route } from "../+types/index"; // Import the Route type from the parent directory
 
-import { MDXEditor } from "@mdxeditor/editor";
+import { codeBlockPlugin, headingsPlugin, listsPlugin, markdownShortcutPlugin, MDXEditor, quotePlugin, thematicBreakPlugin } from "@mdxeditor/editor";
 import { ClientOnly } from "remix-utils/client-only";
 
 import { MessageCircle, ThumbsDown, ThumbsUp } from "lucide-react";
@@ -10,7 +10,9 @@ import { Avatar } from "@radix-ui/react-avatar";
 import { AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 
-export const links: Route.LinksFunction = () => [{ rel: "stylesheet", href: editor_stylesheet }];
+export const links: Route.LinksFunction = () => [
+	{ rel: "stylesheet", href: editor_stylesheet }, // override styles
+];
 
 interface PostProps {
 	username: string;
@@ -39,30 +41,49 @@ export default function Card(props: PostProps) {
 	}
 
 	return (
-		<article className="w-full h-auto max-h-96 min-h-28 flex flex-col justify-between gap-3 px-4 py-2 dark:hover:bg-sidebar-accent/50 hover:bg-sidebar-foreground/10 rounded-xl">
-			<span className="flex justify-start items-center gap-1">
-				<span className="flex justify-center items-center gap-2">
+		<article className="flex h-auto max-h-96 min-h-28 w-full flex-col justify-between gap-3 rounded-xl px-4 py-2 hover:bg-sidebar-foreground/10 dark:hover:bg-sidebar-accent/50">
+			<span className="flex items-center justify-start gap-1">
+				<span className="flex items-center justify-center gap-2">
 					<Avatar className="size-6 rounded-full">
 						<AvatarImage src={"https://cdn.discordapp.com/avatars/1325267844698734698/fdff993870a62c29081851408ec63b76.webp?size=32"} alt={"df"} className="rounded-full" />
 						<AvatarFallback className="rounded-full">DF</AvatarFallback>
 					</Avatar>
 					<h1 className="text-sm text-black dark:text-white">{props.username}</h1>
 				</span>
-				<span className="inline-block my-0 text-[#333a3e] dark:text-[#333a3e]">•</span>
+				<span className="my-0 inline-block text-[#333a3e] dark:text-[#333a3e]">•</span>
 				<h2 className="text-xs text-black dark:text-white">{timeAgo}</h2>
 			</span>
 
-			<span className="h-full flex flex-col gap-1 justify-start items-start text-ellipsis overflow-hidden">
+			<span className="flex h-full flex-col items-start justify-start gap-1 overflow-hidden text-ellipsis">
 				<h1 className="text-lg font-bold text-black dark:text-white">{props.title}</h1>
-				<ClientOnly>{() => <MDXEditor markdown={props.content} contentEditableClassName="text-ellipsis line-clamp-10 text-black dark:text-white" readOnly={true} />}</ClientOnly>
+				<ClientOnly>
+					{() => (
+						<MDXEditor
+							markdown={props.content}
+							plugins={[
+								quotePlugin(),
+								listsPlugin(),
+								codeBlockPlugin(),
+								headingsPlugin({
+									allowedHeadingLevels: [1, 2, 3],
+								}),
+								quotePlugin(),
+								thematicBreakPlugin(),
+								markdownShortcutPlugin(),
+							]}
+							contentEditableClassName="text-ellipsis line-clamp-10 text-black dark:text-white"
+							readOnly={true}
+						/>
+					)}
+				</ClientOnly>
 			</span>
 
-			<span className="flex gap-2 justify-start items-start">
-				<span className="w-fit flex gap-1 justify-between items-center rounded-3xl dark:bg-sidebar-accent bg-[#E5EBEE]">
+			<span className="flex items-start justify-start gap-2">
+				<span className="flex w-fit items-center justify-between gap-1 rounded-3xl bg-[#E5EBEE] dark:bg-sidebar-accent">
 					<span className="flex items-center justify-center">
 						<Button
 							disabled={true}
-							className="group p-2 px-3 shadow-none flex items-center justify-center gap-1 rounded-full bg-transparent dark:bg-transparent dark:hover:bg-[#333a3e] hover:bg-[#75858f]/20 [&_svg]:size-4 dark:text-white text-black"
+							className="group flex items-center justify-center gap-1 rounded-full bg-transparent p-2 px-3 text-black shadow-none hover:bg-[#75858f]/20 dark:bg-transparent dark:text-white dark:hover:bg-[#333a3e] [&_svg]:size-4"
 						>
 							<ThumbsUp className="group-hover:text-red-400/85" />
 						</Button>
@@ -73,7 +94,7 @@ export default function Card(props: PostProps) {
 					<span className="flex items-center justify-center">
 						<Button
 							disabled={true}
-							className="group p-2 px-3 shadow-none flex items-center justify-center gap-1 rounded-full bg-transparent dark:bg-transparent dark:hover:bg-[#333a3e] hover:bg-[#75858f]/20 [&_svg]:size-4 dark:text-white text-black"
+							className="group flex items-center justify-center gap-1 rounded-full bg-transparent p-2 px-3 text-black shadow-none hover:bg-[#75858f]/20 dark:bg-transparent dark:text-white dark:hover:bg-[#333a3e] [&_svg]:size-4"
 						>
 							<ThumbsDown className="group-hover:text-primary-400" />
 						</Button>
@@ -82,7 +103,7 @@ export default function Card(props: PostProps) {
 
 				<Button
 					disabled={true}
-					className="w-fit flex gap-1 justify-start items-center rounded-3xl px-3 dark:bg-sidebar-accent bg-[#E5EBEE] dark:hover:bg-[#333a3e] hover:bg-[#75858f]/20 dark:text-white text-black"
+					className="flex w-fit items-center justify-start gap-1 rounded-3xl bg-[#E5EBEE] px-3 text-black hover:bg-[#75858f]/20 dark:bg-sidebar-accent dark:text-white dark:hover:bg-[#333a3e]"
 				>
 					<MessageCircle />
 					<span className="text-sm text-black dark:text-white">{props.comments}</span>

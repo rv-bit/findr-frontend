@@ -2,19 +2,23 @@
 @config '../../tailwind.config.ts';
 
 .mdxeditor {
-	@apply flex h-full w-full flex-col items-start justify-start gap-2 overflow-hidden border-none bg-transparent text-base shadow-sm md:text-sm;
+	@apply mr-[0.175rem] flex max-h-[350px] min-h-[250px] w-full flex-col items-start justify-start gap-2 overflow-y-auto rounded-md border border-neutral-200 bg-transparent text-base shadow-sm placeholder:text-neutral-500 md:text-sm dark:border-neutral-800 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:visible [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500/50 [&::-webkit-scrollbar-track]:bg-gray-100 dark:[&::-webkit-scrollbar-track]:bg-transparent;
+}
+
+.mdxeditor-popup-container {
+	@apply p-0;
 }
 
 .mdxeditor-root-contenteditable {
-	@apply h-full w-full flex-1 text-black focus-visible:outline-none dark:text-white dark:focus-visible:outline-none;
+	@apply h-full min-h-full w-full flex-1 text-black focus-visible:outline-none dark:text-white dark:focus-visible:outline-none;
 }
 
 .mdxeditor-root-contenteditable div {
-	@apply h-full w-full text-black focus-visible:outline-none dark:text-white dark:focus-visible:outline-none;
+	@apply h-full min-h-[250px] w-full focus-visible:outline-none dark:focus-visible:outline-none;
 }
 
 ._contentEditable_uazmk_379 {
-	@apply h-full w-full flex-1 text-black focus-visible:outline-none dark:text-white dark:focus-visible:outline-none;
+	@apply h-full w-full flex-1 focus-visible:outline-none dark:focus-visible:outline-none;
 }
 
 ._contentEditable_uazmk_379 ul {
@@ -29,16 +33,33 @@
 	@apply ml-4;
 }
 
+._contentEditable_uazmk_379 blockquote {
+	@apply border-l-4 border-neutral-200 p-2 dark:border-neutral-800;
+}
+._contentEditable_uazmk_379 h1 {
+	@apply text-[2rem];
+}
+._contentEditable_uazmk_379 h2 {
+	@apply text-[1.5rem];
+}
+._contentEditable_uazmk_379 h3 {
+	@apply text-[1.17rem];
+}
+
 ._placeholder_uazmk_1084 {
 	@apply hidden;
 }
 
 .mdxeditor-toolbar {
-	@apply flex h-fit w-full flex-row items-start justify-start;
+	@apply flex h-fit w-full flex-row items-center justify-start gap-2;
 }
 
 ._toolbarGroupOfGroups_uazmk_217 {
-	@apply flex;
+	@apply flex items-center justify-center;
+}
+
+._toolbarToggleSingleGroup_uazmk_222 {
+	@apply flex items-center justify-center;
 }
 
 ._toolbarToggleSingleGroup_uazmk_222 button {
@@ -53,7 +74,7 @@
 	@apply text-black dark:text-white;
 }
 ._tooltipTrigger_uazmk_676 button {
-	@apply flex items-center justify-center;
+	@apply flex items-center justify-center rounded-4xl;
 }
 
 ._bold_1tncs_10 {
@@ -100,6 +121,7 @@
 
 ._code_1tncs_52 {
 	@apply bg-neutral-100 dark:bg-neutral-800;
+
 	padding: 1px 0.25rem;
 	font-family: var(--font-mono);
 	font-size: 94%;
@@ -125,8 +147,6 @@
 	margin-left: 0;
 	margin-right: 0;
 	margin-inline-start: -1rem;
-	padding-left: var(--spacing-6);
-	padding-right: var(--spacing-6);
 	list-style-type: none;
 	outline: none;
 }
