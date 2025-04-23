@@ -358,21 +358,7 @@ export default function Index() {
 													}
 												})
 												.map((post: Post) => (
-													<PostsCard
-														key={post.id}
-														content={post.content}
-														username={user.username}
-														title={post.title}
-														likesCount={post.likesCount}
-														commentsCount={post.commentsCount}
-														createdAt={post.createdAt}
-														onHandleUpvote={() => {
-															console.log("Upvote clicked");
-														}}
-														onHandleDownvote={() => {
-															console.log("Downvote clicked");
-														}}
-													/>
+													<PostsCard key={post.id} data={post} />
 												))}
 											{group.data.comments
 												.sort((a: Comments, b: Comments) => {
@@ -425,26 +411,11 @@ export default function Index() {
 													return 0;
 												}
 											})
-											.map((post: Post) => (
-												<PostsCard
-													key={post.id}
-													content={post.content}
-													username={user.username}
-													title={post.title}
-													likesCount={post.likesCount}
-													commentsCount={post.commentsCount}
-													createdAt={post.createdAt}
-													onHandleUpvote={() => {
-														console.log("Upvote clicked");
-													}}
-													onHandleDownvote={() => {
-														console.log("Downvote clicked");
-													}}
-												/>
-											))
+											.map((post: Post) => <PostsCard key={post.id} data={post} />)
 									) : null}
 								</React.Fragment>
 							))}
+
 							{isFetching && <p>Loading...</p>}
 							{hasNextPage && <div ref={inViewportRef}>{isFetchingNextPage && <p>Loading more...</p>}</div>}
 							{error && <div>Error: {error.message}</div>}
