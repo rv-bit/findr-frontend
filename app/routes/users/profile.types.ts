@@ -7,9 +7,9 @@ export type User = {
 
 export type Comments = {
 	id: number;
-	postId: number | null;
+	postId: string | null;
 	text: string | null;
-	userId: string;
+	username: string;
 	createdAt: Date;
 	updatedAt: Date;
 
@@ -17,15 +17,17 @@ export type Comments = {
 };
 
 export type Post = {
-	id: number;
+	id: string;
 	slug: string;
 	title: string;
 	content: string;
-	userId: string;
+	username: string;
 	createdAt: Date;
 	updatedAt: Date;
 
 	likesCount: number;
 	commentsCount: number;
-	liked?: boolean;
+
+	upvoted?: boolean;
+	downvoted?: boolean;
 };
