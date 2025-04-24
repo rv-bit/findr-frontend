@@ -5,7 +5,7 @@ import { cn, formatTime } from "~/lib/utils";
 
 import { MessageCircle } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Avatar, AvatarFallback } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 
 import type { Comments } from "../profile.types";
@@ -23,8 +23,13 @@ export default function CommentsCard({
 			<span className="flex items-center justify-start gap-1">
 				<span className="flex items-center justify-center gap-2">
 					<Avatar className="size-6 rounded-full">
-						<AvatarImage loading="lazy" src={"https://cdn.discordapp.com/avatars/1325267844698734698/fdff993870a62c29081851408ec63b76.webp?size=32"} alt={"df"} className="rounded-full" />
-						<AvatarFallback className="rounded-full">DF</AvatarFallback>
+						{/* <AvatarImage loading="lazy" src={`${import.meta.env.VITE_CLOUD_FRONT_URL}/${data.image}`} alt={data.username} /> */}
+						<AvatarFallback className="rounded-lg bg-sidebar-foreground/50">
+							{data.username
+								?.split(" ")
+								.map((name) => name[0])
+								.join("")}
+						</AvatarFallback>
 					</Avatar>
 					<h1 className="text-sm text-black dark:text-white">{data.username}</h1>
 				</span>
