@@ -1,114 +1,172 @@
+import editor_stylesheet from "~/styles/card.posts.mdx.css?url";
 import type { Route } from "./+types/index";
 
+import { useInfiniteQuery } from "@tanstack/react-query";
 import React from "react";
+import { useSearchParams } from "react-router";
 
-// export async function loader({ params }: Route.LoaderArgs) {
-// 	const data = await queryClient.prefetchInfiniteQuery({
-// 		queryKey: ["posts"],
-// 		queryFn: async ({ pageParam = 0 }) => {
-// 			const res = await fetch("/api/v1/posts", {
-// 				method: "POST",
-// 				body: JSON.stringify({ pageParam }),
-// 				headers: {
-// 					"Content-Type": "application/json",
-// 				},
-// 			});
-// 			return res.json();
-// 		},
-// 		initialPageParam: 0,
-// 	});
+import { authClient } from "~/lib/auth";
+import axiosInstance from "~/lib/axios-instance";
 
-// 	return { data };
-// }
+import type { Post, User } from "~/lib/types/shared";
 
-// export async function clientLoader({ serverLoader, params }: Route.ClientLoaderArgs) {
-// 	const cachedData = queryClient.getQueryData(["posts"]);
-// 	const data = cachedData ?? (await serverLoader());
+import Loading from "~/icons/loading";
 
-// 	return data;
-// }
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 
-// export function HydrateFallback() {
-// 	return <div>Loading...</div>;
-// }
+import PostsCard from "./components/posts.card";
 
-export default function Index({ loaderData }: Route.ComponentProps) {
+export const links: Route.LinksFunction = () => [
+	{ rel: "stylesheet", href: editor_stylesheet }, // override styles
+];
+
+export function meta({}: Route.MetaArgs) {
+	return [{ title: "Findr" }, { name: "description", content: "Findr" }];
+}
+
+const sortOptions: {
+	title: string;
+	value: string;
+	sortingFn?: (a: Post, b: Post) => number;
+}[] = [
+	{
+		title: "Newest",
+		value: "newest",
+		sortingFn: (a: Post, b: Post) => {
+			return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+		},
+	},
+	{
+		title: "Oldest",
+		value: "oldest",
+		sortingFn: (a: Post, b: Post) => {
+			return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+		},
+	},
+	{
+		title: "Top",
+		value: "top",
+		sortingFn: (a: Post, b: Post) => {
+			return b.likesCount - a.likesCount;
+		},
+	},
+];
+
+export default function Index() {
+	const { data: session } = authClient.useSession();
+	const user = session?.user || null;
+
+	const [searchParams, setSearchParams] = useSearchParams();
+
 	const inViewportRef = React.useRef(null);
 
-	// const fetchPosts = async ({ pageParam: pageParam = 0 }) => {
-	// 	const res = await axiosInstance.get("/api/v0/post/", {
-	// 		// body: JSON.stringify({ pageParam }),
-	// 		headers: {
-	// 			"Content-Type": "application/json",
-	// 		},
-	// 	});
+	const [currentSortOption, setCurrentSortOption] = React.useState("newest");
 
-	// 	return res.data;
-	// };
+	const fetchData = React.useCallback(
+		async (page: number) => {
+			const { data } = await axiosInstance.get(`/api/v0/post/?page=${page}&type=${searchParams.get("feed")}`);
+			return data;
+		},
+		[searchParams],
+	);
 
-	// const {
-	// 	data: posts,
-	// 	error,
-	// 	fetchNextPage,
-	// 	hasNextPage,
-	// 	isFetching,
-	// 	isFetchingNextPage,
-	// 	status,
-	// } = useInfiniteQuery({
-	// 	queryKey: ["posts"],
-	// 	queryFn: fetchPosts,
-	// 	initialPageParam: 0,
-	// 	getNextPageParam: (lastPage, pages) => lastPage.nextCursor,
-	// });
+	const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
+		staleTime: 0,
+		queryKey: ["homePosts", searchParams.get("feed")],
+		initialPageParam: 1,
+		queryFn: async ({ pageParam }) => {
+			return fetchData(pageParam);
+		},
+		getNextPageParam: (lastPage, allPages, lastPageParam, allPageParams) => lastPage.nextCursor,
+		getPreviousPageParam: (firstPage, allPages, firstPageParam, allPageParams) => firstPage.prevCursor,
+	});
 
-	// React.useEffect(() => {
-	// 	if (!inViewportRef.current) return;
+	const sortingFn = React.useMemo(() => {
+		const sortOption = sortOptions.find((option) => option.value === currentSortOption);
+		return sortOption?.sortingFn;
+	}, [currentSortOption]);
 
-	// 	if (status === "success") {
-	// 		const observer = new IntersectionObserver(
-	// 			(entries) => {
-	// 				if (entries[0].isIntersecting) {
-	// 					fetchNextPage();
-	// 				}
-	// 			},
-	// 			{ threshold: 1 },
-	// 		);
-	// 		observer.observe(inViewportRef.current);
-	// 		return () => {
-	// 			observer.disconnect();
-	// 		};
-	// 	}
-	// }, [status, fetchNextPage, inViewportRef]);
+	React.useEffect(() => {
+		if (!inViewportRef.current) return;
 
-	// return status === "pending" ? (
-	// 	<p>Loading...</p>
-	// ) : status === "error" ? (
-	// 	<p>Error: {error.message}</p>
-	// ) : (
-	// 	<div className="flex h-full w-full flex-col items-center justify-start max-md:w-screen">
-	// 		<div className="flex w-full max-w-5xl flex-col gap-1 overflow-hidden px-10 pt-8 max-sm:px-4">
-	// 			<div>
-	// 				{posts?.pages.map((group, i) => (
-	// 					<React.Fragment key={i}>
-	// 						{group.data.map((project: any) => (
-	// 							<p key={project.id}>{project.name}</p>
-	// 						))}
-	// 					</React.Fragment>
-	// 				))}
-	// 				{hasNextPage && (
-	// 					<div ref={inViewportRef}>
-	// 						{isFetchingNextPage && <p>Loading more...</p>}
-	// 						{!isFetchingNextPage && <button onClick={() => fetchNextPage()}>{hasNextPage ? "Load More" : "Nothing more to load"}</button>}
-	// 					</div>
-	// 				)}
-	// 			</div>
-	// 		</div>
-	// 	</div>
-	// );
+		if (status === "success") {
+			const observer = new IntersectionObserver(
+				(entries) => {
+					if (entries[0].isIntersecting) {
+						fetchNextPage();
+					}
+				},
+				{ threshold: 1 },
+			);
+
+			observer.observe(inViewportRef.current);
+			return () => {
+				observer.disconnect();
+			};
+		}
+	}, [status, fetchNextPage, inViewportRef]);
 
 	return (
-		<div className="flex h-full w-full flex-col items-center justify-start max-md:w-screen">
-			<div className="flex w-full max-w-5xl flex-col gap-1 overflow-hidden px-10 pt-8 max-sm:px-4">Welcome</div>
-		</div>
+		<main className="mx-auto flex h-full w-full flex-col items-center justify-start pb-5 max-md:w-screen">
+			<div className="flex w-full max-w-[85rem] flex-col px-10 pt-5 max-sm:px-4">
+				<section className="flex w-full flex-col gap-2 border-b border-sidebar-border pb-5">
+					<Select defaultValue={currentSortOption} onValueChange={setCurrentSortOption}>
+						<SelectTrigger className="min-h-5 w-fit min-w-6 gap-1 rounded-full border-0 pl-4 text-black shadow-none focus-visible:border-0 focus-visible:ring-0 data-[placeholder]:text-black dark:dark:bg-transparent dark:text-white dark:dark:hover:bg-sidebar-accent/60 dark:focus-visible:border-0 dark:focus-visible:ring-0 dark:data-[placeholder]:text-white">
+							<SelectValue placeholder="Sort by" />
+						</SelectTrigger>
+						<SelectContent className="w-20 rounded-sm border-0 p-0 shadow-none dark:bg-modal">
+							<h1 className="px-2 pt-2 pb-3 text-sm font-semibold text-black dark:text-white">Sort by</h1>
+							{sortOptions.map((option) => (
+								<SelectItem key={option.value} value={option.value} className="cursor-pointer py-2 text-left hover:bg-sidebar-accent/50 dark:hover:bg-sidebar-accent">
+									{option.title}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+				</section>
+
+				<section id="content" className="flex w-full flex-col gap-2">
+					{status === "pending" ? (
+						<div className="my-20 flex w-full items-center justify-center">
+							<Loading className="size-24" />
+						</div>
+					) : (
+						<div className="flex w-full flex-col">
+							{!data?.pages.some((group) => group.data.length > 0) ? (
+								<p className="my-20 text-center text-xl font-semibold text-black dark:text-white">No results found for this feed.</p>
+							) : (
+								data?.pages.map((group, i) => (
+									<React.Fragment key={i}>
+										{group.data.sort(sortingFn).map(
+											(
+												post: Post & {
+													user: User;
+												},
+											) => (
+												<React.Fragment key={post.id}>
+													<PostsCard className="my-1" data={post} />
+													<hr className="w-full border-t-0 border-b border-sidebar-border" />
+												</React.Fragment>
+											),
+										)}
+									</React.Fragment>
+								))
+							)}
+
+							{hasNextPage && (
+								<div ref={inViewportRef}>
+									{isFetchingNextPage && (
+										<div className="my-20 flex w-full items-center justify-center">
+											<Loading className="size-24" />
+										</div>
+									)}
+								</div>
+							)}
+							{error && <div>Error: {error.message}</div>}
+						</div>
+					)}
+				</section>
+			</div>
+		</main>
 	);
 }

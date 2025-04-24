@@ -8,13 +8,13 @@ import { cn, formatTime } from "~/lib/utils";
 
 import type { Post, User } from "~/lib/types/shared";
 
-import { Ellipsis, MessageCircle, Pencil, ThumbsDown, ThumbsUp, Trash2, type LucideIcon } from "lucide-react";
+import { useMutateVote } from "~/hooks/useMutateVote";
+
+import { BellDot, Bookmark, Ellipsis, Flag, MessageCircle, ThumbsDown, ThumbsUp, type LucideIcon } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
-
-// import { useMutateVote } from "../hooks/useMutateVote";
 
 type DropDownActions = {
 	title: string;
@@ -28,13 +28,15 @@ type DropDownActions = {
 export default function PostsCard({
 	className,
 	data,
-	user,
 }: React.ComponentProps<"article"> & {
-	data: Post;
-	user: User;
+	data: Post & {
+		user: User;
+	};
 }) {
 	const { data: session } = authClient.useSession();
-	// const { mutate } = useMutateVote();
+	const { mutate } = useMutateVote({
+		queryKey: "homePosts",
+	});
 
 	const handleUpvote = () => {
 		if (!session || !session.user) {
@@ -42,7 +44,7 @@ export default function PostsCard({
 			return;
 		}
 
-		// mutate({ postId: data.id, type: "upvote" });
+		mutate({ postId: data.id, type: "upvote" });
 	};
 
 	const handleDownvote = () => {
@@ -51,14 +53,8 @@ export default function PostsCard({
 			return;
 		}
 
-		// mutate({ postId: data.id, type: "downvote" });
+		mutate({ postId: data.id, type: "downvote" });
 	};
-
-	const editable = React.useMemo(() => {
-		if (!session || !session.user) return false;
-
-		return session.user.username === user.username;
-	}, [session, user]);
 
 	const time = React.useMemo(() => {
 		const date = new Date(data.createdAt);
@@ -68,20 +64,24 @@ export default function PostsCard({
 	const dropDownActions: DropDownActions[] = React.useMemo(
 		() => [
 			{
-				title: "Other",
+				title: "Options",
 				items: [
 					{
-						title: "Edit",
-						icon: Pencil,
-						show: editable,
+						title: "Follow User",
+						icon: BellDot,
+						show: true,
+					},
+					{
+						title: "Save",
+						icon: Bookmark,
+						show: true,
+					},
+					{
+						title: "Report",
+						icon: Flag,
+						show: true,
 					},
 				],
-			},
-			{
-				title: "Delete",
-				icon: Trash2,
-				show: editable,
-				onClick: async () => {},
 			},
 		],
 		[],
@@ -98,15 +98,15 @@ export default function PostsCard({
 				<section className="flex items-center justify-start gap-1">
 					<span className="flex items-center justify-center gap-2">
 						<Avatar className="size-6 rounded-full">
-							<AvatarImage loading="lazy" src={`${import.meta.env.VITE_CLOUD_FRONT_URL}/${user.image}`} alt={user.username} />
+							<AvatarImage loading="lazy" src={`${import.meta.env.VITE_CLOUD_FRONT_URL}/${data.user.image}`} alt={data.user.username} />
 							<AvatarFallback className="rounded-lg bg-sidebar-foreground/50">
-								{user.username
+								{data.user.username
 									?.split(" ")
 									.map((name) => name[0])
 									.join("")}
 							</AvatarFallback>
 						</Avatar>
-						<h1 className="text-sm text-black dark:text-white">{user.username}</h1>
+						<h1 className="text-sm text-black dark:text-white">{data.user.username}</h1>
 					</span>
 					<span className="my-0 inline-block text-[#333a3e] dark:text-[#333a3e]">•</span>
 					<h2 className="text-xs text-black dark:text-white">{time}</h2>
@@ -122,7 +122,7 @@ export default function PostsCard({
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent className="mt-3.5 w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg border-none dark:bg-modal" side={"bottom"} align="end" sideOffset={4}>
-						{dropDownActions.map((item) =>
+						{dropDownActions.map((item, index) =>
 							item.items ? (
 								<DropdownMenuGroup key={item.title}>
 									{item.items?.map(
@@ -151,7 +151,7 @@ export default function PostsCard({
 											),
 									)}
 
-									<DropdownMenuSeparator />
+									{dropDownActions.length - 1 !== dropDownActions.indexOf(item) && <DropdownMenuSeparator />}
 								</DropdownMenuGroup>
 							) : (
 								item.show && (
