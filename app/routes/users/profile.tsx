@@ -16,6 +16,7 @@ import { Button } from "~/components/ui/button";
 import { ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 
+import Loading from "~/icons/loading";
 import CommentsCard from "./components/comments.card";
 import PostsCard from "./components/posts.card";
 
@@ -54,9 +55,7 @@ export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
 	};
 }
 
-export function HydrateFallback() {
-	return <div>Loading...</div>;
-}
+clientLoader.hydrate = true; // Disable hydration
 
 const types: {
 	title: string;
@@ -104,6 +103,14 @@ const sortOptions: {
 	},
 ];
 
+export function HydrateFallback() {
+	return (
+		<div className="flex w-full items-center justify-center">
+			<Loading className="size-24" />
+		</div>
+	);
+}
+
 export default function Index() {
 	const { user } = useLoaderData<typeof loader>();
 
@@ -127,11 +134,13 @@ export default function Index() {
 		[user],
 	);
 
-	const { data, error, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status } = useInfiniteQuery({
-		staleTime: 1000 * 60 * 1, // 1 minute
-		queryKey: ["userData", user.id, searchParams.get("type")],
+	const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
+		staleTime: 0,
+		queryKey: ["userData", user.username, searchParams.get("type")],
 		initialPageParam: 1,
-		queryFn: ({ pageParam }) => fetchData(pageParam),
+		queryFn: async ({ pageParam }) => {
+			return fetchData(pageParam);
+		},
 		getNextPageParam: (lastPage, allPages, lastPageParam, allPageParams) => lastPage.nextCursor,
 		getPreviousPageParam: (firstPage, allPages, firstPageParam, allPageParams) => firstPage.prevCursor,
 	});
@@ -288,7 +297,7 @@ export default function Index() {
 								))}
 							</nav>
 
-							<div className="absolute top-0 left-0 bg-linear-to-l from-transparent from-0% to-sidebar to-30% pr-3">
+							<div className="absolute top-0 left-0 hidden bg-linear-to-l from-transparent from-0% to-sidebar to-30% pr-3">
 								<button
 									ref={navGoLeftRef}
 									onClick={() => {
@@ -302,7 +311,7 @@ export default function Index() {
 								</button>
 							</div>
 
-							<div className="absolute top-0 right-0 bg-linear-to-r from-transparent from-0% to-sidebar to-30% pl-3">
+							<div className="absolute top-0 right-0 hidden bg-linear-to-r from-transparent from-0% to-sidebar to-30% pl-3">
 								<button
 									ref={navGoRightRef}
 									onClick={() => {
@@ -335,7 +344,9 @@ export default function Index() {
 
 				<section id="content" className="flex w-full flex-col gap-2">
 					{status === "pending" ? (
-						<p>Loading...</p>
+						<div className="my-20 flex w-full items-center justify-center">
+							<Loading className="size-24" />
+						</div>
 					) : (
 						<div className="flex w-full flex-col">
 							{data?.pages.length === 0 && (
@@ -419,8 +430,15 @@ export default function Index() {
 								</React.Fragment>
 							))}
 
-							{isFetching && <p>Loading...</p>}
-							{hasNextPage && <div ref={inViewportRef}>{isFetchingNextPage && <p>Loading more...</p>}</div>}
+							{hasNextPage && (
+								<div ref={inViewportRef}>
+									{isFetchingNextPage && (
+										<div className="my-20 flex w-full items-center justify-center">
+											<Loading className="size-24" />
+										</div>
+									)}
+								</div>
+							)}
 							{error && <div>Error: {error.message}</div>}
 						</div>
 					)}
