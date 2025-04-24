@@ -264,7 +264,7 @@ export default function TopbarActions() {
 												</DropdownMenuItem>
 											))}
 
-											<DropdownMenuSeparator />
+											{dropDownActions.length - 1 !== dropDownActions.indexOf(item) && <DropdownMenuSeparator />}
 										</DropdownMenuGroup>
 									) : (
 										<DropdownMenuGroup key={item.title}>

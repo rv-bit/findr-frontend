@@ -153,7 +153,7 @@ export default function PostsCard({
 											),
 									)}
 
-									<DropdownMenuSeparator />
+									{dropDownActions.length - 1 !== dropDownActions.indexOf(item) && <DropdownMenuSeparator />}
 								</DropdownMenuGroup>
 							) : (
 								item.show && (
