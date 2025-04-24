@@ -8,13 +8,13 @@ import { cn, formatTime } from "~/lib/utils";
 
 import type { Post, User } from "~/lib/types/shared";
 
+import { useMutateVote } from "~/hooks/useMutateVote";
+
 import { Ellipsis, MessageCircle, Pencil, ThumbsDown, ThumbsUp, Trash2, type LucideIcon } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
-
-import { useMutateVote } from "../hooks/useMutateVote";
 
 type DropDownActions = {
 	title: string;
