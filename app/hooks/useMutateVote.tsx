@@ -6,7 +6,7 @@ type VoteVariables = {
 	type: "upvote" | "downvote";
 };
 
-export const useMutateVote = () => {
+export const useMutateVote = ({ queryKey }: { queryKey: string | undefined }) => {
 	const queryClient = useQueryClient();
 
 	return useMutation<any, unknown, VoteVariables, { previousData: any }>({
@@ -18,11 +18,11 @@ export const useMutateVote = () => {
 		onMutate: async (variables) => {
 			const { postId, type } = variables;
 
-			await queryClient.cancelQueries({ queryKey: ["userData"] });
+			await queryClient.cancelQueries({ queryKey: [queryKey] });
 
-			const previousData = queryClient.getQueryData(["userData"]);
+			const previousData = queryClient.getQueryData([queryKey]);
 
-			queryClient.setQueryData(["userData"], (oldData: any) => {
+			queryClient.setQueryData([queryKey], (oldData: any) => {
 				if (!oldData) return oldData;
 
 				return {
@@ -80,12 +80,12 @@ export const useMutateVote = () => {
 
 		onError: (err, variables, context) => {
 			if (context?.previousData) {
-				queryClient.setQueryData(["userData"], context.previousData);
+				queryClient.setQueryData([queryKey], context.previousData);
 			}
 		},
 
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["userData"] });
+			queryClient.invalidateQueries({ queryKey: [queryKey] });
 		},
 	});
 };

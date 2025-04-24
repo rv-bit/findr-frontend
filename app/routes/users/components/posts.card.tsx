@@ -34,7 +34,9 @@ export default function PostsCard({
 	user: User;
 }) {
 	const { data: session } = authClient.useSession();
-	const { mutate } = useMutateVote();
+	const { mutate } = useMutateVote({
+		queryKey: "userData",
+	});
 
 	const handleUpvote = () => {
 		if (!session || !session.user) {
