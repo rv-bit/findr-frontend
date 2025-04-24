@@ -275,7 +275,7 @@ export default function Index() {
 	}, [status, fetchNextPage, inViewportRef]);
 
 	return (
-		<main className="mx-auto flex h-full w-full flex-col items-center justify-start max-md:w-screen">
+		<main className="mx-auto flex h-full w-full flex-col items-center justify-start pb-5 max-md:w-screen">
 			<div className="flex w-full max-w-[85rem] flex-col px-10 pt-5 max-sm:px-4">
 				<section id="top-information" className="flex flex-col items-start gap-4">
 					<section className="flex items-center justify-between gap-4">
@@ -403,13 +403,13 @@ export default function Index() {
 												{group.data.posts.sort(sortingFunction).map((post: Post) => (
 													<React.Fragment key={post.id}>
 														<PostsCard className="my-1" data={post} user={user} />
-														<hr className="h-[0.2px] w-full border-b border-sidebar-border" />
+														<hr className="w-full border-t-0 border-b border-sidebar-border" />
 													</React.Fragment>
 												))}
 												{group.data.comments.sort(sortingFunction).map((comment: Comments) => (
 													<React.Fragment key={comment.id}>
 														<CommentsCard key={comment.id} data={comment} user={user} />
-														<hr className="h-[0.2px] w-full border-b border-sidebar-border" />
+														<hr className="w-full border-t-0 border-b border-sidebar-border" />
 													</React.Fragment>
 												))}
 											</React.Fragment>
@@ -417,14 +417,14 @@ export default function Index() {
 											group.data.sort(sortingFunction).map((comment: Comments) => (
 												<React.Fragment key={comment.id}>
 													<CommentsCard key={comment.id} data={comment} user={user} />
-													<hr className="h-[0.2px] w-full border-b border-sidebar-border" />
+													<hr className="w-full border-t-0 border-b border-sidebar-border" />
 												</React.Fragment>
 											))
 										) : searchParams.get("type") === "posts" ? (
 											group.data.sort(sortingFunction).map((post: Post) => (
 												<React.Fragment key={post.id}>
 													<PostsCard className="my-1" data={post} user={user} />
-													<hr className="h-[0.2px] w-full border-b border-sidebar-border" />
+													<hr className="w-full border-t-0 border-b border-sidebar-border" />
 												</React.Fragment>
 											))
 										) : null}
