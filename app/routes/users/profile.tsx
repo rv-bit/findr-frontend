@@ -90,12 +90,12 @@ const sortOptions: {
 	value: string;
 }[] = [
 	{
-		title: "Hot",
-		value: "hot",
+		title: "Newest",
+		value: "newest",
 	},
 	{
-		title: "New",
-		value: "new",
+		title: "Oldest",
+		value: "oldest",
 	},
 	{
 		title: "Top",
@@ -119,7 +119,7 @@ export default function Index() {
 
 	const [searchParams, setSearchParams] = useSearchParams();
 
-	const [currentSortOption, setCurrentSortOption] = React.useState("new");
+	const [currentSortOption, setCurrentSortOption] = React.useState("newest");
 
 	const inViewportRef = React.useRef<HTMLDivElement>(null);
 	const navRef = React.useRef<HTMLDivElement>(null);
@@ -174,6 +174,48 @@ export default function Index() {
 			return pathname === url && isQueryMatch;
 		},
 		[location, searchParams],
+	);
+
+	const dataFound = React.useMemo(() => {
+		if (data?.pages.length === 0) {
+			return false;
+		}
+
+		return data?.pages.some((group) => {
+			if (searchParams.get("type") === "overview") {
+				return group.data.posts.length > 0 || group.data.comments.length > 0;
+			} else if (searchParams.get("type") === "posts") {
+				return group.data.length > 0;
+			} else if (searchParams.get("type") === "comments") {
+				return group.data.length > 0;
+			}
+			return false;
+		});
+	}, [data, searchParams]);
+
+	const sortingFunction = React.useCallback(
+		(a: Post | (Comments & { likesCount: number }), b: Post | (Comments & { likesCount: number })) => {
+			const params = searchParams.get("type");
+
+			if (currentSortOption === "newest") {
+				return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+			} else if (currentSortOption === "oldest") {
+				console.log("oldest");
+				return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+			} else if (currentSortOption === "top") {
+				if (params === "posts" || params === "overview") {
+					return b.likesCount - a.likesCount;
+				} else if (params === "comments") {
+					// it should have been sorted by how many likes a comment has, but we don't have that data yet
+					return 0;
+				}
+
+				return 0;
+			} else {
+				return 0;
+			}
+		},
+		[currentSortOption, searchParams],
 	);
 
 	React.useEffect(() => {
@@ -349,86 +391,46 @@ export default function Index() {
 						</div>
 					) : (
 						<div className="flex w-full flex-col">
-							{data?.pages.length === 0 && (
-								<p className="text-center text-sm font-semibold text-black dark:text-white">
+							{!dataFound ? (
+								<p className="my-20 text-center text-xl font-semibold text-black dark:text-white">
 									No results found for <span className="text-red-500">{searchParams.get("type")}</span>
 								</p>
-							)}
-
-							{data?.pages.map((group, i) => (
-								<React.Fragment key={i}>
-									{searchParams.get("type") === "overview" ? (
-										<React.Fragment>
-											{group.data.posts
-												.sort((a: Post, b: Post) => {
-													if (currentSortOption === "new") {
-														return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-													} else if (currentSortOption === "top") {
-														return b.likesCount - a.likesCount;
-													} else {
-														return 0;
-													}
-												})
-												.map((post: Post) => (
+							) : (
+								data?.pages.map((group, i) => (
+									<React.Fragment key={i}>
+										{searchParams.get("type") === "overview" ? (
+											<React.Fragment>
+												{group.data.posts.sort(sortingFunction).map((post: Post) => (
 													<React.Fragment key={post.id}>
 														<PostsCard className="my-1" data={post} user={user} />
 														<hr className="h-[0.2px] w-full border-b border-sidebar-border" />
 													</React.Fragment>
 												))}
-											{group.data.comments
-												.sort((a: Comments, b: Comments) => {
-													if (currentSortOption === "new") {
-														return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-													} else if (currentSortOption === "top") {
-														return 0; // it should have been sorted by how many likes a comment has, but we don't have that data yet
-													} else {
-														return 0;
-													}
-												})
-												.map((comment: Comments) => (
+												{group.data.comments.sort(sortingFunction).map((comment: Comments) => (
 													<React.Fragment key={comment.id}>
 														<CommentsCard key={comment.id} data={comment} user={user} />
 														<hr className="h-[0.2px] w-full border-b border-sidebar-border" />
 													</React.Fragment>
 												))}
-										</React.Fragment>
-									) : searchParams.get("type") === "comments" ? (
-										group.data
-											.sort((a: Comments, b: Comments) => {
-												if (currentSortOption === "new") {
-													return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-												} else if (currentSortOption === "top") {
-													return 0; // it should have been sorted by how many likes a comment has, but we don't have that data yet
-												} else {
-													return 0;
-												}
-											})
-											.map((comment: Comments) => (
+											</React.Fragment>
+										) : searchParams.get("type") === "comments" ? (
+											group.data.sort(sortingFunction).map((comment: Comments) => (
 												<React.Fragment key={comment.id}>
 													<CommentsCard key={comment.id} data={comment} user={user} />
 													<hr className="h-[0.2px] w-full border-b border-sidebar-border" />
 												</React.Fragment>
 											))
-									) : searchParams.get("type") === "posts" ? (
-										group.data
-											.sort((a: Post, b: Post) => {
-												if (currentSortOption === "new") {
-													return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-												} else if (currentSortOption === "top") {
-													return b.likesCount - a.likesCount;
-												} else {
-													return 0;
-												}
-											})
-											.map((post: Post) => (
+										) : searchParams.get("type") === "posts" ? (
+											group.data.sort(sortingFunction).map((post: Post) => (
 												<React.Fragment key={post.id}>
 													<PostsCard className="my-1" data={post} user={user} />
 													<hr className="h-[0.2px] w-full border-b border-sidebar-border" />
 												</React.Fragment>
 											))
-									) : null}
-								</React.Fragment>
-							))}
+										) : null}
+									</React.Fragment>
+								))
+							)}
 
 							{hasNextPage && (
 								<div ref={inViewportRef}>
