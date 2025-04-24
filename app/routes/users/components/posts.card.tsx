@@ -1,17 +1,16 @@
 import { codeBlockPlugin, headingsPlugin, listsPlugin, markdownShortcutPlugin, MDXEditor, quotePlugin, thematicBreakPlugin } from "@mdxeditor/editor";
 import React from "react";
-import { useParams } from "react-router";
 import { ClientOnly } from "remix-utils/client-only";
 import { toast } from "sonner";
 
 import { authClient } from "~/lib/auth";
 import { cn, formatTime } from "~/lib/utils";
 
-import type { Post } from "~/lib/types/shared";
+import type { Post, User } from "~/lib/types/shared";
 
 import { Ellipsis, MessageCircle, Pencil, ThumbsDown, ThumbsUp, Trash2, type LucideIcon } from "lucide-react";
 
-import { Avatar, AvatarFallback } from "~/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
 
@@ -29,12 +28,11 @@ type DropDownActions = {
 export default function PostsCard({
 	className,
 	data,
+	user,
 }: React.ComponentProps<"article"> & {
 	data: Post;
+	user: User;
 }) {
-	const params = useParams();
-	const username = params.username as string;
-
 	const { data: session } = authClient.useSession();
 	const { mutate } = useMutateVote();
 
@@ -59,8 +57,8 @@ export default function PostsCard({
 	const editable = React.useMemo(() => {
 		if (!session || !session.user) return false;
 
-		return session.user.username === username;
-	}, [session, username]);
+		return session.user.username === user.username;
+	}, [session, user]);
 
 	const time = React.useMemo(() => {
 		const date = new Date(data.createdAt);
@@ -100,15 +98,15 @@ export default function PostsCard({
 				<section className="flex items-center justify-start gap-1">
 					<span className="flex items-center justify-center gap-2">
 						<Avatar className="size-6 rounded-full">
-							{/* <AvatarImage loading="lazy" src={`${import.meta.env.VITE_CLOUD_FRONT_URL}/${data.image}`} alt={data.username} /> */}
+							<AvatarImage loading="lazy" src={`${import.meta.env.VITE_CLOUD_FRONT_URL}/${user.image}`} alt={user.username} />
 							<AvatarFallback className="rounded-lg bg-sidebar-foreground/50">
-								{data.username
+								{user.username
 									?.split(" ")
 									.map((name) => name[0])
 									.join("")}
 							</AvatarFallback>
 						</Avatar>
-						<h1 className="text-sm text-black dark:text-white">{data.username}</h1>
+						<h1 className="text-sm text-black dark:text-white">{user.username}</h1>
 					</span>
 					<span className="my-0 inline-block text-[#333a3e] dark:text-[#333a3e]">•</span>
 					<h2 className="text-xs text-black dark:text-white">{time}</h2>

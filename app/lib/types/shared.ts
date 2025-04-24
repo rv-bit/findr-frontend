@@ -1,8 +1,14 @@
+export type User = {
+	id: string;
+	username: string;
+	image: string | null | undefined;
+	about_description: string | null | undefined;
+};
+
 export type Comments = {
 	id: number;
 	postId: string | null;
 	text: string | null;
-	username: string;
 	createdAt: Date;
 	updatedAt: Date;
 
@@ -14,7 +20,6 @@ export type Post = {
 	slug: string;
 	title: string;
 	content: string;
-	username: string;
 	createdAt: Date;
 	updatedAt: Date;
 

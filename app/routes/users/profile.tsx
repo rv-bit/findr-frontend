@@ -8,8 +8,7 @@ import { useLoaderData, useLocation, useNavigate, useSearchParams } from "react-
 import axiosInstance from "~/lib/axios-instance";
 import { cn } from "~/lib/utils";
 
-import type { Comments, Post } from "~/lib/types/shared";
-import type { User } from "./profile.types";
+import type { Comments, Post, User } from "~/lib/types/shared";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -361,7 +360,7 @@ export default function Index() {
 												})
 												.map((post: Post) => (
 													<React.Fragment key={post.id}>
-														<PostsCard className="my-1" data={post} />
+														<PostsCard className="my-1" data={post} user={user} />
 														<hr className="h-[0.2px] w-full border-b border-sidebar-border" />
 													</React.Fragment>
 												))}
@@ -377,7 +376,7 @@ export default function Index() {
 												})
 												.map((comment: Comments) => (
 													<React.Fragment key={comment.id}>
-														<CommentsCard key={comment.id} data={comment} />
+														<CommentsCard key={comment.id} data={comment} user={user} />
 														<hr className="h-[0.2px] w-full border-b border-sidebar-border" />
 													</React.Fragment>
 												))}
@@ -395,7 +394,7 @@ export default function Index() {
 											})
 											.map((comment: Comments) => (
 												<React.Fragment key={comment.id}>
-													<CommentsCard key={comment.id} data={comment} />
+													<CommentsCard key={comment.id} data={comment} user={user} />
 													<hr className="h-[0.2px] w-full border-b border-sidebar-border" />
 												</React.Fragment>
 											))
@@ -412,7 +411,7 @@ export default function Index() {
 											})
 											.map((post: Post) => (
 												<React.Fragment key={post.id}>
-													<PostsCard className="my-1" data={post} />
+													<PostsCard className="my-1" data={post} user={user} />
 													<hr className="h-[0.2px] w-full border-b border-sidebar-border" />
 												</React.Fragment>
 											))

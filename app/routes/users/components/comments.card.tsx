@@ -3,18 +3,20 @@ import { ClientOnly } from "remix-utils/client-only";
 
 import { cn, formatTime } from "~/lib/utils";
 
+import type { Comments, User } from "~/lib/types/shared";
+
 import { MessageCircle } from "lucide-react";
 
-import { Avatar, AvatarFallback } from "~/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
-
-import type { Comments } from "../profile.types";
 
 export default function CommentsCard({
 	className,
 	data,
+	user,
 }: React.ComponentProps<"article"> & {
 	data: Comments;
+	user: User;
 }) {
 	const timeAgo = formatTime(data.createdAt);
 
@@ -23,15 +25,15 @@ export default function CommentsCard({
 			<span className="flex items-center justify-start gap-1">
 				<span className="flex items-center justify-center gap-2">
 					<Avatar className="size-6 rounded-full">
-						{/* <AvatarImage loading="lazy" src={`${import.meta.env.VITE_CLOUD_FRONT_URL}/${data.image}`} alt={data.username} /> */}
+						<AvatarImage loading="lazy" src={`${import.meta.env.VITE_CLOUD_FRONT_URL}/${user.image}`} alt={user.username} />
 						<AvatarFallback className="rounded-lg bg-sidebar-foreground/50">
-							{data.username
+							{user.username
 								?.split(" ")
 								.map((name) => name[0])
 								.join("")}
 						</AvatarFallback>
 					</Avatar>
-					<h1 className="text-sm text-black dark:text-white">{data.username}</h1>
+					<h1 className="text-sm text-black dark:text-white">{user.username}</h1>
 				</span>
 				<span className="my-0 inline-block text-[#333a3e] dark:text-[#333a3e]">•</span>
 				<h2 className="text-xs text-black dark:text-white">{timeAgo}</h2>
