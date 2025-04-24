@@ -4,7 +4,7 @@ import ReactCrop, { centerCrop, convertToPixelCrop, makeAspectCrop, type Crop } 
 import "react-image-crop/dist/ReactCrop.css";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -17,7 +17,7 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "~/component
 import { Input } from "~/components/ui/input";
 import { authClient } from "~/lib/auth";
 
-const MAX_FILE_SIZE_BYTES = 1 * 1024 * 1024; // 5mb
+const MAX_FILE_SIZE_BYTES = 1 * 1024 * 1024; // 1MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 const ASPECT_RATIO = 1;
 const MIN_DIMENSION = 150;
@@ -25,9 +25,9 @@ const MIN_DIMENSION = 150;
 const newAvatarSchema = z.object({
 	image: z
 		.any()
-		.refine((file) => file?.length == 1, "File is required.")
-		.refine((file) => ACCEPTED_IMAGE_TYPES.includes(file?.[0]?.type), "Only .jpg, .jpeg, .png and .webp formats are supported.")
-		.refine((file) => file?.[0]?.size <= MAX_FILE_SIZE_BYTES, `Max image size is ${MAX_FILE_SIZE_BYTES / 1024 / 1024}MB`),
+		.refine((file) => file instanceof FileList && file.length === 1, "File is required.")
+		.refine((file) => file instanceof FileList && ACCEPTED_IMAGE_TYPES.includes(file[0]?.type), "Only .jpg, .jpeg, .png and .webp formats are supported.")
+		.refine((file) => file instanceof FileList && file[0]?.size <= MAX_FILE_SIZE_BYTES, `Max image size is ${MAX_FILE_SIZE_BYTES / 1024 / 1024}MB`),
 	croppedImage: z.string(),
 });
 
@@ -50,10 +50,13 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 			croppedImage: "",
 		},
 	});
+	const { formState, trigger, control } = newAvatarForm;
 
-	const { formState } = newAvatarForm;
+	const imageValue = useWatch({
+		control: control,
+		name: "image",
+	});
 
-	const fileRef = newAvatarForm.register("image", { required: true });
 	const isFormIsValid = formState.isValid;
 
 	function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
@@ -120,18 +123,20 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 	};
 
 	React.useEffect(() => {
-		const { unsubscribe } = newAvatarForm.watch((value) => {
-			newAvatarForm.trigger("image").then((isValid) => {
-				if (!isValid) return;
+		if (!imageValue) return;
+		if (imageValue.length === 0) return;
 
-				const imageUrl = URL.createObjectURL(value.image[0]);
-				setImageSource(imageUrl);
-				setStep(1);
-			});
-		});
+		const run = async () => {
+			const isValid = await trigger("image");
+			if (!isValid) return;
 
-		return () => unsubscribe();
-	}, [newAvatarForm.watch, newAvatarForm.trigger]);
+			const imageUrl = URL.createObjectURL(imageValue[0]);
+			setImageSource(imageUrl);
+			setStep(1);
+		};
+
+		run();
+	}, [imageValue, trigger]);
 
 	return (
 		<AlertDialog open={open} onOpenChange={(open) => onOpenChange(open)}>
@@ -149,10 +154,21 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 										<FormField
 											control={newAvatarForm.control}
 											name="image"
-											render={({ field }) => (
+											render={({ field: { onChange, ref, value, ...fieldProps } }) => (
 												<FormItem>
 													<FormControl>
-														<Input type="file" accept=".jpg,.jpeg,.png,.webp" {...fileRef} />
+														<Input
+															type="file"
+															accept=".jpg,.jpeg,.png,.webp"
+															ref={ref}
+															onChange={(e) => {
+																const files = e.target.files;
+																if (files && files.length > 0) {
+																	newAvatarForm.setValue("image", files, { shouldValidate: true });
+																}
+															}}
+															{...fieldProps}
+														/>
 													</FormControl>
 													<FormMessage />
 												</FormItem>
