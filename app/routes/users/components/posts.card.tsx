@@ -5,8 +5,9 @@ import { ClientOnly } from "remix-utils/client-only";
 import { toast } from "sonner";
 
 import { authClient } from "~/lib/auth";
-
 import { cn, formatTime } from "~/lib/utils";
+
+import type { Post } from "~/lib/types/shared";
 
 import { Ellipsis, MessageCircle, Pencil, ThumbsDown, ThumbsUp, Trash2, type LucideIcon } from "lucide-react";
 
@@ -15,7 +16,6 @@ import { Button } from "~/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
 
 import { useMutateVote } from "../hooks/useMutateVote";
-import type { Post } from "../profile.types";
 
 type DropDownActions = {
 	title: string;

@@ -6,16 +6,16 @@ import React from "react";
 import { useLoaderData, useLocation, useNavigate, useSearchParams } from "react-router";
 
 import axiosInstance from "~/lib/axios-instance";
-
 import { cn } from "~/lib/utils";
+
+import type { Comments, Post } from "~/lib/types/shared";
+import type { User } from "./profile.types";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 
 import { ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
-
-import type { Comments, Post, User } from "~/routes/users/profile.types";
 
 import CommentsCard from "./components/comments.card";
 import PostsCard from "./components/posts.card";
