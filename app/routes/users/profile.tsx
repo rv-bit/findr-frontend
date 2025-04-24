@@ -17,6 +17,7 @@ import { ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 
 import Loading from "~/icons/loading";
+
 import CommentsCard from "./components/comments.card";
 import PostsCard from "./components/posts.card";
 
