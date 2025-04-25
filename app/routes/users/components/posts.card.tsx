@@ -1,5 +1,6 @@
 import { codeBlockPlugin, headingsPlugin, listsPlugin, markdownShortcutPlugin, MDXEditor, quotePlugin, thematicBreakPlugin } from "@mdxeditor/editor";
 import React from "react";
+import { Link } from "react-router";
 import { ClientOnly } from "remix-utils/client-only";
 import { toast } from "sonner";
 
@@ -264,13 +265,13 @@ export default function PostsCard({
 					</span>
 				</span>
 
-				<Button
-					disabled={true}
-					className="flex w-fit items-center justify-start gap-1 rounded-3xl bg-[#E5EBEE] px-3 text-black hover:bg-[#75858f]/20 dark:bg-sidebar-accent dark:text-white dark:hover:bg-[#333a3e]"
+				<Link
+					to={`/post/${data.slug}`}
+					className="flex h-9 w-fit items-center justify-start gap-1 rounded-3xl bg-[#E5EBEE] px-3 py-2 text-black hover:bg-[#75858f]/20 dark:bg-sidebar-accent dark:text-white dark:hover:bg-[#333a3e] [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
 				>
 					<MessageCircle />
 					<span className="text-sm text-black dark:text-white">{data.commentsCount}</span>
-				</Button>
+				</Link>
 			</span>
 		</article>
 	);
