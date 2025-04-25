@@ -2,7 +2,7 @@
 @config '../../tailwind.config.ts';
 
 .mdxeditor {
-	@apply flex max-h-[350px] w-full flex-col items-start justify-start gap-2 overflow-y-auto rounded-md bg-transparent text-base shadow-sm placeholder:text-neutral-500 md:text-sm [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:visible [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500/50 [&::-webkit-scrollbar-track]:bg-gray-100 dark:[&::-webkit-scrollbar-track]:bg-transparent;
+	@apply flex max-h-[350px] w-full flex-col items-start justify-start gap-2 overflow-y-auto bg-transparent text-base shadow-sm placeholder:text-neutral-500 md:text-sm [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:visible [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500/50 [&::-webkit-scrollbar-track]:bg-gray-100 dark:[&::-webkit-scrollbar-track]:bg-transparent;
 }
 
 .mdxeditor-popup-container {
