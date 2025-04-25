@@ -1,5 +1,6 @@
+import { motion as m } from "motion/react";
 import React, { useRef, useState } from "react";
-import { Form, Link, useNavigate, useSearchParams } from "react-router";
+import { Form, Link, useLocation, useNavigate, useSearchParams } from "react-router";
 
 import { cn } from "~/lib/utils";
 
@@ -34,6 +35,7 @@ enum SearchQueries {
 
 enum Routes {
 	HOME = "/",
+	EXPLORE = "/explore",
 	NEW_COMMUNITY = "/communities/new",
 	HELP = "/help",
 	LEGAL = "/legal",
@@ -80,10 +82,7 @@ const actions: Actions[] = [
 			},
 			{
 				title: "Explore",
-				url: Routes.HOME,
-
-				searchKey: "feed",
-				searchQuery: SearchQueries.EXPLORE,
+				url: Routes.EXPLORE,
 
 				icon: UsersRound,
 			},
@@ -178,6 +177,9 @@ function CollapsibleItem({ item, index }: { item: Actions; index: number }) {
 
 export default function SidebarActions() {
 	const navigate = useNavigate();
+
+	const location = useLocation();
+	const pathname = location.pathname.endsWith("/") && location.pathname.lastIndexOf("/") !== 0 ? location.pathname.substring(0, location.pathname.lastIndexOf("/")) : location.pathname;
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	return (
@@ -191,28 +193,40 @@ export default function SidebarActions() {
 									!item.isCollapsible &&
 									item.items?.map((action) => (
 										<SidebarMenuItem key={action.title}>
-											<Form>
+											<Form method="get" action={action.url} className="w-full">
 												<SidebarMenuButton
-													name={action.searchKey}
-													value={action.searchQuery}
+													name={action.searchKey ?? ""}
+													value={action.searchQuery ?? ""}
 													size="lg"
-													isActive={action.searchQuery && searchParams.get("feed")?.toLowerCase() === action.searchQuery.toLowerCase() ? true : false}
+													isActive={
+														action.searchQuery
+															? searchParams.get("feed")?.toLowerCase() === action.searchQuery.toLowerCase()
+																? true
+																: false
+															: action.url === pathname
+																? true
+																: false
+													}
 													disabled={action.isDisabled}
-													className={cn(
-														"flex h-10 items-center gap-2 px-4 hover:bg-sidebar-foreground/5 data-[active=true]:hover:bg-sidebar-foreground/10 dark:hover:bg-sidebar-accent/50 dark:data-[active=true]:hover:bg-sidebar-accent",
-													)}
+													className="flex h-10 items-center gap-2 px-4 hover:bg-sidebar-foreground/5 data-[active=true]:hover:bg-sidebar-foreground/10 dark:hover:bg-sidebar-accent/50 dark:data-[active=true]:hover:bg-sidebar-accent"
 												>
 													<div className="flex size-6 items-center justify-center">
 														{action.icon && (
-															<action.icon
-																size={action.iconSize}
-																className={
-																	(cn("h-full w-full transition-colors delay-75 duration-200 ease-in-out"),
-																	action.searchQuery && searchParams.get("feed")?.toLowerCase() === action.searchQuery.toLowerCase()
-																		? "fill-black dark:fill-white"
-																		: "")
-																}
-															/>
+															<m.div whileHover={{ scale: 1.2 }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
+																<action.icon
+																	size={action.iconSize}
+																	className={
+																		(cn("h-full w-full transition-colors delay-75 duration-200 ease-in-out"),
+																		action.searchQuery
+																			? searchParams.get("feed")?.toLowerCase() === action.searchQuery.toLowerCase()
+																				? "fill-black dark:fill-white"
+																				: ""
+																			: action.url === pathname
+																				? "fill-black dark:fill-white"
+																				: "")
+																	}
+																/>
+															</m.div>
 														)}
 													</div>
 													<span>{action.title}</span>
@@ -235,10 +249,6 @@ export default function SidebarActions() {
 					<span className="text-xs text-neutral-500 hover:cursor-pointer hover:underline dark:text-neutral-400">findr @ 2025 - All rights reserved</span>
 				</div>
 			</SidebarContent>
-
-			{/* <SidebarFooter>
-				<NavFooter />
-			</SidebarFooter> */}
 		</Sidebar>
 	);
 }
