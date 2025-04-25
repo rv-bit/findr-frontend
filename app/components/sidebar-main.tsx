@@ -1,4 +1,3 @@
-import { motion as m } from "motion/react";
 import React, { useRef, useState } from "react";
 import { Form, Link, useLocation, useNavigate, useSearchParams } from "react-router";
 
@@ -177,10 +176,10 @@ function CollapsibleItem({ item, index }: { item: Actions; index: number }) {
 
 export default function SidebarActions() {
 	const navigate = useNavigate();
-
 	const location = useLocation();
-	const pathname = location.pathname.endsWith("/") && location.pathname.lastIndexOf("/") !== 0 ? location.pathname.substring(0, location.pathname.lastIndexOf("/")) : location.pathname;
 	const [searchParams, setSearchParams] = useSearchParams();
+
+	const pathname = location.pathname.endsWith("/") && location.pathname.lastIndexOf("/") !== 0 ? location.pathname.substring(0, location.pathname.lastIndexOf("/")) : location.pathname;
 
 	return (
 		<Sidebar variant="sidebar" collapsible="offcanvas" className="group">
@@ -212,21 +211,19 @@ export default function SidebarActions() {
 												>
 													<div className="flex size-6 items-center justify-center">
 														{action.icon && (
-															<m.div whileHover={{ scale: 1.2 }} transition={{ type: "spring", stiffness: 400, damping: 10 }}>
-																<action.icon
-																	size={action.iconSize}
-																	className={
-																		(cn("h-full w-full transition-colors delay-75 duration-200 ease-in-out"),
-																		action.searchQuery
-																			? searchParams.get("feed")?.toLowerCase() === action.searchQuery.toLowerCase()
-																				? "fill-black dark:fill-white"
-																				: ""
-																			: action.url === pathname
-																				? "fill-black dark:fill-white"
-																				: "")
-																	}
-																/>
-															</m.div>
+															<action.icon
+																size={action.iconSize}
+																className={
+																	(cn("h-full w-full transition-colors delay-75 duration-200 ease-in-out"),
+																	action.searchQuery
+																		? searchParams.get("feed")?.toLowerCase() === action.searchQuery.toLowerCase()
+																			? "fill-black dark:fill-white"
+																			: ""
+																		: action.url === pathname
+																			? "fill-black dark:fill-white"
+																			: "")
+																}
+															/>
 														)}
 													</div>
 													<span>{action.title}</span>
