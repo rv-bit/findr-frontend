@@ -33,12 +33,12 @@ export async function loader({ params }: Route.LoaderArgs) {
 		throw new Response("", { status: 302, headers: { Location: "/" } }); // Redirect to home
 	}
 
-	const data = response.data.data;
-	if (!data) {
+	if (response.data.data.length === 0) {
+		// Check if the post exists
 		throw new Response("", { status: 302, headers: { Location: "/" } }); // Redirect to home
 	}
 
-	const post = data as Post & { user: User };
+	const post = response.data.data as Post & { user: User };
 	if (!cachedData) {
 		queryClient.setQueryData(["post", params.postSlug], post);
 	}
