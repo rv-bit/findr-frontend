@@ -7,6 +7,9 @@ import { toast } from "sonner";
 import { authClient } from "~/lib/auth";
 import { cn, formatTime } from "~/lib/utils";
 
+import axiosInstance from "~/lib/axios-instance";
+import queryClient from "~/lib/query/query-client";
+
 import type { Post, User } from "~/lib/types/shared";
 
 import { useMutateVote } from "~/hooks/useMutateVote";
@@ -109,8 +112,22 @@ export default function PostsCard({
 						title: "Delete Post",
 						icon: BellDot,
 						show: editable,
-						onClick: () => {
-							// mutate({ postId: data.id, type: "delete" });
+						onClick: async () => {
+							const cachedData = queryClient.getQueryData(["post", data.id]) as Post & { user: User };
+							const response = await axiosInstance.delete(`/api/v0/post/${data.id}`);
+							if (response.status !== 200) {
+								toast.error("Error deleting post");
+								return;
+							}
+
+							if (cachedData) {
+								queryClient.invalidateQueries({
+									queryKey: ["post", data.id],
+								});
+							}
+
+							toast.success("Post deleted");
+							navigate("/");
 						},
 					},
 				],

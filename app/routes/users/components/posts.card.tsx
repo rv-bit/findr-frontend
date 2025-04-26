@@ -1,11 +1,14 @@
 import { codeBlockPlugin, headingsPlugin, listsPlugin, markdownShortcutPlugin, MDXEditor, quotePlugin, thematicBreakPlugin } from "@mdxeditor/editor";
 import React from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { ClientOnly } from "remix-utils/client-only";
 import { toast } from "sonner";
 
 import { authClient } from "~/lib/auth";
 import { cn, formatTime } from "~/lib/utils";
+
+import axiosInstance from "~/lib/axios-instance";
+import queryClient from "~/lib/query/query-client";
 
 import type { Post, User } from "~/lib/types/shared";
 
@@ -34,6 +37,7 @@ export default function PostsCard({
 	data: Post;
 	user: User;
 }) {
+	const [searchParams, setSearchParams] = useSearchParams();
 	const { data: session } = authClient.useSession();
 	const { mutate } = useMutateVote({
 		queryKey: "userData",
@@ -84,10 +88,46 @@ export default function PostsCard({
 				title: "Delete",
 				icon: Trash2,
 				show: editable,
-				onClick: async () => {},
+				onClick: async () => {
+					const cachedIndividualPost = queryClient.getQueryData(["post", data.id]) as Post & { user: User };
+					const cachedProfilePosts = queryClient.getQueryData(["userData", user.username, searchParams.get("type")]) as Post & { user: User };
+					const response = await axiosInstance.delete(`/api/v0/post/${data.id}`);
+					if (response.status !== 200) {
+						toast.error("Error deleting post");
+						return;
+					}
+
+					if (cachedIndividualPost) {
+						queryClient.invalidateQueries({
+							queryKey: ["post", data.id],
+						});
+					}
+
+					if (cachedProfilePosts) {
+						queryClient.setQueryData(["userData", user.username], (oldData: any) => {
+							if (!oldData) return oldData;
+
+							return {
+								...oldData,
+								pages: oldData.pages.map((page: any) => {
+									return {
+										...page,
+										data: {
+											...page.data,
+											posts: page.data.posts.filter((post: any) => post.id !== data.id),
+										},
+									};
+								}),
+							};
+						});
+					}
+
+					toast.success("Post deleted");
+					window.location.reload();
+				},
 			},
 		],
-		[],
+		[data, editable, session],
 	);
 
 	return (
