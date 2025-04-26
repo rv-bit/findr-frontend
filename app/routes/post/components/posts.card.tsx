@@ -60,6 +60,14 @@ export default function PostCard({
 		mutate({ postId: data.id, type: "downvote" });
 	};
 
+	const editable = React.useMemo(() => {
+		if (!session || !session.user) {
+			return false;
+		}
+
+		return data.user.username === session.user.username;
+	}, [session, data]);
+
 	const time = React.useMemo(() => {
 		const date = new Date(data.createdAt);
 		return formatTime(date);
@@ -73,7 +81,7 @@ export default function PostCard({
 					{
 						title: "Follow User",
 						icon: BellDot,
-						show: true,
+						show: (session && session.user.username !== data.user.username) || false,
 					},
 					{
 						title: "Save",
@@ -87,8 +95,30 @@ export default function PostCard({
 					},
 				],
 			},
+			{
+				title: "Edit",
+				show: editable,
+				items: [
+					{
+						title: "Edit Post",
+						icon: BellDot,
+						show: editable,
+						onClick: () => {
+							navigate(`/post/${data.slug}/edit`);
+						},
+					},
+					{
+						title: "Delete Post",
+						icon: BellDot,
+						show: editable,
+						onClick: () => {
+							// mutate({ postId: data.id, type: "delete" });
+						},
+					},
+				],
+			},
 		],
-		[],
+		[data, editable, session],
 	);
 
 	return (
@@ -167,7 +197,7 @@ export default function PostCard({
 												),
 										)}
 
-										{dropDownActions.length - 1 !== dropDownActions.indexOf(item) && <DropdownMenuSeparator />}
+										{dropDownActions.length - 1 !== index && dropDownActions[index + 1].show && <DropdownMenuSeparator />}
 									</DropdownMenuGroup>
 								) : (
 									item.show && (
@@ -192,7 +222,7 @@ export default function PostCard({
 												)}
 											</DropdownMenuItem>
 
-											{dropDownActions.length - 1 !== dropDownActions.indexOf(item) && <DropdownMenuSeparator />}
+											{dropDownActions.length - 1 !== index && <DropdownMenuSeparator />}
 										</DropdownMenuGroup>
 									)
 								),

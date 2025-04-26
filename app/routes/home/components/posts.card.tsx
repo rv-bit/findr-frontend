@@ -1,6 +1,6 @@
 import { codeBlockPlugin, headingsPlugin, listsPlugin, markdownShortcutPlugin, MDXEditor, quotePlugin, thematicBreakPlugin } from "@mdxeditor/editor";
 import React from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { ClientOnly } from "remix-utils/client-only";
 import { toast } from "sonner";
 
@@ -34,6 +34,7 @@ export default function PostsCard({
 		user: User;
 	};
 }) {
+	const navigate = useNavigate();
 	const { data: session } = authClient.useSession();
 	const { mutate } = useMutateVote({
 		queryKey: "homePosts",
@@ -57,6 +58,14 @@ export default function PostsCard({
 		mutate({ postId: data.id, type: "downvote" });
 	};
 
+	const editable = React.useMemo(() => {
+		if (!session || !session.user) {
+			return false;
+		}
+
+		return data.user.username === session.user.username;
+	}, [session, data]);
+
 	const time = React.useMemo(() => {
 		const date = new Date(data.createdAt);
 		return formatTime(date);
@@ -70,7 +79,7 @@ export default function PostsCard({
 					{
 						title: "Follow User",
 						icon: BellDot,
-						show: true,
+						show: (session && session.user.username !== data.user.username) || false,
 					},
 					{
 						title: "Save",
@@ -84,8 +93,30 @@ export default function PostsCard({
 					},
 				],
 			},
+			{
+				title: "Edit",
+				show: editable,
+				items: [
+					{
+						title: "Edit Post",
+						icon: BellDot,
+						show: editable,
+						onClick: () => {
+							navigate(`/post/${data.slug}/edit`);
+						},
+					},
+					{
+						title: "Delete Post",
+						icon: BellDot,
+						show: editable,
+						onClick: () => {
+							// mutate({ postId: data.id, type: "delete" });
+						},
+					},
+				],
+			},
 		],
-		[],
+		[data, editable, session],
 	);
 
 	return (
@@ -152,7 +183,7 @@ export default function PostsCard({
 											),
 									)}
 
-									{dropDownActions.length - 1 !== dropDownActions.indexOf(item) && <DropdownMenuSeparator />}
+									{dropDownActions.length - 1 !== index && dropDownActions[index + 1].show && <DropdownMenuSeparator />}
 								</DropdownMenuGroup>
 							) : (
 								item.show && (
@@ -177,7 +208,7 @@ export default function PostsCard({
 											)}
 										</DropdownMenuItem>
 
-										{dropDownActions.length - 1 !== dropDownActions.indexOf(item) && <DropdownMenuSeparator />}
+										{dropDownActions.length - 1 !== index && <DropdownMenuSeparator />}
 									</DropdownMenuGroup>
 								)
 							),
