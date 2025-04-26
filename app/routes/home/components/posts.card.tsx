@@ -264,7 +264,7 @@ export default function PostsCard({
 				</span>
 
 				<Link
-					to={`/post/${data.slug}`}
+					to={`/post/${data.id}`}
 					className="flex h-9 w-fit items-center justify-start gap-1 rounded-3xl bg-[#E5EBEE] px-3 py-2 text-black hover:bg-[#75858f]/20 dark:bg-sidebar-accent dark:text-white dark:hover:bg-[#333a3e] [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
 				>
 					<MessageCircle />
