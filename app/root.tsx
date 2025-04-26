@@ -6,12 +6,12 @@ import { parse } from "cookie";
 import React from "react";
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData, useNavigation, type LoaderFunctionArgs } from "react-router";
 
-import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
+import { QueryClientProvider } from "@tanstack/react-query";
 
 import type { LoadingBarRef } from "react-top-loading-bar";
 import LoadingBar from "react-top-loading-bar";
 
-import queryClient, { persister } from "./lib/query/query-client";
+import queryClient from "./lib/query/query-client";
 
 import { THEME_COOKIE_NAME, ThemeProvider } from "~/providers/Theme";
 
@@ -98,7 +98,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 			<body>
 				<LoadingBar ref={loadingBarRef} color="#5060dd" shadow={false} transitionTime={100} waitingTime={300} />
 
-				<PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>
+				<QueryClientProvider client={queryClient}>
 					<ThemeProvider>
 						<TopbarProvider>
 							<SidebarProvider>
@@ -124,7 +124,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 							</SidebarProvider>
 						</TopbarProvider>
 					</ThemeProvider>
-				</PersistQueryClientProvider>
+				</QueryClientProvider>
 				<ScrollRestoration />
 				<Scripts />
 			</body>
