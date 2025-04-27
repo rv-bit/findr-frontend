@@ -25,7 +25,7 @@ export default function CommentsCard({
 			<span className="flex items-center justify-start gap-1">
 				<span className="flex items-center justify-center gap-2">
 					<Avatar className="size-6 rounded-full">
-						<AvatarImage loading="lazy" src={`${import.meta.env.VITE_CLOUD_FRONT_URL}/${user.image}`} alt={user.username} />
+						<AvatarImage loading="lazy" src={`${user.image?.startsWith("http") ? user.image : `${import.meta.env.VITE_CLOUD_FRONT_URL}/${user.image}`}`} alt={user.username} />
 						<AvatarFallback className="rounded-lg bg-sidebar-foreground/50">
 							{user.username
 								?.split(" ")

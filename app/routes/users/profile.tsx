@@ -282,7 +282,7 @@ export default function Index() {
 					<section className="flex items-center justify-between gap-4">
 						<span className="size-fit rounded-full bg-sidebar-foreground/20 p-1 dark:bg-sidebar-accent">
 							<Avatar className="size-18 rounded-full">
-								<AvatarImage loading="lazy" src={`${import.meta.env.VITE_CLOUD_FRONT_URL}/${user.image}`} alt={user.username} />
+								<AvatarImage loading="lazy" src={`${user.image?.startsWith("http") ? user.image : `${import.meta.env.VITE_CLOUD_FRONT_URL}/${user.image}`}`} alt={user.username} />
 								<AvatarFallback className="rounded-lg bg-sidebar-foreground/50">
 									{user.username
 										?.split(" ")

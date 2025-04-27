@@ -154,7 +154,11 @@ export default function PostCard({
 						</Button>
 						<span className="flex items-center justify-start gap-2">
 							<Avatar className="size-9 rounded-full">
-								<AvatarImage loading="lazy" src={`${import.meta.env.VITE_CLOUD_FRONT_URL}/${data.user.image}`} alt={data.user.username} />
+								<AvatarImage
+									loading="lazy"
+									src={`${data.user.image?.startsWith("http") ? data.user.image : `${import.meta.env.VITE_CLOUD_FRONT_URL}/${data.user.image}`}`}
+									alt={data.user.username}
+								/>
 								<AvatarFallback className="rounded-lg bg-sidebar-foreground/50 text-[0.75rem]">
 									{data.user.username
 										?.split(" ")
