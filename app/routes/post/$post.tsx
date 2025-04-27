@@ -1,17 +1,19 @@
 import editor_stylesheet from "~/styles/card.post.mdx.css?url";
 import type { Route } from "./+types/$post";
 
+import React from "react";
 import { useLoaderData } from "react-router";
+
+import { cn } from "~/lib/utils";
 
 import axiosInstance from "~/lib/axios-instance";
 import queryClient from "~/lib/query/query-client";
 
 import type { Post, User } from "~/lib/types/shared";
 
-import React from "react";
 import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
-import { cn } from "~/lib/utils";
+
 import PostCard from "./components/posts.card";
 
 export async function loader({ params }: Route.LoaderArgs) {
@@ -33,16 +35,16 @@ export async function loader({ params }: Route.LoaderArgs) {
 		throw new Response("", { status: 302, headers: { Location: "/" } }); // Redirect to home
 	}
 
-	if (response.data.data.length === 0) {
+	const data = response.data.data as Post & { user: User };
+	if (!data) {
 		// Check if the post exists
 		throw new Response("", { status: 302, headers: { Location: "/" } }); // Redirect to home
 	}
 
-	const post = response.data.data as Post & { user: User };
 	if (!cachedData) {
-		queryClient.setQueryData(["post", params.postSlug], post);
+		queryClient.setQueryData(["post", params.postSlug], data);
 	}
-	return { post };
+	return { post: data };
 }
 
 export const links: Route.LinksFunction = () => [
