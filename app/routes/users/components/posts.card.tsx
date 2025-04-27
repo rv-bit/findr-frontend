@@ -146,7 +146,7 @@ export default function PostsCard({
 	);
 
 	return (
-		<Link to={`/post/${data.slug}`}>
+		<Link to={`/post/${data.id}`}>
 			<article
 				className={cn(
 					"relative flex h-auto max-h-96 min-h-28 w-full flex-col justify-between gap-3 rounded-xl px-4 py-2 hover:bg-sidebar-foreground/10 dark:hover:bg-sidebar-accent/50",
