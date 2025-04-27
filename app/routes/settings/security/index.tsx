@@ -16,7 +16,7 @@ import { Button } from "~/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table";
 
-import { authClient } from "~/lib/auth";
+import { authClient, type Sessions } from "~/lib/auth";
 import queryClient from "~/lib/query/query-client";
 
 import TwoFactorDisableModal from "./modals/two-factor-disable";
@@ -96,19 +96,7 @@ interface Actions {
 	items?: Actions[];
 }
 
-const Sessions = (props: {
-	currentSession: string;
-	sessions: {
-		id: string;
-		createdAt: Date;
-		updatedAt: Date;
-		userId: string;
-		expiresAt: Date;
-		token: string;
-		ipAddress?: string | null | undefined | undefined;
-		userAgent?: string | null | undefined | undefined;
-	}[];
-}) => {
+const Sessions = (props: { currentSession: string; sessions: Sessions[] }) => {
 	return (
 		<Table containerClass="border rounded-xl border-sidebar-foreground dark:border-sidebar-accent">
 			<TableHeader className="rounded-full border-sidebar-foreground dark:border-sidebar-accent">
@@ -132,10 +120,17 @@ const Sessions = (props: {
 								<TableCell className="tracking-tight text-black dark:text-white">
 									<span className="flex flex-col gap-0.5">
 										<span className="flex items-center justify-start gap-1">
-											{new UAParser(value.userAgent || "").getDevice().type === "mobile" ? <CiMobile3 size={16} /> : <Laptop size={16} />}
-											{new UAParser(value.userAgent || "").getOS().name}, {new UAParser(value.userAgent || "").getBrowser().name}
+											{new UAParser(value.userAgent || "").getDevice().type === "mobile" ? (
+												<CiMobile3 size={16} />
+											) : (
+												<Laptop size={16} />
+											)}
+											{new UAParser(value.userAgent || "").getOS().name},{" "}
+											{new UAParser(value.userAgent || "").getBrowser().name}
 										</span>
-										{value.id === props.currentSession && <p className="text-xs text-neutral-500 dark:text-neutral-400">(This Device)</p>}
+										{value.id === props.currentSession && (
+											<p className="text-xs text-neutral-500 dark:text-neutral-400">(This Device)</p>
+										)}
 									</span>
 								</TableCell>
 								<TableCell className="text-black dark:text-white">{lastUsed}</TableCell>
@@ -227,7 +222,9 @@ export default function Index({ matches }: Route.ComponentProps) {
 					return (
 						<React.Fragment key={action.title}>
 							<span key={action.title} className="mb-2">
-								<h1 className="font-bricolage text-2xl font-semibold tracking-tighter text-black capitalize dark:text-white">{action.title}</h1>
+								<h1 className="font-bricolage text-2xl font-semibold tracking-tighter text-black capitalize dark:text-white">
+									{action.title}
+								</h1>
 								{action.description && <p className="text-sm text-gray-500 dark:text-gray-400">{action.description}</p>}
 							</span>
 							{action.children && <action.children currentSession={sharedData.session.id} sessions={sharedData.listSessions} />}
@@ -278,7 +275,11 @@ export default function Index({ matches }: Route.ComponentProps) {
 											>
 												<div className="flex w-fit flex-col items-start justify-center gap-[0.15rem]">
 													<span>{item.title}</span>
-													{item.description && <span className="text-left text-xs text-balance text-gray-500 dark:text-gray-400">{item.description}</span>}
+													{item.description && (
+														<span className="text-left text-xs text-balance text-gray-500 dark:text-gray-400">
+															{item.description}
+														</span>
+													)}
 												</div>
 												<div className="flex items-center justify-center gap-2">
 													<h1 className="">{item?.defaultValue}</h1>
