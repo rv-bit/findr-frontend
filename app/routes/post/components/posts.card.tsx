@@ -18,7 +18,14 @@ import { ArrowLeft, BellDot, Bookmark, Ellipsis, Flag, MessageCircle, ThumbsDown
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 
 type DropDownActions = {
 	title: string;
@@ -139,13 +146,13 @@ export default function PostCard({
 	);
 
 	return (
-		<article className={cn("relative flex h-auto flex-col justify-between gap-6 px-4 py-2", className)}>
+		<article className={cn("relative flex h-auto flex-col justify-between gap-6", className)}>
 			<div className="flex flex-col justify-between gap-1">
 				<span className="flex items-center justify-between gap-1">
-					<section className="flex items-center justify-start gap-1 xl:relative">
+					<section className="flex items-center justify-start gap-1 2xl:relative">
 						<Button
 							size={"lg"}
-							className="size-8 rounded-full bg-sidebar-foreground/40 p-0 hover:bg-sidebar-foreground/50 max-sm:hidden xl:absolute xl:-left-10 dark:bg-sidebar-accent/50 dark:text-white dark:hover:bg-sidebar-foreground/20"
+							className="size-8 rounded-full bg-sidebar-foreground/40 p-0 hover:bg-sidebar-foreground/50 max-sm:hidden 2xl:absolute 2xl:-left-10 dark:bg-sidebar-accent/50 dark:text-white dark:hover:bg-sidebar-foreground/20"
 							onClick={() => {
 								navigate(-1);
 							}}
@@ -188,7 +195,12 @@ export default function PostCard({
 								<Ellipsis />
 							</Button>
 						</DropdownMenuTrigger>
-						<DropdownMenuContent className="mt-3.5 w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg border-none dark:bg-modal" side={"bottom"} align="end" sideOffset={4}>
+						<DropdownMenuContent
+							className="mt-3.5 w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg border-none dark:bg-modal"
+							side={"bottom"}
+							align="end"
+							sideOffset={4}
+						>
 							{dropDownActions.map((item, index) =>
 								item.items ? (
 									<DropdownMenuGroup key={item.title}>

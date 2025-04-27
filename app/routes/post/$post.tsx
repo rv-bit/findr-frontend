@@ -71,9 +71,9 @@ export default function Index() {
 
 	return (
 		<div className="flex h-full w-full flex-col items-center justify-start pb-5 max-md:w-screen">
-			<div className="flex w-full max-w-7xl flex-col gap-4 px-10 pt-8 max-xl:px-4">
-				<PostCard data={post} onCommentIconClick={handleOnCommentIconClick} className="w-full px-4 py-2" />
-				<CommentSection ref={commentTextAreaRef} className="w-full py-2 pr-4" />
+			<div className="flex w-full max-w-7xl flex-col gap-4 px-20 pt-8 max-2xl:px-5">
+				<PostCard data={post} onCommentIconClick={handleOnCommentIconClick} className="w-full" />
+				<CommentSection ref={commentTextAreaRef} className="w-full py-2" />
 			</div>
 		</div>
 	);
@@ -112,10 +112,13 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, React.ComponentProp
 				<Textarea
 					ref={commentTextAreaRef}
 					placeholder="Join in the conversation"
-					className={cn("rounded-xl border-none px-5 font-bricolage text-black shadow-none focus-within:border-none focus-visible:ring-0 dark:text-white", {
-						"min-h-20 resize-y py-3": commentButtonClicked,
-						"min-h-0 resize-none": !commentButtonClicked,
-					})}
+					className={cn(
+						"rounded-xl border-none px-5 font-bricolage text-black shadow-none focus-within:border-none focus-visible:ring-0 dark:text-white",
+						{
+							"min-h-20 resize-y py-3": commentButtonClicked,
+							"min-h-0 resize-none": !commentButtonClicked,
+						},
+					)}
 				/>
 
 				{commentButtonClicked && (
