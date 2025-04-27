@@ -26,7 +26,11 @@ export default [
 	]),
 
 	...prefix("users", [route(":username", "./routes/users/profile.tsx")]),
-	...prefix("post", [route(":postId", "./routes/post/$post.tsx"), route("new", "./routes/post/new.tsx")]),
+	...prefix("post", [
+		route(":postId", "./routes/post/$post.tsx"),
+		route(":postId/edit", "./routes/post/$post.edit.tsx"),
+		route("new", "./routes/post/new.tsx"),
+	]),
 
 	// Static routes
 	route("legal", "routes/static/legal.tsx"), // This is the legal page which is a static page, so it doesn't need a layout and it pre renders the content at build time
