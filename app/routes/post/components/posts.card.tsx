@@ -14,7 +14,7 @@ import type { Post, User } from "~/lib/types/shared";
 
 import { useMutateVote } from "~/hooks/useMutateVote";
 
-import { ArrowLeft, BellDot, Bookmark, Ellipsis, Flag, MessageCircle, ThumbsDown, ThumbsUp, type LucideIcon } from "lucide-react";
+import { ArrowLeft, BellDot, Bookmark, Cake, Ellipsis, Flag, MessageCircle, ThumbsDown, ThumbsUp, type LucideIcon } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -206,20 +206,31 @@ export default function PostCard({
 														.join("")}
 												</AvatarFallback>
 											</Avatar>
-											<span className="flex flex-col justify-start gap-0 -space-y-2">
-												<Link
-													to={`/users/${data.user.username}`}
-													className="group flex cursor-pointer items-center justify-start gap-1"
-												>
-													<h1 className="text-lg break-all text-black group-hover:text-primary-300 group-hover:underline dark:text-white group-hover:dark:text-primary-300">
+											<div className="flex flex-col justify-start gap-1">
+												<span className="flex flex-col justify-start -space-y-2">
+													<Link
+														to={`/users/${data.user.username}`}
+														className="group flex cursor-pointer items-center justify-start gap-1"
+													>
+														<h1 className="text-lg break-all text-black group-hover:text-primary-300 group-hover:underline dark:text-white group-hover:dark:text-primary-300">
+															{data.user.username}
+														</h1>
+													</Link>
+													<span className="text-xs break-all text-black/50 dark:text-neutral-500">
+														<span>u/</span>
 														{data.user.username}
-													</h1>
-												</Link>
-												<span className="text-xs break-all text-black/50 dark:text-neutral-500">
-													<span>u/</span>
-													{data.user.username}
+													</span>
 												</span>
-											</span>
+
+												<div className="flex gap-1 text-xs break-all text-black/50 dark:text-neutral-500">
+													<Cake className="size-4" />
+													{new Date(data.user.createdAt).toLocaleDateString("en-US", {
+														year: "numeric",
+														month: "long",
+														day: "numeric",
+													})}
+												</div>
+											</div>
 										</div>
 										<span className="text-xs break-all text-black/50 dark:text-neutral-500">{data.user.about_description}</span>
 									</HoverCardContent>
