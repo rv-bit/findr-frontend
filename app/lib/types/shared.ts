@@ -2,6 +2,7 @@ export type User = {
 	username: string;
 	image: string | null | undefined;
 	about_description: string | null | undefined;
+	createdAt: Date;
 };
 
 export type Comments = {

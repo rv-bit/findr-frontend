@@ -1,6 +1,6 @@
 import { codeBlockPlugin, headingsPlugin, listsPlugin, markdownShortcutPlugin, MDXEditor, quotePlugin, thematicBreakPlugin } from "@mdxeditor/editor";
 import React from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { ClientOnly } from "remix-utils/client-only";
 import { toast } from "sonner";
 
@@ -26,6 +26,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/hover-card";
 
 type DropDownActions = {
 	title: string;
@@ -179,7 +180,50 @@ export default function PostCard({
 									<span>f/</span>
 									{data.slug}
 								</h1>
-								<h2 className="text-xs break-all text-neutral-500">{data.user.username}</h2>
+								<HoverCard>
+									<HoverCardTrigger asChild>
+										<Link
+											to={`/users/${data.user.username}`}
+											className="group flex cursor-pointer items-center justify-start gap-1"
+										>
+											<h2 className="text-xs break-all text-neutral-500 group-hover:dark:text-primary-300">
+												{data.user.username}
+											</h2>
+										</Link>
+									</HoverCardTrigger>
+									<HoverCardContent align="start" className="flex flex-col gap-2 rounded-2xl border-none dark:bg-modal">
+										<div className="flex w-full items-center justify-start gap-2">
+											<Avatar className="size-12 rounded-full">
+												<AvatarImage
+													loading="lazy"
+													src={`${data.user.image?.startsWith("http") ? data.user.image : `${import.meta.env.VITE_CLOUD_FRONT_URL}/${data.user.image}`}`}
+													alt={data.user.username}
+												/>
+												<AvatarFallback className="rounded-lg bg-sidebar-foreground/50 text-[0.75rem]">
+													{data.user.username
+														?.split(" ")
+														.map((name) => name[0])
+														.join("")}
+												</AvatarFallback>
+											</Avatar>
+											<span className="flex flex-col justify-start gap-0 -space-y-2">
+												<Link
+													to={`/users/${data.user.username}`}
+													className="group flex cursor-pointer items-center justify-start gap-1"
+												>
+													<h1 className="text-lg break-all text-black group-hover:text-primary-300 group-hover:underline dark:text-white group-hover:dark:text-primary-300">
+														{data.user.username}
+													</h1>
+												</Link>
+												<span className="text-xs break-all text-black/50 dark:text-neutral-500">
+													<span>u/</span>
+													{data.user.username}
+												</span>
+											</span>
+										</div>
+										<span className="text-xs break-all text-black/50 dark:text-neutral-500">{data.user.about_description}</span>
+									</HoverCardContent>
+								</HoverCard>
 							</span>
 						</span>
 						<span className="my-0 inline-block text-[#333a3e] dark:text-[#333a3e]">•</span>
