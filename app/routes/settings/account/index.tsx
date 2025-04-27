@@ -103,7 +103,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 							if (!hasLinked) {
 								await authClient.linkSocial({
 									provider: "google",
-									callbackURL: "/settings/account",
+									callbackURL: window.location.origin + "/settings/account",
 								});
 								return;
 							}
@@ -126,7 +126,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 							if (!hasLinked) {
 								await authClient.linkSocial({
 									provider: "github",
-									callbackURL: "/settings/account",
+									callbackURL: window.location.origin + "/settings/account",
 								});
 								return;
 							}
@@ -292,7 +292,10 @@ export default function Index({ matches }: Route.ComponentProps) {
 				{actions.map((action) => {
 					return (
 						<React.Fragment key={action.title}>
-							<h1 key={action.title} className="mb-2 font-bricolage text-2xl font-semibold tracking-tighter text-black capitalize dark:text-white">
+							<h1
+								key={action.title}
+								className="mb-2 font-bricolage text-2xl font-semibold tracking-tighter text-black capitalize dark:text-white"
+							>
 								{action.title}
 							</h1>
 
