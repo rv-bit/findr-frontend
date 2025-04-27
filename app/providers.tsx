@@ -1,3 +1,7 @@
+import React from "react";
+import { useSearchParams } from "react-router";
+import { toast } from "sonner";
+
 import { AuthQueryProvider } from "@daveyplate/better-auth-tanstack";
 import { QueryClientProvider } from "@tanstack/react-query";
 
@@ -10,9 +14,24 @@ import { Toaster } from "~/components/ui/sonner";
 import { Topbar, TopbarInset, TopbarProvider } from "~/components/ui/topbar";
 
 import SidebarActions from "~/components/sidebar-main";
-import TopbarActions from "./components/topbar-actions";
+import TopbarActions from "~/components/topbar-actions";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
+	const [searchParams, setSearchParams] = useSearchParams();
+
+	React.useEffect(() => {
+		if (searchParams.has("error")) {
+			toast.error(<>{` ${decodeURIComponent(searchParams.get("error") ?? "")}`}</>, {
+				duration: 5000,
+				description: "Please try again later.",
+			});
+			setSearchParams((prev) => {
+				prev.delete("error");
+				return prev;
+			});
+		}
+	}, [searchParams]);
+
 	return (
 		<QueryClientProvider client={queryClient}>
 			<AuthQueryProvider>
