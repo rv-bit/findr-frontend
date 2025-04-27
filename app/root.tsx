@@ -6,21 +6,11 @@ import { parse } from "cookie";
 import React from "react";
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData, useNavigation, type LoaderFunctionArgs } from "react-router";
 
-import { QueryClientProvider } from "@tanstack/react-query";
-
 import type { LoadingBarRef } from "react-top-loading-bar";
 import LoadingBar from "react-top-loading-bar";
 
-import queryClient from "./lib/query/query-client";
-
-import { THEME_COOKIE_NAME, ThemeProvider } from "~/providers/Theme";
-
-import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
-import { Toaster } from "~/components/ui/sonner";
-import { Topbar, TopbarInset, TopbarProvider } from "~/components/ui/topbar";
-
-import SidebarActions from "~/components/sidebar-main";
-import TopbarActions from "./components/topbar-actions";
+import { THEME_COOKIE_NAME } from "~/providers/Theme";
+import Providers from "./providers";
 
 import ErrorIcon from "~/icons/error";
 
@@ -97,34 +87,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
 			</head>
 			<body>
 				<LoadingBar ref={loadingBarRef} color="#5060dd" shadow={false} transitionTime={100} waitingTime={300} />
-
-				<QueryClientProvider client={queryClient}>
-					<ThemeProvider>
-						<TopbarProvider>
-							<SidebarProvider>
-								<Topbar>
-									<TopbarInset>
-										<TopbarActions />
-									</TopbarInset>
-								</Topbar>
-								<SidebarActions />
-								<SidebarInset>
-									<main
-										style={{
-											height: "100%",
-											width: "100%",
-											flex: "1 1 0%",
-											overflowY: "auto",
-										}}
-									>
-										{children}
-									</main>
-									<Toaster />
-								</SidebarInset>
-							</SidebarProvider>
-						</TopbarProvider>
-					</ThemeProvider>
-				</QueryClientProvider>
+				<main
+					style={{
+						height: "100%",
+						width: "100%",
+						flex: "1 1 0%",
+						overflowY: "auto",
+					}}
+				>
+					{children}
+				</main>
 				<ScrollRestoration />
 				<Scripts />
 			</body>
@@ -133,7 +105,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-	return <Outlet />;
+	return (
+		<Providers>
+			<Outlet />
+		</Providers>
+	);
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
