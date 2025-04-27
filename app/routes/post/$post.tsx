@@ -89,6 +89,7 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, React.ComponentProp
 
 		if (commentTextAreaRef && "current" in commentTextAreaRef && commentTextAreaRef.current) {
 			commentTextAreaRef.current.value = "";
+			commentTextAreaRef.current.style.height = "auto"; // Reset height
 			commentTextAreaRef.current.blur();
 		}
 	};
@@ -103,10 +104,9 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, React.ComponentProp
 					}
 				}}
 				className={cn(
-					"group relative flex cursor-default flex-col items-center justify-between overflow-hidden rounded-full border bg-transparent px-0 pb-0 font-bricolage text-black dark:bg-transparent dark:text-white",
+					"group relative flex cursor-default flex-col items-center justify-between overflow-hidden rounded-full border border-neutral-500/50 bg-transparent px-0 pb-0 font-bricolage text-black focus-within:border-neutral-500 dark:border-white/50 dark:bg-transparent dark:text-white focus-within:dark:border-white",
 					{
-						"h-auto min-h-35 items-start rounded-xl border-neutral-500/50 focus-within:border-neutral-500 hover:bg-transparent dark:border-white/50 focus-within:dark:border-white dark:hover:bg-transparent":
-							commentButtonClicked,
+						"h-auto min-h-35 items-start rounded-xl hover:bg-transparent dark:hover:bg-transparent": commentButtonClicked,
 						"h-10 hover:bg-sidebar-foreground/20 dark:hover:bg-sidebar-accent-foreground/10": !commentButtonClicked,
 					},
 				)}
@@ -118,7 +118,7 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, React.ComponentProp
 						"rounded-xl border-none px-5 font-bricolage text-black shadow-none focus-within:border-none focus-visible:ring-0 dark:text-white",
 						{
 							"min-h-20 resize-y py-3": commentButtonClicked,
-							"min-h-0 resize-none": !commentButtonClicked,
+							"min-h-0 resize-none py-0 pt-2.5": !commentButtonClicked,
 						},
 					)}
 				/>
