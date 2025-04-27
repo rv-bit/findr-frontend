@@ -1,6 +1,6 @@
 import { codeBlockPlugin, headingsPlugin, listsPlugin, markdownShortcutPlugin, MDXEditor, quotePlugin, thematicBreakPlugin } from "@mdxeditor/editor";
 import React from "react";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { ClientOnly } from "remix-utils/client-only";
 import { toast } from "sonner";
 
@@ -18,7 +18,14 @@ import { BellDot, Bookmark, Ellipsis, Flag, MessageCircle, ThumbsDown, ThumbsUp,
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 
 type DropDownActions = {
 	title: string;
@@ -43,7 +50,9 @@ export default function PostsCard({
 		queryKey: "homePosts",
 	});
 
-	const handleUpvote = () => {
+	const handleUpvote = (e: React.MouseEvent) => {
+		e.stopPropagation();
+
 		if (!session || !session.user) {
 			toast.error("You need to be logged in");
 			return;
@@ -52,7 +61,9 @@ export default function PostsCard({
 		mutate({ postId: data.id, type: "upvote" });
 	};
 
-	const handleDownvote = () => {
+	const handleDownvote = (e: React.MouseEvent) => {
+		e.stopPropagation();
+
 		if (!session || !session.user) {
 			toast.error("You need to be logged in");
 			return;
@@ -138,8 +149,11 @@ export default function PostsCard({
 
 	return (
 		<article
+			onClick={() => {
+				navigate(`/post/${data.slug}`);
+			}}
 			className={cn(
-				"relative flex h-auto max-h-96 min-h-28 w-full flex-col justify-between gap-3 rounded-xl px-4 py-2 hover:bg-sidebar-foreground/10 dark:hover:bg-sidebar-accent/50",
+				"relative flex h-auto max-h-96 min-h-28 w-full cursor-pointer flex-col justify-between gap-3 rounded-xl px-4 py-2 hover:bg-sidebar-foreground/10 dark:hover:bg-sidebar-accent/50",
 				className,
 			)}
 		>
@@ -167,6 +181,9 @@ export default function PostsCard({
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button
+							onClick={(e) => {
+								e.stopPropagation();
+							}}
 							variant={"link"}
 							size="lg"
 							className="flex h-auto items-center justify-end rounded-full p-1 hover:bg-sidebar-foreground/20 hover:text-white focus-visible:border-0 focus-visible:ring-0 dark:hover:bg-sidebar-accent dark:focus-visible:border-0 dark:focus-visible:ring-0"
@@ -174,7 +191,12 @@ export default function PostsCard({
 							<Ellipsis />
 						</Button>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent className="mt-3.5 w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg border-none dark:bg-modal" side={"bottom"} align="end" sideOffset={4}>
+					<DropdownMenuContent
+						className="mt-3.5 w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg border-none dark:bg-modal"
+						side={"bottom"}
+						align="end"
+						sideOffset={4}
+					>
 						{dropDownActions.map((item, index) =>
 							item.items ? (
 								<DropdownMenuGroup key={item.title}>
@@ -315,13 +337,10 @@ export default function PostsCard({
 					</span>
 				</span>
 
-				<Link
-					to={`/post/${data.id}`}
-					className="flex h-9 w-fit items-center justify-start gap-1 rounded-3xl bg-[#E5EBEE] px-3 py-2 text-black hover:bg-[#75858f]/20 dark:bg-sidebar-accent dark:text-white dark:hover:bg-[#333a3e] [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
-				>
+				<Button className="flex h-9 w-fit items-center justify-start gap-1 rounded-3xl bg-[#E5EBEE] px-3 py-2 text-black hover:bg-[#75858f]/20 dark:bg-sidebar-accent dark:text-white dark:hover:bg-[#333a3e] [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0">
 					<MessageCircle />
 					<span className="text-sm text-black dark:text-white">{data.commentsCount}</span>
-				</Link>
+				</Button>
 			</span>
 		</article>
 	);
