@@ -38,6 +38,8 @@ export default function Index({ matches }: Route.ComponentProps) {
 
 	const navigate = useNavigate();
 
+	const [showModal, setShowModal] = React.useState<{ [key: string]: boolean }>({});
+
 	const actions: Actions[] = React.useMemo(
 		() => [
 			{
@@ -93,9 +95,6 @@ export default function Index({ matches }: Route.ComponentProps) {
 		],
 		[loaderData],
 	);
-
-	const [loading, setLoading] = React.useState(false);
-	const [showModal, setShowModal] = React.useState<{ [key: string]: boolean }>({});
 
 	return (
 		<React.Fragment>
