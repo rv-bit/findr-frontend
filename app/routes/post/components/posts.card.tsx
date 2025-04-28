@@ -50,7 +50,7 @@ export default function PostCard({
 	const navigate = useNavigate();
 	const { data: session } = authClient.useSession();
 	const { mutate } = useMutateVote({
-		queryKey: "homePosts",
+		queryKey: ["post", data.id],
 	});
 
 	const handleUpvote = () => {
@@ -233,6 +233,21 @@ export default function PostCard({
 											</div>
 										</div>
 										<span className="text-xs break-all text-black/50 dark:text-neutral-500">{data.user.about_description}</span>
+
+										<span className="flex items-center justify-start gap-2">
+											<span className="flex flex-col items-start justify-start">
+												<h1 className="font-bricolage text-base font-semibold break-all text-black/50 dark:text-neutral-500">
+													{data.user.postsCount}
+												</h1>
+												<p className="font-bricolage text-xs break-all text-black/50 dark:text-neutral-500">Posts</p>
+											</span>
+											<span className="flex flex-col items-start justify-start">
+												<h1 className="font-bricolage text-base font-semibold break-all text-black/50 dark:text-neutral-500">
+													{data.user.commentsCount}
+												</h1>
+												<p className="font-bricolage text-xs break-all text-black/50 dark:text-neutral-500">Comments</p>
+											</span>
+										</span>
 									</HoverCardContent>
 								</HoverCard>
 							</span>

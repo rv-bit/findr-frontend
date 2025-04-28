@@ -6,7 +6,11 @@ type VoteVariables = {
 	type: "upvote" | "downvote";
 };
 
-export const useMutateVote = ({ queryKey }: { queryKey: string | undefined }) => {
+export const useMutateVote = ({ queryKey }: { queryKey: (string | undefined | null)[] }) => {
+	if (!queryKey) {
+		throw new Error("queryKey is required");
+	}
+
 	const queryClient = useQueryClient();
 
 	return useMutation<any, unknown, VoteVariables, { previousData: any }>({
@@ -18,11 +22,11 @@ export const useMutateVote = ({ queryKey }: { queryKey: string | undefined }) =>
 		onMutate: async (variables) => {
 			const { postId, type } = variables;
 
-			await queryClient.cancelQueries({ queryKey: [queryKey] });
+			await queryClient.cancelQueries({ queryKey: queryKey });
 
-			const previousData = queryClient.getQueryData([queryKey]);
+			const previousData = queryClient.getQueryData(queryKey);
 
-			queryClient.setQueryData([queryKey], (oldData: any) => {
+			queryClient.setQueryData(queryKey, (oldData: any) => {
 				if (!oldData) return oldData;
 
 				return {
@@ -80,12 +84,12 @@ export const useMutateVote = ({ queryKey }: { queryKey: string | undefined }) =>
 
 		onError: (err, variables, context) => {
 			if (context?.previousData) {
-				queryClient.setQueryData([queryKey], context.previousData);
+				queryClient.setQueryData(queryKey, context.previousData);
 			}
 		},
 
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: [queryKey] });
+			queryClient.invalidateQueries({ queryKey: queryKey });
 		},
 	});
 };

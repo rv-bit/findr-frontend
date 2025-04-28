@@ -47,11 +47,12 @@ export default function PostsCard({
 	const navigate = useNavigate();
 	const { data: session } = authClient.useSession();
 	const { mutate } = useMutateVote({
-		queryKey: "homePosts",
+		queryKey: ["homePosts"],
 	});
 
 	const handleUpvote = (e: React.MouseEvent) => {
 		e.stopPropagation();
+		e.preventDefault();
 
 		if (!session || !session.user) {
 			toast.error("You need to be logged in");
@@ -63,6 +64,7 @@ export default function PostsCard({
 
 	const handleDownvote = (e: React.MouseEvent) => {
 		e.stopPropagation();
+		e.preventDefault();
 
 		if (!session || !session.user) {
 			toast.error("You need to be logged in");
