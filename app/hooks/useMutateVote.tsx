@@ -6,11 +6,42 @@ type VoteVariables = {
 	type: "upvote" | "downvote";
 };
 
-export const useMutateVote = ({ queryKey }: { queryKey: (string | undefined | null)[] }) => {
-	if (!queryKey) {
-		throw new Error("queryKey is required");
+const mutatePost = (post: any, type: "upvote" | "downvote") => {
+	let newLikesCount = post.likesCount;
+	let hasUpvoted = post.hasUpvoted || false;
+	let hasDownvoted = post.hasDownvoted || false;
+
+	if (type === "upvote") {
+		if (hasUpvoted) {
+			newLikesCount -= 1;
+			hasUpvoted = false;
+		} else {
+			newLikesCount += hasDownvoted ? 2 : 1;
+			hasUpvoted = true;
+			hasDownvoted = false;
+		}
 	}
 
+	if (type === "downvote") {
+		if (hasDownvoted) {
+			newLikesCount += 1;
+			hasDownvoted = false;
+		} else {
+			newLikesCount -= hasUpvoted ? 2 : 1;
+			hasDownvoted = true;
+			hasUpvoted = false;
+		}
+	}
+
+	return {
+		...post,
+		likesCount: newLikesCount,
+		hasUpvoted,
+		hasDownvoted,
+	};
+};
+
+export const useMutateVote = ({ queryKey }: { queryKey: (string | undefined)[] }) => {
 	const queryClient = useQueryClient();
 
 	return useMutation<any, unknown, VoteVariables, { previousData: any }>({
@@ -29,54 +60,28 @@ export const useMutateVote = ({ queryKey }: { queryKey: (string | undefined | nu
 			queryClient.setQueryData(queryKey, (oldData: any) => {
 				if (!oldData) return oldData;
 
-				return {
-					...oldData,
-					pages: oldData.pages.map((page: any) => {
-						return {
+				if (oldData.pages) {
+					return {
+						...oldData,
+						pages: oldData.pages.map((page: any) => ({
 							...page,
 							data: {
 								...page.data,
 								posts: page.data.posts.map((post: any) => {
 									if (post.id !== postId) return post;
-
-									// toggle logic
-									let newLikesCount = post.likesCount;
-									let hasUpvoted = post.hasUpvoted || false;
-									let hasDownvoted = post.hasDownvoted || false;
-
-									if (type === "upvote") {
-										if (hasUpvoted) {
-											newLikesCount -= 1;
-											hasUpvoted = false;
-										} else {
-											newLikesCount += hasDownvoted ? 2 : 1;
-											hasUpvoted = true;
-											hasDownvoted = false;
-										}
-									}
-
-									if (type === "downvote") {
-										if (hasDownvoted) {
-											newLikesCount += 1;
-											hasDownvoted = false;
-										} else {
-											newLikesCount -= hasUpvoted ? 2 : 1;
-											hasDownvoted = true;
-											hasUpvoted = false;
-										}
-									}
-
-									return {
-										...post,
-										likesCount: newLikesCount,
-										hasUpvoted,
-										hasDownvoted,
-									};
+									return mutatePost(post, type);
 								}),
 							},
-						};
-					}),
-				};
+						})),
+					};
+				}
+
+				// Single post logic
+				if (oldData.id === postId) {
+					return mutatePost(oldData, type);
+				}
+
+				return oldData;
 			});
 
 			return { previousData };
