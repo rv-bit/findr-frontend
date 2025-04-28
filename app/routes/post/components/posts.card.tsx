@@ -12,7 +12,7 @@ import queryClient from "~/lib/query/query-client";
 
 import type { Post, User } from "~/lib/types/shared";
 
-import { useMutateVote } from "~/hooks/useMutateVote";
+import { useMutatePostVote } from "~/hooks/useMutatePostVote";
 
 import { ArrowLeft, BellDot, Bookmark, Cake, Ellipsis, Flag, MessageCircle, ThumbsDown, ThumbsUp, type LucideIcon } from "lucide-react";
 
@@ -49,7 +49,7 @@ export default function PostCard({
 }) {
 	const navigate = useNavigate();
 	const { data: session } = authClient.useSession();
-	const { mutate } = useMutateVote({
+	const { mutate } = useMutatePostVote({
 		queryKey: ["post", data.id],
 	});
 
