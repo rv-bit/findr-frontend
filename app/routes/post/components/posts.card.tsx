@@ -41,11 +41,13 @@ export default function PostCard({
 	className,
 	data,
 	onCommentIconClick,
+	onBackButtonClick,
 }: React.ComponentProps<"article"> & {
 	data: Post & {
 		user: User;
 	};
 	onCommentIconClick: () => void;
+	onBackButtonClick: () => void;
 }) {
 	const navigate = useNavigate();
 	const { data: session } = authClient.useSession();
@@ -154,9 +156,7 @@ export default function PostCard({
 						<Button
 							size={"lg"}
 							className="size-8 rounded-full bg-sidebar-foreground/40 p-0 hover:bg-sidebar-foreground/50 max-sm:hidden 2xl:absolute 2xl:-left-10 dark:bg-sidebar-accent/50 dark:text-white dark:hover:bg-sidebar-foreground/20"
-							onClick={() => {
-								navigate(-1);
-							}}
+							onClick={onBackButtonClick}
 						>
 							<ArrowLeft className="size-4" />
 						</Button>
