@@ -14,7 +14,7 @@ import type { Post, User } from "~/lib/types/shared";
 
 import { useMutatePostVote } from "~/hooks/useMutatePostVote";
 
-import { BellDot, Bookmark, Ellipsis, Flag, MessageCircle, ThumbsDown, ThumbsUp, type LucideIcon } from "lucide-react";
+import { BellDot, Bookmark, Ellipsis, Flag, MessageCircle, Pencil, ThumbsDown, ThumbsUp, Trash2, type LucideIcon } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -119,15 +119,15 @@ export default function PostsCard({
 				items: [
 					{
 						title: "Edit Post",
-						icon: BellDot,
+						icon: Pencil,
 						show: editable,
 						onClick: () => {
-							navigate(`/post/${data.slug}/edit`);
+							navigate(`/post/${data.id}/edit`);
 						},
 					},
 					{
 						title: "Delete Post",
-						icon: BellDot,
+						icon: Trash2,
 						show: editable,
 						onClick: async () => {
 							const cachedData = queryClient.getQueryData(["post", data.id]) as Post & { user: User };
