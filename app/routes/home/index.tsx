@@ -5,7 +5,6 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import React from "react";
 import { useSearchParams } from "react-router";
 
-import { authClient } from "~/lib/auth";
 import axiosInstance from "~/lib/axios-instance";
 
 import type { Post, User } from "~/lib/types/shared";
@@ -53,9 +52,6 @@ const sortOptions: {
 ];
 
 export default function Index() {
-	const { data: session } = authClient.useSession();
-	const user = session?.user || null;
-
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	const inViewportRef = React.useRef(null);
@@ -117,7 +113,11 @@ export default function Index() {
 						<SelectContent className="w-20 rounded-sm border-0 p-0 shadow-none dark:bg-modal">
 							<h1 className="px-2 pt-2 pb-3 text-sm font-semibold text-black dark:text-white">Sort by</h1>
 							{sortOptions.map((option) => (
-								<SelectItem key={option.value} value={option.value} className="cursor-pointer py-2 text-left hover:bg-sidebar-accent/50 dark:hover:bg-sidebar-accent">
+								<SelectItem
+									key={option.value}
+									value={option.value}
+									className="cursor-pointer py-2 text-left hover:bg-sidebar-accent/50 dark:hover:bg-sidebar-accent"
+								>
 									{option.title}
 								</SelectItem>
 							))}
