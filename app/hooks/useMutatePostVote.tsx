@@ -41,7 +41,7 @@ const mutatePost = (post: any, type: "upvote" | "downvote") => {
 	};
 };
 
-export const useMutateVote = ({ queryKey }: { queryKey: (string | undefined)[] }) => {
+export const useMutatePostVote = ({ queryKey }: { queryKey: (string | undefined)[] }) => {
 	const queryClient = useQueryClient();
 
 	return useMutation<any, unknown, VoteVariables, { previousData: any }>({
@@ -63,16 +63,29 @@ export const useMutateVote = ({ queryKey }: { queryKey: (string | undefined)[] }
 				if (oldData.pages) {
 					return {
 						...oldData,
-						pages: oldData.pages.map((page: any) => ({
-							...page,
-							data: {
-								...page.data,
-								posts: page.data.posts.map((post: any) => {
-									if (post.id !== postId) return post;
-									return mutatePost(post, type);
-								}),
-							},
-						})),
+						pages: oldData.pages.map((page: any) => {
+							// Case 1: page.data.posts exists
+							if (page.data?.posts) {
+								return {
+									...page,
+									data: {
+										...page.data,
+										posts: page.data.posts.map((post: any) => (post.id === postId ? mutatePost(post, type) : post)),
+									},
+								};
+							}
+
+							// Case 2: page.data itself is the post
+							if (page.data?.id === postId) {
+								return {
+									...page,
+									data: mutatePost(page.data, type),
+								};
+							}
+
+							// Default: no change
+							return page;
+						}),
 					};
 				}
 
