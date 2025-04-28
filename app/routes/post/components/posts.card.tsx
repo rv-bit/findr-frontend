@@ -184,7 +184,7 @@ export default function PostCard({
 									<HoverCardTrigger asChild>
 										<Link
 											to={`/users/${data.user.username}`}
-											className="group flex cursor-pointer items-center justify-start gap-1"
+											className="group flex w-fit cursor-pointer items-center justify-start gap-1"
 										>
 											<h2 className="text-xs break-all text-neutral-500 group-hover:dark:text-primary-300">
 												{data.user.username}
