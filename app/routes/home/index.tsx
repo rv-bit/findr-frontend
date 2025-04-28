@@ -53,6 +53,7 @@ const sortOptions: {
 
 export default function Index() {
 	const [searchParams, setSearchParams] = useSearchParams();
+	const feed = searchParams.get("feed") || "home";
 
 	const inViewportRef = React.useRef(null);
 
@@ -60,15 +61,15 @@ export default function Index() {
 
 	const fetchData = React.useCallback(
 		async (page: number) => {
-			const { data } = await axiosInstance.get(`/api/v0/post/?page=${page}&type=${searchParams.get("feed")}`);
+			const { data } = await axiosInstance.get(`/api/v0/post/?page=${page}&type=${feed}`);
 			return data;
 		},
-		[searchParams],
+		[feed],
 	);
 
 	const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
 		staleTime: 0,
-		queryKey: ["homePosts", searchParams.get("feed")],
+		queryKey: ["homePosts", feed],
 		initialPageParam: 1,
 		queryFn: async ({ pageParam }) => {
 			return fetchData(pageParam);
