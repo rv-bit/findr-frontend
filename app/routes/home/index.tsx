@@ -68,7 +68,7 @@ export default function Index() {
 	);
 
 	const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
-		staleTime: 0,
+		staleTime: 1000 * 30, // 30 seconds
 		queryKey: ["homePosts", feed],
 		initialPageParam: 1,
 		queryFn: async ({ pageParam }) => {
