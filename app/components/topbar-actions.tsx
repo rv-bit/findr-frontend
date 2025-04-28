@@ -3,19 +3,29 @@ import { useNavigate } from "react-router";
 
 import { authClient } from "~/lib/auth";
 
+import { useIsTablet } from "~/hooks/use-tablet";
 import { useTheme } from "~/providers/Theme";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Button } from "~/components/ui/button";
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList, CommandSeparator } from "~/components/ui/command";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
-import { SidebarMenuButton, SidebarTrigger, useSidebar } from "~/components/ui/sidebar";
-import { Button } from "./ui/button";
-import { Switch } from "./ui/switch";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import { Label } from "~/components/ui/label";
+import { SidebarMenuButton, SidebarTrigger } from "~/components/ui/sidebar";
+import { Switch } from "~/components/ui/switch";
 
 import { type LucideIcon, LogOut, Moon, Plus, Settings, X } from "lucide-react";
 
 import LogoIcon from "~/icons/logo";
-import { Label } from "./ui/label";
+import { cn } from "~/lib/utils";
 
 interface DropDownActions {
 	title: string;
@@ -42,11 +52,15 @@ function SearchBar() {
 		setOpen(!!value);
 	}, []);
 
-	const filteredCommands = Array.isArray(commands) ? commands.filter((command) => command.label.toLowerCase().includes(inputValue.toLowerCase())) : [];
+	const filteredCommands = Array.isArray(commands)
+		? commands.filter((command) => command.label.toLowerCase().includes(inputValue.toLowerCase()))
+		: [];
 
 	return (
 		<Command className="relative w-full rounded-[1.2rem] bg-sidebar-foreground/20 shadow-md dark:bg-sidebar-accent">
-			<div className={`relative ${open ? "rounded-tl-4xl rounded-tr-4xl border-t-0 border-r-0 border-b-[0.0625rem] border-l-0 border-solid border-sidebar-foreground/20 pb-[0.45rem]" : ""}`}>
+			<div
+				className={`relative ${open ? "rounded-tl-4xl rounded-tr-4xl border-t-0 border-r-0 border-b-[0.0625rem] border-l-0 border-solid border-sidebar-foreground/20 pb-[0.45rem]" : ""}`}
+			>
 				<Label
 					htmlFor="search"
 					className="flex h-10 w-full items-center justify-between gap-1 rounded-4xl bg-transparent px-3 py-2 text-sm placeholder:text-neutral-500 focus-within:border-2 focus-within:border-blue-500/60 hover:bg-sidebar-foreground/20 disabled:cursor-not-allowed disabled:opacity-50 dark:placeholder:text-neutral-400"
@@ -100,7 +114,7 @@ function SearchBar() {
 }
 
 export default function TopbarActions() {
-	const { isTablet } = useSidebar();
+	const isTablet = useIsTablet();
 
 	const navigate = useNavigate();
 	const { data: sessionData, error, isPending } = authClient.useSession();
@@ -150,7 +164,11 @@ export default function TopbarActions() {
 			}}
 		>
 			<section className="flex items-center justify-start gap-2">
-				{isTablet && <SidebarTrigger className="rounded-full border-none shadow-none hover:bg-primary-500/15" />}
+				<SidebarTrigger
+					className={cn("rounded-full border-none shadow-none hover:bg-primary-500/15", {
+						hidden: !isTablet,
+					})}
+				/>
 
 				<Button
 					variant={"link"}
@@ -193,7 +211,11 @@ export default function TopbarActions() {
 
 						<DropdownMenu open={open} onOpenChange={setOpen}>
 							<DropdownMenuTrigger asChild>
-								<SidebarMenuButton variant={"link"} size="lg" className="h-auto rounded-full p-1 hover:bg-sidebar-foreground/20 hover:text-white dark:hover:bg-sidebar-accent">
+								<SidebarMenuButton
+									variant={"link"}
+									size="lg"
+									className="h-auto rounded-full p-1 hover:bg-sidebar-foreground/20 hover:text-white dark:hover:bg-sidebar-accent"
+								>
 									<Avatar className="h-8 w-8 rounded-full">
 										{!isPending && (
 											<AvatarImage
@@ -211,7 +233,12 @@ export default function TopbarActions() {
 									</Avatar>
 								</SidebarMenuButton>
 							</DropdownMenuTrigger>
-							<DropdownMenuContent className="mt-3.5 w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg border-none dark:bg-modal" side={"bottom"} align="end" sideOffset={4}>
+							<DropdownMenuContent
+								className="mt-3.5 w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg border-none dark:bg-modal"
+								side={"bottom"}
+								align="end"
+								sideOffset={4}
+							>
 								<DropdownMenuLabel className="p-0 font-normal">
 									<Button
 										onClick={() => {
