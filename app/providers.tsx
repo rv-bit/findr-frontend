@@ -3,9 +3,9 @@ import { useSearchParams } from "react-router";
 import { toast } from "sonner";
 
 import { AuthQueryProvider } from "@daveyplate/better-auth-tanstack";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 
-import queryClient from "./lib/query/query-client";
+import queryClient, { idbPersister } from "./lib/query/query-client";
 
 import { ThemeProvider } from "~/providers/Theme";
 
@@ -33,7 +33,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 	}, [searchParams]);
 
 	return (
-		<QueryClientProvider client={queryClient}>
+		<PersistQueryClientProvider client={queryClient} persistOptions={{ persister: idbPersister }}>
 			<AuthQueryProvider>
 				<ThemeProvider>
 					<TopbarProvider>
@@ -52,6 +52,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 					</TopbarProvider>
 				</ThemeProvider>
 			</AuthQueryProvider>
-		</QueryClientProvider>
+		</PersistQueryClientProvider>
 	);
 }
