@@ -1,6 +1,6 @@
 import { codeBlockPlugin, headingsPlugin, listsPlugin, markdownShortcutPlugin, MDXEditor, quotePlugin, thematicBreakPlugin } from "@mdxeditor/editor";
 import React from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { ClientOnly } from "remix-utils/client-only";
 import { toast } from "sonner";
 
@@ -12,7 +12,7 @@ import queryClient from "~/lib/query/query-client";
 
 import type { Post, User } from "~/lib/types/shared";
 
-import { useMutateVote } from "~/hooks/useMutateVote";
+import { useMutatePostVote } from "~/hooks/useMutatePostVote";
 
 import { BellDot, Bookmark, Ellipsis, Flag, MessageCircle, ThumbsDown, ThumbsUp, type LucideIcon } from "lucide-react";
 
@@ -45,9 +45,13 @@ export default function PostsCard({
 	};
 }) {
 	const navigate = useNavigate();
+	const [searchParams, setSearchParams] = useSearchParams();
+	const feed = searchParams.get("feed") || "home";
+
 	const { data: session } = authClient.useSession();
-	const { mutate } = useMutateVote({
-		queryKey: ["homePosts"],
+
+	const { mutate } = useMutatePostVote({
+		queryKey: ["homePosts", feed],
 	});
 
 	const handleUpvote = (e: React.MouseEvent) => {
