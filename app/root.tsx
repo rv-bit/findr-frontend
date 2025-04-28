@@ -4,7 +4,17 @@ import type { Route } from "./+types/root";
 
 import { parse } from "cookie";
 import React from "react";
-import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData, useNavigation, type LoaderFunctionArgs } from "react-router";
+import {
+	isRouteErrorResponse,
+	Links,
+	Meta,
+	Outlet,
+	Scripts,
+	ScrollRestoration,
+	useLoaderData,
+	useNavigation,
+	type LoaderFunctionArgs,
+} from "react-router";
 
 import type { LoadingBarRef } from "react-top-loading-bar";
 import LoadingBar from "react-top-loading-bar";
@@ -39,9 +49,11 @@ export const links: Route.LinksFunction = () => [
 export function loader({ request }: LoaderFunctionArgs) {
 	const cookie = parse(request.headers.get("cookie") ?? "");
 	const cachedTheme = cookie[THEME_COOKIE_NAME] ?? null;
+	const cachedSidebar = cookie[THEME_COOKIE_NAME] ? cookie[THEME_COOKIE_NAME] === "true" : true;
 
 	return {
 		theme: cachedTheme,
+		sidebar: cachedSidebar,
 	};
 }
 
