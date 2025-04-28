@@ -49,7 +49,7 @@ export default function PostsCard({
 
 	const { data: session } = authClient.useSession();
 	const { mutate } = useMutateVote({
-		queryKey: ["userData", user.username, searchParams.get("type")],
+		queryKey: ["userData", user.username],
 	});
 
 	const handleUpvote = (e: React.MouseEvent) => {
