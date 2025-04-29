@@ -1,20 +1,26 @@
 import editor_stylesheet from "~/styles/card.post.mdx.css?url";
 import type { Route } from "./+types/$post";
 
+import { useQuery } from "@tanstack/react-query";
 import React from "react";
-import { useLoaderData } from "react-router";
-
-import { cn } from "~/lib/utils";
+import { useLoaderData, useNavigate } from "react-router";
 
 import axiosInstance from "~/lib/axios-instance";
 import queryClient from "~/lib/query/query-client";
 
 import type { Post, User } from "~/lib/types/shared";
 
-import { Button } from "~/components/ui/button";
-import { Textarea } from "~/components/ui/textarea";
-
+import CommentSection from "./components/comments.section";
 import PostCard from "./components/posts.card";
+
+export const links: Route.LinksFunction = () => [
+	{ rel: "stylesheet", href: editor_stylesheet }, // override styles
+];
+
+export function meta({ data }: Route.MetaArgs) {
+	const { slug } = data.data;
+	return [{ title: `f/${slug}` }, { name: "description", content: "Findr Post" }];
+}
 
 export async function loader({ params }: Route.LoaderArgs) {
 	const { postId } = params;
@@ -23,10 +29,10 @@ export async function loader({ params }: Route.LoaderArgs) {
 		throw new Response("", { status: 302, headers: { Location: "/" } }); // Redirect to home
 	}
 
-	const cachedData = queryClient.getQueryData(["post", params.postId]) as Post & { user: User };
+	const cachedData = queryClient.getQueryData(["post", postId]) as Post & { user: User };
 	if (cachedData) {
 		return {
-			post: cachedData,
+			data: cachedData,
 		};
 	}
 
@@ -42,22 +48,21 @@ export async function loader({ params }: Route.LoaderArgs) {
 	}
 
 	if (!cachedData) {
-		queryClient.setQueryData(["post", params.postSlug], data);
+		queryClient.setQueryData(["post", postId], data);
 	}
-	return { post: data };
+	return { data };
 }
 
-export const links: Route.LinksFunction = () => [
-	{ rel: "stylesheet", href: editor_stylesheet }, // override styles
-];
+export default function Index({ params }: Route.ComponentProps) {
+	const navigate = useNavigate();
+	const loaderData = useLoaderData<typeof loader>();
 
-export function meta({ data }: Route.MetaArgs) {
-	const { slug } = data.post;
-	return [{ title: `f/${slug}` }, { name: "description", content: "Findr Post" }];
-}
-
-export default function Index() {
-	const { post } = useLoaderData<typeof loader>();
+	const { data, isPending } = useQuery({
+		staleTime: 1000 * 30, // 30 seconds
+		queryKey: ["post", params.postId],
+		queryFn: () => axiosInstance.get(`/api/v0/post/${params.postId}`).then((res) => res.data.data),
+		initialData: loaderData.data,
+	});
 
 	const commentTextAreaRef = React.useRef<HTMLTextAreaElement>(null);
 	const handleOnCommentIconClick = () => {
@@ -74,72 +79,40 @@ export default function Index() {
 	return (
 		<div className="flex h-full w-full flex-col items-center justify-start pb-5 max-md:w-screen">
 			<div className="flex w-full max-w-7xl flex-col gap-4 px-20 pt-8 max-2xl:px-5">
-				<PostCard data={post} onCommentIconClick={handleOnCommentIconClick} className="w-full" />
-				<CommentSection ref={commentTextAreaRef} className="w-full py-2" />
+				{isPending ? (
+					<div className="flex h-full w-full items-center justify-center">
+						<div className="h-10 w-10 animate-spin rounded-full border-4 border-neutral-400 border-t-transparent" />
+					</div>
+				) : (
+					data && (
+						<>
+							<PostCard
+								data={data}
+								onCommentIconClick={handleOnCommentIconClick}
+								onBackButtonClick={() => {
+									navigate(-1);
+
+									queryClient.removeQueries({
+										queryKey: ["post", data.id],
+										exact: true,
+									});
+									queryClient.removeQueries({
+										queryKey: ["comments", data.id],
+										exact: true,
+									});
+									queryClient.removeQueries({
+										queryKey: ["replies"],
+										exact: false,
+									});
+								}}
+								className="w-full"
+							/>
+
+							<CommentSection ref={commentTextAreaRef} data={data} className="w-full py-2" />
+						</>
+					)
+				)}
 			</div>
 		</div>
 	);
 }
-
-const CommentSection = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<"section">>(({ className, ...props }, commentTextAreaRef) => {
-	const [commentButtonClicked, setCommentButtonClicked] = React.useState(false);
-
-	const handleCloseCommentButton = () => {
-		setCommentButtonClicked(false);
-
-		if (commentTextAreaRef && "current" in commentTextAreaRef && commentTextAreaRef.current) {
-			commentTextAreaRef.current.value = "";
-			commentTextAreaRef.current.style.height = "auto"; // Reset height
-			commentTextAreaRef.current.blur();
-		}
-	};
-
-	return (
-		<section className={cn("flex flex-col gap-5", className)}>
-			<div
-				onClick={() => {
-					setCommentButtonClicked(true);
-					if (commentTextAreaRef && "current" in commentTextAreaRef && commentTextAreaRef.current) {
-						commentTextAreaRef.current.focus();
-					}
-				}}
-				className={cn(
-					"group relative flex cursor-default flex-col items-center justify-between overflow-hidden rounded-full border border-neutral-500/50 bg-transparent px-0 pb-0 font-bricolage text-black focus-within:border-neutral-500 dark:border-white/50 dark:bg-transparent dark:text-white focus-within:dark:border-white",
-					{
-						"h-auto min-h-35 items-start rounded-xl hover:bg-transparent dark:hover:bg-transparent": commentButtonClicked,
-						"h-10 hover:bg-sidebar-foreground/20 dark:hover:bg-sidebar-accent-foreground/10": !commentButtonClicked,
-					},
-				)}
-			>
-				<Textarea
-					ref={commentTextAreaRef}
-					placeholder="Join in the conversation"
-					className={cn(
-						"rounded-xl border-none px-5 font-bricolage text-black shadow-none focus-within:border-none focus-visible:ring-0 dark:text-white",
-						{
-							"min-h-20 resize-y py-3": commentButtonClicked,
-							"min-h-0 resize-none py-0 pt-2.5": !commentButtonClicked,
-						},
-					)}
-				/>
-
-				{commentButtonClicked && (
-					<div className="relative bottom-0 flex h-15 w-full items-end justify-end gap-1 pr-2 pb-2 dark:bg-sidebar">
-						<Button
-							onClick={(e) => {
-								e.stopPropagation();
-								handleCloseCommentButton();
-							}}
-							className="rounded-full bg-sidebar-accent-foreground/30 px-5 py-2 text-sm font-semibold text-black transition-all duration-200 ease-in-out hover:bg-sidebar-foreground/80 hover:text-white dark:bg-sidebar-accent/50 dark:text-white dark:hover:bg-sidebar-foreground/20"
-						>
-							Cancel
-						</Button>
-						<Button className="rounded-full bg-primary-500/70 px-5 py-2 text-sm font-semibold text-white transition-all duration-200 ease-in-out hover:bg-primary-500 dark:bg-primary-500/80 dark:text-white dark:hover:bg-primary-500">
-							Comment
-						</Button>
-					</div>
-				)}
-			</div>
-		</section>
-	);
-});
