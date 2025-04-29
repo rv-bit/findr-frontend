@@ -1,7 +1,7 @@
 import type { AxiosError } from "axios";
 
 import React from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { useSearchParams } from "react-router";
 import { toast } from "sonner";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -65,7 +65,6 @@ const newCommentSchema = z.object({
 });
 
 const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps>(({ className, data, ...props }, commentTextAreaRef) => {
-	const navigate = useNavigate();
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	const { data: session } = authClient.useSession();
@@ -75,6 +74,8 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 
 	const [loading, setLoading] = React.useState(false);
 	const [error, setError] = React.useState<string | null>(null);
+
+	const [isClient, setIsClient] = React.useState(false);
 
 	const newCommentForm = useForm<z.infer<typeof newCommentSchema>>({
 		mode: "onChange",
@@ -153,6 +154,10 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 		}
 	};
 
+	React.useEffect(() => {
+		setIsClient(true);
+	}, []);
+
 	return (
 		<section className={cn("flex flex-col gap-5", className)}>
 			<div
@@ -178,7 +183,7 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 											{...field}
 											ref={commentTextAreaRef}
 											required
-											readOnly={!session || !session.user} // <-- make textarea readonly if not logged in
+											readOnly={!isClient || !session || !session.user} // <-- make textarea readonly if not logged in
 											onClick={handleOpenCommentButton} // <-- trigger toast
 											placeholder="Join in the conversation"
 											className={cn(
@@ -186,7 +191,7 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 												{
 													"min-h-20 resize-y py-3 font-light": commentButtonClicked,
 													"min-h-0 resize-none py-0 pt-2.5 max-sm:pt-4 max-sm:pb-1": !commentButtonClicked,
-													"cursor-default": !session || !session.user,
+													"cursor-default": !isClient || !session || !session.user,
 												},
 											)}
 										/>
