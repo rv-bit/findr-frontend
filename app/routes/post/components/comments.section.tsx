@@ -155,8 +155,7 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 
 	return (
 		<section className={cn("flex flex-col gap-5", className)}>
-			<Button
-				type="button"
+			<div
 				onClick={handleOpenCommentButton}
 				className={cn(
 					"group relative flex cursor-default flex-col items-center justify-between overflow-hidden rounded-full border border-neutral-500/50 bg-transparent px-0 py-0 pb-0 font-bricolage text-black focus-within:border-neutral-500 dark:border-white/50 dark:bg-transparent dark:text-white focus-within:dark:border-white",
@@ -244,7 +243,7 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 						)}
 					</form>
 				</Form>
-			</Button>
+			</div>
 
 			<div className="flex w-full flex-col gap-5">
 				<section className="flex w-full items-center gap-1">
