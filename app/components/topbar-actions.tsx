@@ -25,6 +25,7 @@ import { Switch } from "~/components/ui/switch";
 import { type LucideIcon, LogOut, Moon, Plus, Settings, X } from "lucide-react";
 
 import LogoIcon from "~/icons/logo";
+import queryClient from "~/lib/query/query-client";
 import { cn } from "~/lib/utils";
 
 interface DropDownActions {
@@ -142,6 +143,9 @@ export default function TopbarActions() {
 				icon: LogOut,
 				onClick: async () => {
 					await authClient.signOut();
+
+					queryClient.invalidateQueries(); // Clear all queries
+					queryClient.resetQueries(); // Clear all queries
 
 					navigate("/auth");
 					setOpen(false);
