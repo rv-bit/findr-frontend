@@ -9,9 +9,9 @@ import axiosInstance from "~/lib/axios-instance";
 
 import type { Post, User } from "~/lib/types/shared";
 
-import Loading from "~/icons/loading";
-
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
+
+import Loading from "~/icons/loading";
 
 import PostsCard from "./components/posts.card";
 
