@@ -155,13 +155,13 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 	}
 
 	return (
-		<main className="container mx-auto flex h-full w-full items-center justify-center">
-			<p>{details}</p>
+		<main className="container mx-auto flex h-full w-full flex-wrap items-center justify-center">
+			<p className="text-center text-balance text-black max-sm:text-lg dark:text-white">{details}</p>
 
 			{stack && (
 				<>
 					<h1>{message}</h1>
-					<pre className="w-full overflow-x-auto p-4">
+					<pre className="w-full overflow-x-auto p-4 text-center text-balance text-black max-sm:text-lg dark:text-white">
 						<code>{stack}</code>
 					</pre>
 				</>
