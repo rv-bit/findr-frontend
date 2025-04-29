@@ -30,10 +30,11 @@ import { z } from "zod";
 
 import axiosInstance from "~/lib/axios-instance";
 
+import type { Post, User } from "~/lib/types/shared";
+
 import { AlertDialogFooter } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
-import type { Post, User } from "~/lib/types/shared";
 
 export const links: Route.LinksFunction = () => [
 	{ rel: "stylesheet", href: editor_stylesheet }, // override styles
