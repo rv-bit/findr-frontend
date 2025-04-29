@@ -1,17 +1,19 @@
 import editor_stylesheet from "~/styles/form.default.mdx.css?url";
-
-import type { Route } from "./+types/index";
+import type { Route } from "./+types/new";
 
 import type { AxiosError } from "axios";
+
 import React from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router";
 import { ClientOnly } from "remix-utils/client-only";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+	BlockTypeSelect,
 	BoldItalicUnderlineToggles,
 	codeBlockPlugin,
 	CodeToggle,
+	headingsPlugin,
 	InsertThematicBreak,
 	listsPlugin,
 	ListsToggle,
@@ -40,20 +42,14 @@ export const links: Route.LinksFunction = () => [
 	{ rel: "stylesheet", href: editor_stylesheet }, // override styles
 ];
 
-interface ErrorPost {
-	error: string;
-}
-
-interface Types {
+const types: {
 	title: string;
 	url: string;
 	queryKey: string;
 	query: string;
 	icon?: LucideIcon;
 	disabled?: boolean;
-}
-
-const types: Types[] = [
+}[] = [
 	{
 		title: "Text",
 		url: "/post/new/",
@@ -82,7 +78,7 @@ const newPostSchema = z.object({
 	content: z.string().nonempty("Content is required"),
 });
 
-export default function Index({ loaderData }: Route.ComponentProps) {
+export default function Index() {
 	const contentRef = React.useRef<MDXEditorMethods>(null);
 	const navRef = React.useRef<HTMLDivElement>(null);
 
@@ -140,7 +136,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 			.catch((error: AxiosError) => {
 				setLoading(false);
 
-				const errorData = error.response?.data as ErrorPost;
+				const errorData = error.response?.data as { error: string };
 				setError(errorData.error);
 			});
 	};
@@ -192,7 +188,10 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 				<h1 className="mb-2 text-3xl font-semibold text-black capitalize dark:text-white">Create Post</h1>
 
 				<section className="relative w-full">
-					<nav ref={navRef} className="no-scrollbar flex h-full w-full flex-nowrap items-start justify-start gap-2 overflow-x-auto overflow-y-visible">
+					<nav
+						ref={navRef}
+						className="no-scrollbar flex h-full w-full flex-nowrap items-start justify-start gap-2 overflow-x-auto overflow-y-visible"
+					>
 						{types.map((action, index) => (
 							<Button
 								key={index}
@@ -273,7 +272,11 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 										render={({ field }) => (
 											<FormItem>
 												<FormControl>
-													<Textarea {...field} placeholder="Title" className="resize-none rounded-xl text-black dark:text-white" />
+													<Textarea
+														{...field}
+														placeholder="Title"
+														className="resize-none rounded-xl text-black dark:text-white"
+													/>
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -296,15 +299,32 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 																	quotePlugin(),
 																	listsPlugin(),
 																	codeBlockPlugin(),
+																	headingsPlugin({
+																		allowedHeadingLevels: [1, 2, 3],
+																	}),
 																	quotePlugin(),
-																	markdownShortcutPlugin(),
 																	thematicBreakPlugin(),
+																	markdownShortcutPlugin(),
 																	toolbarPlugin({
 																		toolbarContents: () => (
 																			<>
+																				{/* <ToggleGroup type="multiple" size={"lg"}>
+																					<ToggleGroupItem
+																						onSelect={(e: React.SyntheticEvent<HTMLButtonElement>) => {
+																							e.preventDefault();
+																							applyFormat$({ type: "bold" });
+																						}}
+																						value="bold"
+																						aria-label="Bold"
+																					>
+																						<Bold />
+																					</ToggleGroupItem>
+																				</ToggleGroup> */}
+
 																				<UndoRedo />
 																				<hr className="h-5 border-l-2 border-sidebar-foreground dark:border-sidebar-accent" />
 																				<BoldItalicUnderlineToggles />
+																				<BlockTypeSelect />
 																				<hr className="h-5 border-l-2 border-sidebar-foreground dark:border-sidebar-accent" />
 																				<ListsToggle options={["bullet", "number"]} />
 																				<hr className="h-5 border-l-2 border-sidebar-foreground dark:border-sidebar-accent" />
