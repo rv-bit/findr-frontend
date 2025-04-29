@@ -1,9 +1,8 @@
 import editor_stylesheet from "~/styles/card.post.mdx.css?url";
 import type { Route } from "./+types/$post";
 
-import { useQuery } from "@tanstack/react-query";
 import React from "react";
-import { useLoaderData, useNavigate } from "react-router";
+import { Await, useLocation, useNavigate } from "react-router";
 
 import axiosInstance from "~/lib/axios-instance";
 import queryClient from "~/lib/query/query-client";
@@ -18,10 +17,10 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function meta({ data }: Route.MetaArgs) {
-	const { slug } = data.data;
+	// Use the pre-fetched slug from the loader
+	const slug = data.slug || "post";
 	return [{ title: `f/${slug}` }, { name: "description", content: "Findr Post" }];
 }
-
 export async function loader({ params }: Route.LoaderArgs) {
 	const { postId } = params;
 
@@ -32,39 +31,37 @@ export async function loader({ params }: Route.LoaderArgs) {
 	const cachedData = queryClient.getQueryData(["post", postId]) as Post & { user: User };
 	if (cachedData) {
 		return {
-			data: cachedData,
+			data: Promise.resolve(cachedData),
+			slug: cachedData.slug, // Use the slug from cached data
 		};
 	}
 
-	const response = await axiosInstance.get(`/api/v0/post/${postId}`);
-	if (response.status !== 200) {
-		throw new Response("", { status: 302, headers: { Location: "/" } }); // Redirect to home
-	}
+	try {
+		const metaResponse = await axiosInstance.get(`/api/v0/post/${postId}`);
 
-	const data = response.data.data as Post & { user: User };
-	if (!data) {
-		// Check if the post exists
-		throw new Response("", { status: 302, headers: { Location: "/" } }); // Redirect to home
-	}
+		if (metaResponse.status !== 200 || !metaResponse.data.data) {
+			throw new Response("Post not found", { status: 404 });
+		}
 
-	if (!cachedData) {
-		queryClient.setQueryData(["post", postId], data);
+		const metaData = metaResponse.data.data;
+
+		queryClient.setQueryData(["post", postId], metaData);
+
+		return {
+			data: metaData,
+			slug: metaData.slug,
+		};
+	} catch (error) {
+		console.error("Error loading post data:", error);
+		throw new Response("", { status: 302, headers: { Location: "/" } });
 	}
-	return { data };
 }
-
-export default function Index({ params }: Route.ComponentProps) {
+export default function Index({ loaderData, params }: Route.ComponentProps) {
 	const navigate = useNavigate();
-	const loaderData = useLoaderData<typeof loader>();
-
-	const { data, isPending } = useQuery({
-		staleTime: 1000 * 30, // 30 seconds
-		queryKey: ["post", params.postId],
-		queryFn: () => axiosInstance.get(`/api/v0/post/${params.postId}`).then((res) => res.data.data),
-		initialData: loaderData.data,
-	});
+	const location = useLocation();
 
 	const commentTextAreaRef = React.useRef<HTMLTextAreaElement>(null);
+
 	const handleOnCommentIconClick = () => {
 		if (!commentTextAreaRef.current) return;
 
@@ -76,42 +73,45 @@ export default function Index({ params }: Route.ComponentProps) {
 		commentTextAreaRef.current.focus();
 	};
 
+	React.useEffect(() => {
+		const currentPath = location.pathname;
+
+		return () => {
+			if (currentPath.startsWith(`/post/${params.postId}`)) {
+				queryClient.removeQueries({ queryKey: ["post", params.postId], exact: true });
+				queryClient.removeQueries({ queryKey: ["comments", params.postId], exact: true });
+				queryClient.removeQueries({ queryKey: ["replies"], exact: false });
+			}
+		};
+	}, [location.pathname, params.postId]);
+
 	return (
 		<div className="flex h-full w-full flex-col items-center justify-start pb-5 max-md:w-screen">
 			<div className="flex w-full max-w-7xl flex-col gap-4 px-20 pt-8 max-2xl:px-5">
-				{isPending ? (
-					<div className="flex h-full w-full items-center justify-center">
-						<div className="h-10 w-10 animate-spin rounded-full border-4 border-neutral-400 border-t-transparent" />
-					</div>
-				) : (
-					data && (
-						<>
-							<PostCard
-								data={data}
-								onCommentIconClick={handleOnCommentIconClick}
-								onBackButtonClick={() => {
-									navigate(-1);
+				<React.Suspense
+					fallback={
+						<div className="flex h-full w-full items-center justify-center">
+							<div className="h-10 w-10 animate-spin rounded-full border-4 border-neutral-400 border-t-transparent" />
+						</div>
+					}
+				>
+					<Await resolve={loaderData.data}>
+						{(value) => (
+							<>
+								<PostCard
+									data={value}
+									onCommentIconClick={handleOnCommentIconClick}
+									onBackButtonClick={() => {
+										navigate(-1);
+									}}
+									className="w-full"
+								/>
 
-									queryClient.removeQueries({
-										queryKey: ["post", data.id],
-										exact: true,
-									});
-									queryClient.removeQueries({
-										queryKey: ["comments", data.id],
-										exact: true,
-									});
-									queryClient.removeQueries({
-										queryKey: ["replies"],
-										exact: false,
-									});
-								}}
-								className="w-full"
-							/>
-
-							<CommentSection ref={commentTextAreaRef} data={data} className="w-full py-2" />
-						</>
-					)
-				)}
+								<CommentSection ref={commentTextAreaRef} data={value} className="w-full py-2" />
+							</>
+						)}
+					</Await>
+				</React.Suspense>
 			</div>
 		</div>
 	);
