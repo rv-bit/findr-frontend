@@ -445,7 +445,7 @@ function CommentContent({ className, comment, ...props }: React.HTMLAttributes<H
 								onClick={() => {
 									handleOpenCommentButton();
 								}}
-								className="flex h-8 w-fit items-center justify-center gap-1 rounded-3xl bg-transparent px-3 py-2 text-black hover:bg-[#75858f]/20 dark:bg-transparent dark:text-white dark:hover:bg-[#333a3e] [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
+								className="flex h-8 w-fit items-center justify-center gap-1 rounded-3xl bg-transparent px-3 py-2 text-black shadow-none hover:bg-[#75858f]/20 dark:bg-transparent dark:text-white dark:hover:bg-[#333a3e] [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
 							>
 								<MessageCircle />
 								<span className="text-sm text-black dark:text-white">Reply</span>
