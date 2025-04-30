@@ -74,6 +74,17 @@ function Comments({ className, postId, ...props }: React.HTMLAttributes<HTMLDivE
 		getPreviousPageParam: (firstPage, allPages, firstPageParam, allPageParams) => firstPage.prevCursor,
 	});
 
+	const sortedData = React.useMemo(() => {
+		if (!data) return [];
+		const currentSortOption = searchParams.get("filter") || sortOptions[0].value;
+
+		const sortFn = sortOptions.find((option) => option.value === currentSortOption)?.sortingFn;
+		if (sortFn) {
+			return data.pages.flatMap((page) => page.data).sort(sortFn);
+		}
+		return data.pages.flatMap((page) => page.data);
+	}, [data, searchParams]);
+
 	React.useEffect(() => {
 		if (!inViewportRef.current) return;
 
@@ -108,21 +119,17 @@ function Comments({ className, postId, ...props }: React.HTMLAttributes<HTMLDivE
 
 	return (
 		<div className={cn("comment-tree-content", className)}>
-			{data?.pages.map((page, index) => (
-				<div key={index}>
-					{page.data
-						.sort((a: CommentNode, b: CommentNode) => {
-							const sortFn = sortOptions.find((option) => option.value === searchParams.get("filter"))?.sortingFn;
-							if (sortFn) {
-								return sortFn(a, b);
-							}
-							return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(); // return default sort by createdAt from newest to oldest
-						})
-						.map((comment: CommentNode) => {
-							return <CommentNode key={comment.id} comment={comment} session={session} />;
-						})}
-				</div>
-			))}
+			{sortedData
+				.sort((a: CommentNode, b: CommentNode) => {
+					const sortFn = sortOptions.find((option) => option.value === searchParams.get("filter"))?.sortingFn;
+					if (sortFn) {
+						return sortFn(a, b);
+					}
+					return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(); // return default sort by createdAt from newest to oldest
+				})
+				.map((comment: CommentNode) => {
+					return <CommentNode key={comment.id} comment={comment} session={session} />;
+				})}
 
 			{hasNextPage && (
 				<div ref={inViewportRef} className="py-2 text-center">
