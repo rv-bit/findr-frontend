@@ -22,6 +22,7 @@ import {
 	SidebarMenuSub,
 	SidebarMenuSubButton,
 	SidebarMenuSubItem,
+	useSidebar,
 } from "~/components/ui/sidebar";
 
 import { Button } from "./ui/button";
@@ -136,7 +137,12 @@ function CollapsibleItem({ item, index }: { item: Actions; index: number }) {
 			<Collapsible asChild defaultOpen={item.isActive} className="group/collapsible">
 				<SidebarMenuItem>
 					<CollapsibleTrigger asChild>
-						<SidebarMenuButton tooltip={item.title} size={"lg"} className="flex h-10 items-center justify-between" onClick={() => setIsOpen(!isOpen)}>
+						<SidebarMenuButton
+							tooltip={item.title}
+							size={"lg"}
+							className="flex h-10 items-center justify-between"
+							onClick={() => setIsOpen(!isOpen)}
+						>
 							<div className="flex items-center gap-2">
 								{item.icon && <item.icon size={32} />}
 								<span className="text-xs tracking-wider uppercase dark:text-neutral-300">{item.title}</span>
@@ -149,7 +155,11 @@ function CollapsibleItem({ item, index }: { item: Actions; index: number }) {
 							{item.items?.map((subItem, subIndex) => (
 								<SidebarMenuSubItem key={subIndex}>
 									<SidebarMenuSubButton asChild size="lg">
-										<Button variant={"link"} disabled={subItem.isDisabled} className="h-auto w-full items-center justify-start pl-3 hover:no-underline">
+										<Button
+											variant={"link"}
+											disabled={subItem.isDisabled}
+											className="h-auto w-full items-center justify-start pl-3 hover:no-underline"
+										>
 											{subItem.url ? (
 												<Link to={subItem.url} className="flex w-full items-center justify-start gap-2 p-0 [&_svg]:size-auto">
 													{subItem.icon && <subItem.icon size={25} />}
@@ -178,8 +188,12 @@ export default function SidebarActions() {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const [searchParams, setSearchParams] = useSearchParams();
+	const { isTablet, setOpenTablet } = useSidebar();
 
-	const pathname = location.pathname.endsWith("/") && location.pathname.lastIndexOf("/") !== 0 ? location.pathname.substring(0, location.pathname.lastIndexOf("/")) : location.pathname;
+	const pathname =
+		location.pathname.endsWith("/") && location.pathname.lastIndexOf("/") !== 0
+			? location.pathname.substring(0, location.pathname.lastIndexOf("/"))
+			: location.pathname;
 
 	return (
 		<Sidebar variant="sidebar" collapsible="offcanvas" className="group">
@@ -206,6 +220,9 @@ export default function SidebarActions() {
 																? true
 																: false
 													}
+													onClick={(e) => {
+														if (isTablet) setOpenTablet(false);
+													}}
 													disabled={action.isDisabled}
 													className="flex h-10 items-center gap-2 px-4 hover:bg-sidebar-foreground/5 data-[active=true]:hover:bg-sidebar-foreground/10 dark:hover:bg-sidebar-accent/50 dark:data-[active=true]:hover:bg-sidebar-accent"
 												>
@@ -243,7 +260,9 @@ export default function SidebarActions() {
 				</SidebarGroup>
 
 				<div className="flex items-center justify-center p-3 px-5 pt-1 pb-1">
-					<span className="text-xs text-neutral-500 hover:cursor-pointer hover:underline dark:text-neutral-400">findr @ 2025 - All rights reserved</span>
+					<span className="text-xs text-neutral-500 hover:cursor-pointer hover:underline dark:text-neutral-400">
+						findr @ 2025 - All rights reserved
+					</span>
 				</div>
 			</SidebarContent>
 		</Sidebar>
