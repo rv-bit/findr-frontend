@@ -189,10 +189,7 @@ export default function PostCard({
 							</Avatar>
 
 							<span className="flex flex-col justify-start gap-0">
-								<h1 className="text-sm break-all text-black dark:text-white">
-									<span>f/</span>
-									{data.slug}
-								</h1>
+								<h1 className="text-sm break-all text-black dark:text-white">{data.slug}</h1>
 								<HoverCard>
 									<HoverCardTrigger asChild>
 										<Link
