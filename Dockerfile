@@ -1,5 +1,5 @@
 FROM oven/bun:1 AS dependencies-env
-RUN npm i -g cross-env
+RUN bun i -g cross-env
 
 COPY . /app
 
