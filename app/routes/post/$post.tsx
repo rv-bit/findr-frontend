@@ -87,7 +87,7 @@ export default function Index({ loaderData, params }: Route.ComponentProps) {
 
 	return (
 		<div className="flex h-full w-full flex-col items-center justify-start pb-5 max-md:w-screen">
-			<div className="flex w-full max-w-7xl flex-col gap-4 px-20 pt-8 max-2xl:px-5">
+			<div className="flex w-full max-w-7xl flex-col gap-4 px-20 pt-8 max-2xl:pr-8 max-2xl:pl-5">
 				<React.Suspense
 					fallback={
 						<div className="flex h-full w-full items-center justify-center">
