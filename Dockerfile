@@ -3,6 +3,9 @@ RUN bun i -g cross-env
 
 COPY . /app
 
+# [optional] tests & build
+ENV NODE_ENV=production
+
 ARG VITE_API_URL
 ARG VITE_AUTH_API_URL
 ARG VITE_CLOUD_FRONT_URL
