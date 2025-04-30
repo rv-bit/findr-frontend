@@ -2,10 +2,7 @@ import { cn, formatTime } from "~/lib/utils";
 
 import type { Comments, User } from "~/lib/types/shared";
 
-import { MessageCircle } from "lucide-react";
-
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
 
 export default function CommentsCard({
 	className,
@@ -48,16 +45,6 @@ export default function CommentsCard({
 			<span className="flex h-full flex-col items-start justify-start gap-1 overflow-hidden text-ellipsis">
 				<h1 className="w-full text-lg font-bold break-all text-black dark:text-white">{data.postTitle}</h1>
 				<p className="text-sm text-black/50 dark:text-white/50">{data.text}</p>
-			</span>
-
-			<span className="flex items-start justify-start gap-2">
-				<Button
-					disabled={true}
-					className="flex w-fit items-center justify-start gap-1 rounded-3xl bg-[#E5EBEE] px-3 text-black hover:bg-[#75858f]/20 dark:bg-sidebar-accent dark:text-white dark:hover:bg-[#333a3e]"
-				>
-					<MessageCircle />
-					<span className="text-sm text-black dark:text-white">Reply</span>
-				</Button>
 			</span>
 		</article>
 	);
