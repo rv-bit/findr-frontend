@@ -1,6 +1,6 @@
-FROM node:20-alpine AS dependencies-env
-# required
-RUN npm i -g pnpm
+FROM oven/bun:1 AS base
+WORKDIR /usr/src/app
+
 RUN npm i -g cross-env
 
 COPY . /app
@@ -13,24 +13,27 @@ ENV VITE_AUTH_API_URL=${VITE_AUTH_API_URL}
 ENV VITE_CLOUD_FRONT_URL=${VITE_CLOUD_FRONT_URL}
 
 FROM dependencies-env AS development-dependencies-env
-COPY ./package.json pnpm-lock.yaml /app/
+COPY ./package.json bun.lock /app/
 WORKDIR /app
-RUN pnpm i --frozen-lockfile
+RUN bun i --frozen-lockfile
 
 FROM dependencies-env AS production-dependencies-env
-COPY ./package.json pnpm-lock.yaml /app/
+COPY ./package.json bun.lock /app/
 WORKDIR /app
-RUN pnpm i --prod --frozen-lockfile
+RUN bun i --prod --frozen-lockfile
 
 FROM dependencies-env AS build-env
-COPY ./package.json pnpm-lock.yaml /app/
+COPY ./package.json bun.lock /app/
 COPY --from=development-dependencies-env /app/node_modules /app/node_modules
 WORKDIR /app
-RUN pnpm build
+RUN bun build
 
 FROM dependencies-env
-COPY ./package.json pnpm-lock.yaml /app/
+COPY ./package.json bun.lock /app/
 COPY --from=production-dependencies-env /app/node_modules /app/node_modules
 COPY --from=build-env /app/build /app/build
 WORKDIR /app
-CMD ["pnpm", "start"]
+
+# run the app
+USER bun
+CMD ["bun", "start"]
