@@ -43,8 +43,6 @@ export const links: Route.LinksFunction = () => [
 export async function loader({ params }: Route.LoaderArgs) {
 	const { postId } = params;
 
-	console.log("postId", postId);
-
 	if (!postId) {
 		throw new Response("", { status: 302, headers: { Location: "/" } }); // Redirect to home
 	}
@@ -206,7 +204,7 @@ export default function Index() {
 									<Button
 										type="button"
 										className="mt-2 rounded-3xl bg-[#2B3236] p-5 py-6 sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40"
-										onClick={() => console.log(contentRef.current?.getMarkdown())}
+										onClick={() => navigate(-1)}
 									>
 										Cancel
 									</Button>
