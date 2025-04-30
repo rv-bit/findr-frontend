@@ -1,4 +1,4 @@
-import editor_stylesheet from "~/styles/card.posts.mdx.css?url";
+import editor_stylesheet from "~/styles/card.posts.home.mdx.css?url";
 import type { Route } from "./+types/index";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
