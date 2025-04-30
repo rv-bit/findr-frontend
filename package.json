@@ -7,8 +7,8 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"build": "react-router build",
-		"start": "bun run ./build/server/index.js",
+		"build": "cross-env NODE_ENV=production react-router build",
+		"start": "cross-env NODE_ENV=production bun ./build/server/index.js",
 		"dev": "bunx --bun vite",
 		"typecheck": "react-router typegen && tsc"
 	},
