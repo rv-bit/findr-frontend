@@ -86,7 +86,7 @@ const CommentBox = React.forwardRef<HTMLTextAreaElement, CommentBoxProps>(({ cla
 							<div className="flex w-full items-end justify-start gap-1 pb-2 pl-2 dark:bg-sidebar">
 								<Button
 									type="button"
-									disabled={props.disabled}
+									disabled
 									onClick={(e) => {
 										e.stopPropagation();
 									}}
