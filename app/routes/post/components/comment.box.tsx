@@ -12,6 +12,7 @@ type CommentBoxProps = React.ComponentProps<"div"> & {
 	open?: boolean;
 	disabled?: boolean;
 	readOnly?: boolean;
+	placeholder?: string;
 
 	form: UseFormReturn<
 		{
@@ -22,24 +23,37 @@ type CommentBoxProps = React.ComponentProps<"div"> & {
 			content: string;
 		}
 	>;
-	onHandleOpenCommentButton: () => void;
+
+	onHandleOpenCommentButton?: () => void;
 	onHandleSubmit: (data: any) => void;
 	onCancelComment: () => void;
 };
 
 const CommentBox = React.forwardRef<HTMLTextAreaElement, CommentBoxProps>(({ className, ...props }, commentTextAreaRef) => {
 	const [commentButtonClicked, setCommentButtonClicked] = React.useState(props.open || false);
-
 	const [isClient, setIsClient] = React.useState(false);
 
 	React.useEffect(() => {
 		setIsClient(true);
 	}, []);
 
+	React.useEffect(() => {
+		if (props.open) {
+			if (commentTextAreaRef && "current" in commentTextAreaRef && commentTextAreaRef.current) {
+				commentTextAreaRef.current.scrollIntoView({
+					block: "center",
+					behavior: "smooth",
+				});
+
+				commentTextAreaRef.current.focus();
+			}
+		}
+	}, [props, commentTextAreaRef]);
+
 	return (
 		<div
 			onClick={(e) => {
-				props.onHandleOpenCommentButton();
+				props.onHandleOpenCommentButton && props.onHandleOpenCommentButton();
 
 				setCommentButtonClicked(true);
 			}}
@@ -65,8 +79,10 @@ const CommentBox = React.forwardRef<HTMLTextAreaElement, CommentBoxProps>(({ cla
 										ref={commentTextAreaRef}
 										required
 										readOnly={!isClient || props.readOnly} // <-- make textarea readonly if not logged in
-										onClick={props.onHandleOpenCommentButton}
-										placeholder="Join in the conversation"
+										onClick={() => {
+											props.onHandleOpenCommentButton && props.onHandleOpenCommentButton();
+										}}
+										placeholder={props.placeholder ?? "Join in the conversation"}
 										className={cn(
 											"rounded-xl border-none px-5 font-bricolage text-sm text-black shadow-none focus-within:border-none focus-visible:ring-0 md:text-sm dark:text-white",
 											{
@@ -112,7 +128,14 @@ const CommentBox = React.forwardRef<HTMLTextAreaElement, CommentBoxProps>(({ cla
 									onClick={(e) => {
 										e.stopPropagation();
 										props.onCancelComment();
+
 										setCommentButtonClicked(false);
+
+										if (commentTextAreaRef && "current" in commentTextAreaRef && commentTextAreaRef.current) {
+											commentTextAreaRef.current.value = "";
+											commentTextAreaRef.current.style.height = "auto";
+											commentTextAreaRef.current.blur();
+										}
 									}}
 									className="rounded-full bg-sidebar-accent-foreground/30 px-5 py-2 text-sm font-semibold text-black transition-all duration-200 ease-in-out hover:bg-sidebar-foreground/80 hover:text-white dark:bg-sidebar-accent/50 dark:text-white dark:hover:bg-sidebar-foreground/20"
 								>

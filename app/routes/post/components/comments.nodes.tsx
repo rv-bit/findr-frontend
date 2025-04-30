@@ -251,7 +251,9 @@ const newCommentSchema = z.object({
 	content: z.string().min(1, { message: "Comment is required" }),
 });
 
-const CommentContent = React.forwardRef<HTMLTextAreaElement, CommentNodeProps>(({ className, comment, ...props }, commentTextAreaRef) => {
+function CommentContent({ className, comment, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentNodeProps) {
+	const commentTextAreaRef = React.useRef<HTMLTextAreaElement>(null);
+
 	const [replyCommentBoxOpen, setReplyCommentBoxOpen] = React.useState(false);
 	const [loading, setLoading] = React.useState(false);
 
@@ -298,20 +300,12 @@ const CommentContent = React.forwardRef<HTMLTextAreaElement, CommentNodeProps>((
 			return;
 		}
 
-		if (commentTextAreaRef && "current" in commentTextAreaRef && commentTextAreaRef.current) {
-			commentTextAreaRef.current.focus();
-		}
+		setReplyCommentBoxOpen(true);
 	};
 
 	const handleCloseCommentButton = () => {
 		setReplyCommentBoxOpen(false);
 		newCommentForm.reset(); // Reset the form values
-
-		if (commentTextAreaRef && "current" in commentTextAreaRef && commentTextAreaRef.current) {
-			commentTextAreaRef.current.value = "";
-			commentTextAreaRef.current.style.height = "auto";
-			commentTextAreaRef.current.blur();
-		}
 	};
 
 	const handleSubmit = (values: z.infer<typeof newCommentSchema>) => {
@@ -449,12 +443,7 @@ const CommentContent = React.forwardRef<HTMLTextAreaElement, CommentNodeProps>((
 
 							<Button
 								onClick={() => {
-									if (!props.session || !props.session.user) {
-										toast.error("You need to be logged in");
-										return;
-									}
-
-									setReplyCommentBoxOpen((prev) => !prev);
+									handleOpenCommentButton();
 								}}
 								className="flex h-8 w-fit items-center justify-center gap-1 rounded-3xl bg-transparent px-3 py-2 text-black hover:bg-[#75858f]/20 dark:bg-transparent dark:text-white dark:hover:bg-[#333a3e] [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
 							>
@@ -468,9 +457,9 @@ const CommentContent = React.forwardRef<HTMLTextAreaElement, CommentNodeProps>((
 							className="w-full"
 							ref={commentTextAreaRef}
 							open={replyCommentBoxOpen}
+							placeholder="Write a reply..."
 							disabled={loading}
 							form={newCommentForm}
-							onHandleOpenCommentButton={handleOpenCommentButton}
 							onHandleSubmit={handleSubmit}
 							onCancelComment={handleCloseCommentButton}
 						/>
@@ -479,6 +468,6 @@ const CommentContent = React.forwardRef<HTMLTextAreaElement, CommentNodeProps>((
 			</span>
 		</summary>
 	);
-});
+}
 
 export default Comments;

@@ -56,6 +56,7 @@ export async function loader({ params }: Route.LoaderArgs) {
 		throw new Response("", { status: 302, headers: { Location: "/" } });
 	}
 }
+
 export default function Index({ loaderData, params }: Route.ComponentProps) {
 	const navigate = useNavigate();
 	const location = useLocation();
@@ -63,14 +64,14 @@ export default function Index({ loaderData, params }: Route.ComponentProps) {
 	const commentTextAreaRef = React.useRef<HTMLTextAreaElement>(null);
 
 	const handleOnCommentIconClick = () => {
-		if (!commentTextAreaRef.current) return;
+		if (commentTextAreaRef && "current" in commentTextAreaRef && commentTextAreaRef.current) {
+			commentTextAreaRef.current.scrollIntoView({
+				block: "center",
+				behavior: "smooth",
+			});
 
-		commentTextAreaRef.current.scrollTo({
-			top: 0,
-			behavior: "smooth",
-		});
-
-		commentTextAreaRef.current.focus();
+			commentTextAreaRef.current.focus();
+		}
 	};
 
 	React.useEffect(() => {

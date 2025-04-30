@@ -133,18 +133,17 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 		}
 
 		if (commentTextAreaRef && "current" in commentTextAreaRef && commentTextAreaRef.current) {
+			commentTextAreaRef.current.scrollIntoView({
+				block: "center",
+				behavior: "smooth",
+			});
+
 			commentTextAreaRef.current.focus();
 		}
 	};
 
 	const handleCloseCommentButton = () => {
 		newCommentForm.reset(); // Reset the form values
-
-		if (commentTextAreaRef && "current" in commentTextAreaRef && commentTextAreaRef.current) {
-			commentTextAreaRef.current.value = "";
-			commentTextAreaRef.current.style.height = "auto";
-			commentTextAreaRef.current.blur();
-		}
 	};
 
 	return (
