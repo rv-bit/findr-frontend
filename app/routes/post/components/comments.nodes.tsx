@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { authClient } from "~/lib/auth";
+import { authClient, type Session } from "~/lib/auth";
 import axiosInstance from "~/lib/axios-instance";
 
 import { cn, formatTime } from "~/lib/utils";
@@ -40,11 +40,11 @@ export type CommentNode = {
 	createdAt: Date;
 	updatedAt: Date;
 	replyCount: number;
-	replies: CommentNode[];
 };
 
 type CommentNodeProps = React.ComponentProps<"section"> & {
 	comment: CommentNode;
+	session: Session | null;
 };
 
 type CommentsProps = React.ComponentProps<"section"> & {
@@ -52,6 +52,7 @@ type CommentsProps = React.ComponentProps<"section"> & {
 };
 
 function Comments({ className, postId, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentsProps) {
+	const { data: session } = authClient.useSession();
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	const inViewportRef = React.useRef(null);
@@ -62,7 +63,7 @@ function Comments({ className, postId, ...props }: React.HTMLAttributes<HTMLDivE
 	}, []);
 
 	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, status } = useInfiniteQuery({
-		staleTime: 1000 * 60 * 1, // 1 minutes
+		staleTime: 1000 * 60 * 5, // 5 minutes
 		enabled: true,
 		queryKey: ["comments", postId],
 		initialPageParam: 1,
@@ -72,18 +73,6 @@ function Comments({ className, postId, ...props }: React.HTMLAttributes<HTMLDivE
 		getNextPageParam: (lastPage, allPages, lastPageParam, allPageParams) => lastPage.nextCursor,
 		getPreviousPageParam: (firstPage, allPages, firstPageParam, allPageParams) => firstPage.prevCursor,
 	});
-
-	const sortedData = React.useMemo(() => {
-		if (!data) return [];
-		const currentSortOption = searchParams.get("filter") || sortOptions[0].value;
-
-		const sortFn = sortOptions.find((option) => option.value === currentSortOption)?.sortingFn;
-		if (sortFn) {
-			return data.pages.flatMap((page) => page.data).sort(sortFn) as CommentNode[];
-		}
-
-		return data.pages.flatMap((page) => page.data) as CommentNode[];
-	}, [data, searchParams]);
 
 	React.useEffect(() => {
 		if (!inViewportRef.current) return;
@@ -118,12 +107,20 @@ function Comments({ className, postId, ...props }: React.HTMLAttributes<HTMLDivE
 	}
 
 	return (
-		<div className={cn("space-y-4", className)}>
+		<div className={cn("comment-tree-content", className)}>
 			{data?.pages.map((page, index) => (
 				<div key={index}>
-					{sortedData.map((comment: CommentNode) => {
-						return <CommentNode key={comment.id} comment={comment} />;
-					})}
+					{page.data
+						.sort((a: CommentNode, b: CommentNode) => {
+							const sortFn = sortOptions.find((option) => option.value === searchParams.get("filter"))?.sortingFn;
+							if (sortFn) {
+								return sortFn(a, b);
+							}
+							return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(); // return default sort by createdAt from newest to oldest
+						})
+						.map((comment: CommentNode) => {
+							return <CommentNode key={comment.id} comment={comment} session={session} />;
+						})}
 				</div>
 			))}
 
@@ -157,7 +154,7 @@ function CommentNode({ className, comment, ...props }: React.HTMLAttributes<HTML
 	}, []);
 
 	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, refetch } = useInfiniteQuery({
-		staleTime: 1000 * 60 * 1, // 1 minutes
+		staleTime: 1000 * 60 * 5, // 5 minutes
 		enabled: showReplies, // Only fetch replies when showReplies is true
 		queryKey: ["replies", comment.id],
 		initialPageParam: 1,
@@ -169,11 +166,14 @@ function CommentNode({ className, comment, ...props }: React.HTMLAttributes<HTML
 	});
 
 	const repliesCount = React.useMemo(() => {
-		if (data) {
+		if (comment.replyCount) {
+			return comment.replyCount;
+		} else if (data) {
 			return data.pages.reduce((acc, page) => acc + page.data.length, 0);
 		}
-		return comment.replyCount || 0;
-	}, [data, comment.replyCount]);
+
+		return 0;
+	}, [data, comment]);
 
 	const repliesData = React.useMemo(() => {
 		if (!data) return [];
@@ -183,8 +183,8 @@ function CommentNode({ className, comment, ...props }: React.HTMLAttributes<HTML
 	const hasReplies = repliesCount > 0;
 
 	return (
-		<div ref={containerRef} className={cn("comment-thread-item relative mb-4", className)}>
-			<CommentContent comment={comment} />
+		<div ref={containerRef} className={cn("comment-thread-item mb-4", className)}>
+			<CommentContent comment={comment} session={props.session} />
 
 			{hasReplies && !showReplies && (
 				<div className="mt-1 ml-12">
@@ -215,12 +215,11 @@ function CommentNode({ className, comment, ...props }: React.HTMLAttributes<HTML
 							{isLoading ? (
 								<div className="flex items-center justify-start py-2">
 									<div className="size-5 animate-spin rounded-full border-2 border-neutral-400 border-t-transparent" />
-									<span className="ml-2 text-xs text-neutral-500">Loading replies...</span>
 								</div>
 							) : (
 								<>
 									{repliesData.map((reply) => (
-										<CommentNode key={reply.id} comment={reply} className="ml-0" />
+										<CommentNode key={reply.id} comment={reply} session={props.session} className="ml-0" />
 									))}
 
 									{hasNextPage && (
@@ -232,7 +231,6 @@ function CommentNode({ className, comment, ...props }: React.HTMLAttributes<HTML
 											{isFetchingNextPage ? (
 												<>
 													<div className="size-5 animate-spin rounded-full border-2 border-neutral-400 border-t-transparent" />
-													Loading more...
 												</>
 											) : (
 												<>Show more replies ({repliesCount - repliesData.length})</>
@@ -254,6 +252,9 @@ const newCommentSchema = z.object({
 });
 
 const CommentContent = React.forwardRef<HTMLTextAreaElement, CommentNodeProps>(({ className, comment, ...props }, commentTextAreaRef) => {
+	const [replyCommentBoxOpen, setReplyCommentBoxOpen] = React.useState(false);
+	const [loading, setLoading] = React.useState(false);
+
 	const queryKey = React.useMemo(() => {
 		if (comment.parentId) {
 			return ["replies", comment.parentId];
@@ -264,10 +265,6 @@ const CommentContent = React.forwardRef<HTMLTextAreaElement, CommentNodeProps>((
 	const { mutate } = useMutateCommentVote({
 		queryKey: queryKey,
 	});
-	const { data: session } = authClient.useSession();
-
-	const [replyCommentBoxOpen, setReplyCommentBoxOpen] = React.useState(false);
-	const [loading, setLoading] = React.useState(false);
 
 	const newCommentForm = useForm<z.infer<typeof newCommentSchema>>({
 		mode: "onChange",
@@ -278,7 +275,7 @@ const CommentContent = React.forwardRef<HTMLTextAreaElement, CommentNodeProps>((
 	});
 
 	const handleUpvote = () => {
-		if (!session || !session.user) {
+		if (!props.session || !props.session.user) {
 			toast.error("You need to be logged in");
 			return;
 		}
@@ -287,7 +284,7 @@ const CommentContent = React.forwardRef<HTMLTextAreaElement, CommentNodeProps>((
 	};
 
 	const handleDownvote = () => {
-		if (!session || !session.user) {
+		if (!props.session || !props.session.user) {
 			toast.error("You need to be logged in");
 			return;
 		}
@@ -296,7 +293,7 @@ const CommentContent = React.forwardRef<HTMLTextAreaElement, CommentNodeProps>((
 	};
 
 	const handleOpenCommentButton = () => {
-		if (!session || !session.user) {
+		if (!props.session || !props.session.user) {
 			toast.error("You need to be logged in");
 			return;
 		}
@@ -318,7 +315,7 @@ const CommentContent = React.forwardRef<HTMLTextAreaElement, CommentNodeProps>((
 	};
 
 	const handleSubmit = (values: z.infer<typeof newCommentSchema>) => {
-		if (!session || !session.user) {
+		if (!props.session || !props.session.user) {
 			toast.error("You need to be logged in");
 			return;
 		}
@@ -347,6 +344,8 @@ const CommentContent = React.forwardRef<HTMLTextAreaElement, CommentNodeProps>((
 				if (response.status === 200) {
 					toast.success("Comment added successfully");
 					newCommentForm.reset(); // Reset the form values
+
+					setReplyCommentBoxOpen(false);
 				}
 			})
 			.catch((error) => {
@@ -450,7 +449,7 @@ const CommentContent = React.forwardRef<HTMLTextAreaElement, CommentNodeProps>((
 
 							<Button
 								onClick={() => {
-									if (!session || !session.user) {
+									if (!props.session || !props.session.user) {
 										toast.error("You need to be logged in");
 										return;
 									}
@@ -465,18 +464,16 @@ const CommentContent = React.forwardRef<HTMLTextAreaElement, CommentNodeProps>((
 						</span>
 					</span>
 					{replyCommentBoxOpen && (
-						<div className="mt-2">
-							<CommentBox
-								className="w-full"
-								ref={commentTextAreaRef}
-								open={true}
-								disabled={loading}
-								form={newCommentForm}
-								onHandleOpenCommentButton={handleOpenCommentButton}
-								onHandleSubmit={handleSubmit}
-								onCancelComment={handleCloseCommentButton}
-							/>
-						</div>
+						<CommentBox
+							className="w-full"
+							ref={commentTextAreaRef}
+							open={replyCommentBoxOpen}
+							disabled={loading}
+							form={newCommentForm}
+							onHandleOpenCommentButton={handleOpenCommentButton}
+							onHandleSubmit={handleSubmit}
+							onCancelComment={handleCloseCommentButton}
+						/>
 					)}
 				</span>
 			</span>
