@@ -1,6 +1,3 @@
-import { codeBlockPlugin, headingsPlugin, listsPlugin, markdownShortcutPlugin, MDXEditor, quotePlugin, thematicBreakPlugin } from "@mdxeditor/editor";
-import { ClientOnly } from "remix-utils/client-only";
-
 import { cn, formatTime } from "~/lib/utils";
 
 import type { Comments, User } from "~/lib/types/shared";
@@ -21,11 +18,20 @@ export default function CommentsCard({
 	const timeAgo = formatTime(data.createdAt);
 
 	return (
-		<article className={cn("flex h-auto max-h-96 min-h-28 w-full flex-col justify-between gap-3 px-4 py-2 hover:bg-sidebar-foreground/10 dark:hover:bg-sidebar-accent/50", className)}>
+		<article
+			className={cn(
+				"flex h-auto max-h-96 min-h-28 w-full flex-col justify-between gap-3 px-4 py-2 hover:bg-sidebar-foreground/10 dark:hover:bg-sidebar-accent/50",
+				className,
+			)}
+		>
 			<span className="flex items-center justify-start gap-1">
 				<span className="flex items-center justify-center gap-2">
 					<Avatar className="size-6 rounded-full">
-						<AvatarImage loading="lazy" src={`${user.image?.startsWith("http") ? user.image : `${import.meta.env.VITE_CLOUD_FRONT_URL}/${user.image}`}`} alt={user.username} />
+						<AvatarImage
+							loading="lazy"
+							src={`${user.image?.startsWith("http") ? user.image : `${import.meta.env.VITE_CLOUD_FRONT_URL}/${user.image}`}`}
+							alt={user.username}
+						/>
 						<AvatarFallback className="rounded-lg bg-sidebar-foreground/50">
 							{user.username
 								?.split(" ")
@@ -41,27 +47,7 @@ export default function CommentsCard({
 
 			<span className="flex h-full flex-col items-start justify-start gap-1 overflow-hidden text-ellipsis">
 				<h1 className="w-full text-lg font-bold break-all text-black dark:text-white">{data.postTitle}</h1>
-				<ClientOnly>
-					{() => (
-						<MDXEditor
-							markdown={data.text || ""}
-							plugins={[
-								quotePlugin(),
-								listsPlugin(),
-								codeBlockPlugin(),
-								headingsPlugin({
-									allowedHeadingLevels: [1, 2, 3],
-								}),
-								quotePlugin(),
-								thematicBreakPlugin(),
-								markdownShortcutPlugin(),
-							]}
-							className="w-full overflow-hidden text-ellipsis"
-							contentEditableClassName="text-ellipsis line-clamp-10 text-gray-500 dark:text-gray-400 w-full"
-							readOnly={true}
-						/>
-					)}
-				</ClientOnly>
+				<p className="text-sm text-black/50 dark:text-white/50">{data.text}</p>
 			</span>
 
 			<span className="flex items-start justify-start gap-2">
