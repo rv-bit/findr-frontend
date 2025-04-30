@@ -73,8 +73,9 @@ const types: {
 ];
 
 // making only one schema for now, since the other two types are disabled
+const MAX_TITLE_LENGTH = 100;
 const newPostSchema = z.object({
-	title: z.string().nonempty("Title is required").max(300),
+	title: z.string().nonempty("Title is required").max(MAX_TITLE_LENGTH),
 	content: z.string().nonempty("Content is required"),
 });
 
@@ -87,8 +88,9 @@ export default function Index() {
 
 	const location = useLocation();
 	const navigate = useNavigate();
-
 	const [searchParams, setSearchParams] = useSearchParams();
+
+	const [currentCharacterTitleCount, setCurrentCharacterTitleCount] = React.useState(0);
 	const [error, setError] = React.useState<string>();
 	const [loading, setLoading] = React.useState(false);
 
@@ -161,6 +163,14 @@ export default function Index() {
 		}
 	};
 
+	const isActive = React.useMemo(
+		() => (url: string, queryKey: string, query: string) => {
+			const isQueryMatch = searchParams.get(queryKey) === query;
+			return location.pathname === url && isQueryMatch;
+		},
+		[location, searchParams],
+	);
+
 	React.useEffect(() => {
 		if (!navRef.current) return;
 		handleScrollAndResize();
@@ -174,13 +184,23 @@ export default function Index() {
 		};
 	}, []);
 
-	const isActive = React.useMemo(
-		() => (url: string, queryKey: string, query: string) => {
-			const isQueryMatch = searchParams.get(queryKey) === query;
-			return location.pathname === url && isQueryMatch;
-		},
-		[location, searchParams],
-	);
+	React.useEffect(() => {
+		newPostForm.setValue("title", "");
+		setCurrentCharacterTitleCount(0);
+
+		return () => {
+			newPostForm.reset();
+		};
+	}, []);
+
+	React.useEffect(() => {
+		const { unsubscribe } = newPostForm.watch((value) => {
+			const newDescription = newPostForm.watch("title");
+			setCurrentCharacterTitleCount(newDescription.length);
+		});
+
+		return () => unsubscribe();
+	}, [newPostForm.watch, newPostForm.trigger]);
 
 	return (
 		<div className="flex h-full w-full flex-col items-center justify-start max-md:w-screen">
@@ -266,22 +286,31 @@ export default function Index() {
 									<div className="text-sm text-red-500 dark:text-red-400">{error}</div>
 								</div>
 								<div className="flex flex-col gap-7">
-									<FormField
-										control={newPostForm.control}
-										name="title"
-										render={({ field }) => (
-											<FormItem>
-												<FormControl>
-													<Textarea
-														{...field}
-														placeholder="Title"
-														className="resize-none rounded-xl text-black dark:text-white"
-													/>
-												</FormControl>
-												<FormMessage />
-											</FormItem>
-										)}
-									/>
+									<div className="flex flex-col gap-2">
+										<FormField
+											control={newPostForm.control}
+											name="title"
+											render={({ field }) => (
+												<FormItem>
+													<FormControl>
+														<Textarea
+															{...field}
+															placeholder="Title"
+															maxLength={MAX_TITLE_LENGTH}
+															className="resize-none rounded-xl text-black dark:text-white"
+														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+
+										<span className="w-full text-right text-sm text-gray-500 dark:text-gray-400">
+											<span className="text-gray-500 dark:text-gray-400">{currentCharacterTitleCount}</span>
+											<span className="text-gray-500 dark:text-gray-400">/</span>
+											<span className="text-gray-500 dark:text-gray-400">{MAX_TITLE_LENGTH}</span>
+										</span>
+									</div>
 
 									<FormField
 										control={newPostForm.control}

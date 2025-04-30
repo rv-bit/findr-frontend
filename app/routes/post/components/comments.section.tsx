@@ -62,7 +62,6 @@ const newCommentSchema = z.object({
 
 const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps>(({ className, data, ...props }, commentTextAreaRef) => {
 	const [searchParams, setSearchParams] = useSearchParams();
-
 	const { data: session } = authClient.useSession();
 
 	const [currentSortOption, setCurrentSortOption] = React.useState(sortOptions[0].value);
@@ -128,7 +127,6 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 
 	const handleOpenCommentButton = () => {
 		if (!session || !session.user) {
-			toast.error("You need to be logged in");
 			return;
 		}
 
@@ -152,6 +150,7 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 				className="w-full"
 				ref={commentTextAreaRef}
 				readOnly={!session || !session.user}
+				placeholder={session && session.user ? "Join in the conversation" : "Login to join the conversation"}
 				form={newCommentForm}
 				onHandleOpenCommentButton={handleOpenCommentButton}
 				onHandleSubmit={handleSubmit}

@@ -1,8 +1,9 @@
-import { codeBlockPlugin, headingsPlugin, listsPlugin, markdownShortcutPlugin, MDXEditor, quotePlugin, thematicBreakPlugin } from "@mdxeditor/editor";
 import React from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { ClientOnly } from "remix-utils/client-only";
 import { toast } from "sonner";
+
+import { codeBlockPlugin, headingsPlugin, listsPlugin, markdownShortcutPlugin, MDXEditor, quotePlugin, thematicBreakPlugin } from "@mdxeditor/editor";
+import { ClientOnly } from "remix-utils/client-only";
 
 import { authClient } from "~/lib/auth";
 import { cn, formatTime } from "~/lib/utils";
@@ -266,6 +267,7 @@ export default function PostsCard({
 
 				<span className="flex h-full flex-col items-start justify-start gap-1 overflow-hidden text-ellipsis">
 					<h1 className="w-full text-lg font-bold break-all text-black dark:text-white">{data.title}</h1>
+
 					<ClientOnly>
 						{() => (
 							<MDXEditor
@@ -287,6 +289,8 @@ export default function PostsCard({
 							/>
 						)}
 					</ClientOnly>
+
+					{/* <p className="line-clamp-10 w-full overflow-hidden text-ellipsis text-gray-500 dark:text-gray-400">{data.content}</p> */}
 				</span>
 
 				<span className="flex items-start justify-start gap-2">
