@@ -10,11 +10,8 @@ import { z } from "zod";
 
 import * as constants from "~/constants/app";
 
-import { useSession } from "~/hooks/use-auth";
+import { authClient } from "~/lib/auth";
 
-import { authClient, type Session } from "~/lib/auth";
-import { prefetchSession } from "~/lib/auth-prefetches";
-import { queryClient } from "~/lib/query/query-client";
 import { cn } from "~/lib/utils";
 
 import { Eye, EyeOff } from "lucide-react";
@@ -26,16 +23,9 @@ import { Input } from "~/components/ui/input";
 import { getPasswordStrength, strengthVariants } from "~/styles/variants/password-variants";
 
 export async function clientLoader({ serverLoader, params }: Route.ClientLoaderArgs) {
-	const cachedData = queryClient.getQueryData<Session>(["session"]);
-	const data = cachedData ?? (await prefetchSession(queryClient));
-
-	const session = {
-		session: data.session,
-		user: data.user,
-	};
-
-	if (session.session || session.user) {
-		throw new Response("", { status: 302, headers: { Location: "/" } }); // Redirect to home page
+	const { data: sessionData } = await authClient.getSession();
+	if (sessionData && sessionData.session && sessionData.user) {
+		throw new Response("", { status: 302, headers: { Location: "/" } }); // Redirect to home
 	}
 
 	return null;
@@ -60,7 +50,6 @@ const formSchema = z
 
 export default function Register() {
 	const navigate = useNavigate();
-	const { refetch } = useSession();
 
 	const [loading, setLoading] = React.useState(false);
 	const [error, setError] = React.useState<string>();
@@ -94,8 +83,6 @@ export default function Register() {
 					setLoading(true);
 				},
 				onSuccess: async () => {
-					await refetch(); // Refetch session, because the user is now signed in, as its automatically done after sign up
-
 					setLoading(false);
 					navigate("/"); // Redirect to home page
 				},

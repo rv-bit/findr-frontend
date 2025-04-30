@@ -1,18 +1,16 @@
 import React from "react";
-import { useNavigate } from "react-router";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { useSession } from "~/hooks/use-auth";
-
-import type { ModalProps } from "~/lib/types/modal";
+import type { ModalProps } from "~/lib/types/ui/modal";
 
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
 import { Textarea } from "~/components/ui/textarea";
+import { authClient } from "~/lib/auth";
 
 const MAX_DESCRIPTION_LENGTH = 100;
 const newDescriptionSchema = z.object({
@@ -20,12 +18,10 @@ const newDescriptionSchema = z.object({
 });
 
 export default function Index({ open, onOpenChange }: ModalProps) {
-	const navigate = useNavigate();
-
 	const [loading, setLoading] = React.useState(false);
 	const [currentCharacterCount, setCurrentCharacterCount] = React.useState(0);
 
-	const { user, refetch, updateUser } = useSession();
+	const { data: session, error, isPending } = authClient.useSession();
 
 	const newDescriptionForm = useForm<z.infer<typeof newDescriptionSchema>>({
 		mode: "onChange",
@@ -39,48 +35,47 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 	const isFormIsComplete = formState.isValid;
 
 	const handleSubmit = async (values: z.infer<typeof newDescriptionSchema>) => {
-		setLoading(true);
+		await authClient.updateUser(
+			{
+				about_description: values.description,
+			},
+			{
+				onRequest: () => {
+					setLoading(true);
+				},
+				onResponse: (context) => {
+					setLoading(false);
+				},
+				onError: (context) => {
+					newDescriptionForm.setError("description", {
+						type: "manual",
+						message: context.error.message,
+					});
+				},
+				onSuccess: () => {
+					onOpenChange(false);
 
-		const { status, error } = await updateUser({
-			about_description: values.description,
-		});
-
-		setLoading(false);
-
-		if (status) {
-			onOpenChange(false);
-			window.location.reload();
-		}
-
-		if (error) {
-			newDescriptionForm.setError("description", {
-				type: "manual",
-				message: error.message,
-			});
-		}
+					window.location.reload();
+				},
+			},
+		);
 	};
 
 	React.useEffect(() => {
-		if (user) {
-			newDescriptionForm.setValue("description", user.about_description ?? "");
-			setCurrentCharacterCount(user.about_description?.length ?? 0);
+		if (session?.user) {
+			newDescriptionForm.setValue("description", session.user.about_description ?? "");
+			setCurrentCharacterCount(session.user.about_description?.length ?? 0);
 		}
 
 		return () => {
 			newDescriptionForm.reset();
 		};
-	}, [user]);
+	}, [session]);
 
 	React.useEffect(() => {
 		const { unsubscribe } = newDescriptionForm.watch((value) => {
-			newDescriptionForm.trigger("description").then((isValid) => {
-				if (!isValid) {
-					return;
-				}
-
-				const newDescription = newDescriptionForm.watch("description");
-				setCurrentCharacterCount(newDescription.length);
-			});
+			const newDescription = newDescriptionForm.watch("description");
+			setCurrentCharacterCount(newDescription.length);
 		});
 
 		return () => unsubscribe();
@@ -112,20 +107,16 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 									/>
 
 									<span className="w-full text-right text-sm text-gray-500 dark:text-gray-400">
-										<span className="text-gray-500 dark:text-gray-400 ">{currentCharacterCount}</span>
+										<span className="text-gray-500 dark:text-gray-400">{currentCharacterCount}</span>
 										<span className="text-gray-500 dark:text-gray-400">/</span>
 										<span className="text-gray-500 dark:text-gray-400">{MAX_DESCRIPTION_LENGTH}</span>
-									</span>
-
-									<span className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
-										By continuing with this, you are going to be logged out and you will need to login again with the new username.
 									</span>
 								</div>
 
 								<AlertDialogFooter>
 									<Button
 										type="button"
-										className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+										className="mt-2 rounded-3xl bg-[#2B3236] p-5 py-6 sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40"
 										onClick={() => onOpenChange(false)}
 									>
 										Cancel

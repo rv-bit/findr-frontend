@@ -5,7 +5,7 @@ import { useNavigate } from "react-router";
 
 import { toast } from "sonner";
 
-import type { ModalProps } from "~/lib/types/modal";
+import type { ModalProps } from "~/lib/types/ui/modal";
 
 import { ChevronRight, type LucideIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
@@ -37,6 +37,8 @@ export default function Index({ matches }: Route.ComponentProps) {
 	const loaderData = loader.data;
 
 	const navigate = useNavigate();
+
+	const [showModal, setShowModal] = React.useState<{ [key: string]: boolean }>({});
 
 	const actions: Actions[] = React.useMemo(
 		() => [
@@ -94,16 +96,13 @@ export default function Index({ matches }: Route.ComponentProps) {
 		[loaderData],
 	);
 
-	const [loading, setLoading] = React.useState(false);
-	const [showModal, setShowModal] = React.useState<{ [key: string]: boolean }>({});
-
 	return (
 		<React.Fragment>
 			<div className="flex h-full w-full flex-col items-start justify-center gap-2">
 				{actions.map((action) => {
 					return (
 						<React.Fragment key={action.title}>
-							<h1 key={action.title} className="text-2xl font-bricolage-grotesque tracking-tighter font-semibold capitalize text-black dark:text-white mb-2">
+							<h1 key={action.title} className="mb-2 font-bricolage text-2xl font-semibold tracking-tighter text-black capitalize dark:text-white">
 								{action.title}
 							</h1>
 
@@ -123,7 +122,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 												key={item.title}
 												variant={"link"}
 												disabled={item.disabled}
-												className="group flex w-full items-center justify-between gap-4 bg-none p-0 h-auto hover:no-underline"
+												className="group flex h-auto w-full items-center justify-between gap-4 bg-none p-0 hover:no-underline"
 												onClick={(e) => {
 													if (item.route) {
 														navigate(item.route);
@@ -151,9 +150,9 @@ export default function Index({ matches }: Route.ComponentProps) {
 													}
 												}}
 											>
-												<div className="flex flex-col items-start justify-center gap-[0.15rem] w-fit">
+												<div className="flex w-fit flex-col items-start justify-center gap-[0.15rem]">
 													<span>{item.title}</span>
-													{item.description && <span className="text-balance text-left text-xs text-gray-500 dark:text-gray-400">{item.description}</span>}
+													{item.description && <span className="text-left text-xs text-balance text-gray-500 dark:text-gray-400">{item.description}</span>}
 												</div>
 												<div className="flex items-center justify-center gap-2">
 													<h1 className="">{item?.defaultValue}</h1>

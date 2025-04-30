@@ -18,4 +18,25 @@ export const authClient = createAuthClient({
 	],
 });
 
+export type Account = {
+	id: string;
+	provider: string;
+	createdAt: Date;
+	updatedAt: Date;
+	accountId: string;
+	scopes: string[];
+};
+
+export type Sessions = {
+	id: string;
+	createdAt: Date;
+	updatedAt: Date;
+	userId: string;
+	expiresAt: Date;
+	token: string;
+	ipAddress?: string | null | undefined | undefined;
+	userAgent?: string | null | undefined | undefined;
+};
+
 export type Session = typeof authClient.$Infer.Session;
+export type User = typeof authClient.$Infer.Session.user;

@@ -1,25 +1,23 @@
 import React from "react";
-import { useNavigate } from "react-router";
 
 import ReactCrop, { centerCrop, convertToPixelCrop, makeAspectCrop, type Crop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { useSession } from "~/hooks/use-auth";
-
 import setCanvasPreview from "~/lib/canvas";
-import type { ModalProps } from "~/lib/types/modal";
+import type { ModalProps } from "~/lib/types/ui/modal";
 
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { authClient } from "~/lib/auth";
 
-const MAX_FILE_SIZE_BYTES = 1 * 1024 * 1024; // 5mb
+const MAX_FILE_SIZE_BYTES = 1 * 1024 * 1024; // 1MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 const ASPECT_RATIO = 1;
 const MIN_DIMENSION = 150;
@@ -27,16 +25,13 @@ const MIN_DIMENSION = 150;
 const newAvatarSchema = z.object({
 	image: z
 		.any()
-		.refine((file) => file?.length == 1, "File is required.")
-		.refine((file) => ACCEPTED_IMAGE_TYPES.includes(file?.[0]?.type), "Only .jpg, .jpeg, .png and .webp formats are supported.")
-		.refine((file) => file?.[0]?.size <= MAX_FILE_SIZE_BYTES, `Max image size is ${MAX_FILE_SIZE_BYTES / 1024 / 1024}MB`),
+		.refine((file) => file instanceof FileList && file.length === 1, "File is required.")
+		.refine((file) => file instanceof FileList && ACCEPTED_IMAGE_TYPES.includes(file[0]?.type), "Only .jpg, .jpeg, .png and .webp formats are supported.")
+		.refine((file) => file instanceof FileList && file[0]?.size <= MAX_FILE_SIZE_BYTES, `Max image size is ${MAX_FILE_SIZE_BYTES / 1024 / 1024}MB`),
 	croppedImage: z.string(),
 });
 
 export default function Index({ open, onOpenChange }: ModalProps) {
-	const navigate = useNavigate();
-	const { refetch, updateUser } = useSession();
-
 	const [loading, setLoading] = React.useState(false);
 	const [step, setStep] = React.useState(0); // 0 = select image, 1 = crop image, 2 = confirm image
 
@@ -44,6 +39,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 
 	const imageRef = React.useRef<HTMLImageElement>(null);
 	const canvasRef = React.useRef<HTMLCanvasElement>(null);
+
 	const [imageSource, setImageSource] = React.useState<string>("");
 
 	const newAvatarForm = useForm<z.infer<typeof newAvatarSchema>>({
@@ -54,10 +50,13 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 			croppedImage: "",
 		},
 	});
+	const { formState, trigger, control } = newAvatarForm;
 
-	const { formState } = newAvatarForm;
+	const imageValue = useWatch({
+		control: control,
+		name: "image",
+	});
 
-	const fileRef = newAvatarForm.register("image", { required: true });
 	const isFormIsValid = formState.isValid;
 
 	function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
@@ -98,39 +97,46 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 	};
 
 	const handleSubmit = async (values: z.infer<typeof newAvatarSchema>) => {
-		setLoading(true);
+		await authClient.updateUser(
+			{
+				image: values.croppedImage,
+			},
+			{
+				onRequest: () => {
+					setLoading(true);
+				},
+				onResponse: (context) => {
+					setLoading(false);
+				},
+				onError: (context) => {
+					toast.error("Error", {
+						description: context.error.message,
+					});
+				},
+				onSuccess: () => {
+					onOpenChange(false);
 
-		const { status, error } = await updateUser({
-			image: values.croppedImage,
-		});
-
-		setLoading(false);
-
-		if (status) {
-			onOpenChange(false);
-			window.location.reload();
-		}
-
-		if (error) {
-			toast.error("Error", {
-				description: error.message,
-			});
-		}
+					window.location.reload();
+				},
+			},
+		);
 	};
 
 	React.useEffect(() => {
-		const { unsubscribe } = newAvatarForm.watch((value) => {
-			newAvatarForm.trigger("image").then((isValid) => {
-				if (!isValid) return;
+		if (!imageValue) return;
+		if (imageValue.length === 0) return;
 
-				const imageUrl = URL.createObjectURL(value.image[0]);
-				setImageSource(imageUrl);
-				setStep(1);
-			});
-		});
+		const run = async () => {
+			const isValid = await trigger("image");
+			if (!isValid) return;
 
-		return () => unsubscribe();
-	}, [newAvatarForm.watch, newAvatarForm.trigger]);
+			const imageUrl = URL.createObjectURL(imageValue[0]);
+			setImageSource(imageUrl);
+			setStep(1);
+		};
+
+		run();
+	}, [imageValue, trigger]);
 
 	return (
 		<AlertDialog open={open} onOpenChange={(open) => onOpenChange(open)}>
@@ -148,10 +154,21 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 										<FormField
 											control={newAvatarForm.control}
 											name="image"
-											render={({ field }) => (
+											render={({ field: { onChange, ref, value, ...fieldProps } }) => (
 												<FormItem>
 													<FormControl>
-														<Input type="file" accept=".jpg,.jpeg,.png,.webp" {...fileRef} />
+														<Input
+															type="file"
+															accept=".jpg,.jpeg,.png,.webp"
+															ref={ref}
+															onChange={(e) => {
+																const files = e.target.files;
+																if (files && files.length > 0) {
+																	newAvatarForm.setValue("image", files, { shouldValidate: true });
+																}
+															}}
+															{...fieldProps}
+														/>
 													</FormControl>
 													<FormMessage />
 												</FormItem>
@@ -199,7 +216,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 									{step === 0 && (
 										<Button
 											type="button"
-											className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+											className="mt-2 rounded-3xl bg-[#2B3236] p-5 py-6 sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40"
 											onClick={() => onOpenChange(false)}
 										>
 											Cancel
@@ -210,7 +227,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 										<React.Fragment>
 											<Button
 												type="button"
-												className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+												className="mt-2 rounded-3xl bg-[#2B3236] p-5 py-6 sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40"
 												onClick={() => setStep(0)}
 											>
 												Back
@@ -226,7 +243,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 										<React.Fragment>
 											<Button
 												type="button"
-												className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+												className="mt-2 rounded-3xl bg-[#2B3236] p-5 py-6 sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40"
 												onClick={() => onOpenChange(false)}
 											>
 												Cancel

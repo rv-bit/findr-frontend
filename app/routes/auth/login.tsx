@@ -7,11 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { useSession } from "~/hooks/use-auth";
-
-import { authClient, type Session } from "~/lib/auth";
-import { prefetchSession } from "~/lib/auth-prefetches";
-import { queryClient } from "~/lib/query/query-client";
+import { authClient } from "~/lib/auth";
 
 import { FaGithub, FaGoogle } from "react-icons/fa";
 
@@ -20,16 +16,9 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "~/component
 import { Input } from "~/components/ui/input";
 
 export async function clientLoader({ serverLoader, params }: Route.ClientLoaderArgs) {
-	const cachedData = queryClient.getQueryData<Session>(["session"]);
-	const data = cachedData ?? (await prefetchSession(queryClient));
-
-	const session = {
-		session: data.session,
-		user: data.user,
-	};
-
-	if (session.session || session.user) {
-		throw new Response("", { status: 302, headers: { Location: "/" } }); // Redirect to home page
+	const { data: sessionData } = await authClient.getSession();
+	if (sessionData && sessionData.session && sessionData.user) {
+		throw new Response("", { status: 302, headers: { Location: "/" } }); // Redirect to home
 	}
 
 	return null;
@@ -42,7 +31,6 @@ const formSchema = z.object({
 
 export default function Login() {
 	const navigate = useNavigate();
-	const { refetch } = useSession();
 
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string>();
@@ -73,7 +61,6 @@ export default function Login() {
 						return;
 					}
 
-					await refetch(); // Refetch session
 					navigate("/settings"); // Redirect to home page
 				},
 
@@ -94,7 +81,7 @@ export default function Login() {
 				<div className="flex flex-col gap-6">
 					<div className="flex flex-col items-center gap-1">
 						<h1 className="text-center text-xl font-semibold text-neutral-500 dark:text-neutral-400">Welcome back!</h1>
-						<div className="text-balance text-center text-sm text-neutral-500 dark:text-neutral-400">
+						<div className="text-center text-sm text-balance text-neutral-500 dark:text-neutral-400">
 							Don&apos;t have an account?
 							<Link
 								to={{
@@ -168,7 +155,6 @@ export default function Login() {
 								});
 
 								if (data.data) {
-									await refetch(); // Refetch session
 									navigate("/settings"); // Redirect to home page
 								}
 							}}
@@ -186,7 +172,6 @@ export default function Login() {
 								});
 
 								if (data.data) {
-									await refetch(); // Refetch session
 									navigate("/settings"); // Redirect to home page
 								}
 							}}
@@ -198,7 +183,7 @@ export default function Login() {
 						</Button>
 					</div>
 				</div>
-				<div className="text-balance text-center text-xs text-neutral-500 dark:text-neutral-400 [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-neutral-900 dark:[&_a]:hover:text-neutral-50">
+				<div className="text-center text-xs text-balance text-neutral-500 dark:text-neutral-400 [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-neutral-900 dark:[&_a]:hover:text-neutral-50">
 					By clicking continue, you agree to our <Link to={{ pathname: "/legal" }}>Terms of Service</Link> and <Link to={{ pathname: "/legal" }}>Privacy Policy</Link>.
 				</div>
 			</div>

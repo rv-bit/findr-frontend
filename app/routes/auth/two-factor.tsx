@@ -14,11 +14,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "~/components/ui/input-otp";
 import { Label } from "~/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
-import { useSession } from "~/hooks/use-auth";
-
-interface StepProps {
-	step: number;
-}
 
 interface OptionsProps {
 	option: string;
@@ -57,7 +52,6 @@ const twoFactorCodeSchema = z.object({
 
 export default function Index() {
 	const navigate = useNavigate();
-	const { refetch } = useSession();
 
 	const [open, onOpenChange] = React.useState(true);
 	const [loading, setLoading] = React.useState(false);
@@ -107,8 +101,6 @@ export default function Index() {
 						},
 						{
 							onSuccess: async () => {
-								await refetch(); // Refetch session
-
 								setLoading(false);
 								navigate("/settings");
 							},
@@ -129,8 +121,6 @@ export default function Index() {
 						},
 						{
 							onSuccess: async () => {
-								await refetch(); // Refetch session
-
 								setLoading(false);
 								navigate("/settings");
 							},
@@ -152,8 +142,6 @@ export default function Index() {
 						},
 						{
 							onSuccess: async () => {
-								await refetch(); // Refetch session
-
 								setLoading(false);
 								navigate("/settings");
 							},
@@ -212,15 +200,15 @@ export default function Index() {
 																<Label
 																	key={index}
 																	htmlFor={`option-${index}`}
-																	className="flex items-center justify-start gap-4 p-5 rounded-lg bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 has-checked:border-primary-400 dark:has-checked:border-primary-400 transition-colors duration-150 hover:cursor-pointer"
+																	className="flex items-center justify-start gap-4 rounded-lg border border-neutral-200 bg-neutral-100 p-5 transition-colors duration-150 hover:cursor-pointer has-checked:border-primary-400 dark:border-neutral-700 dark:bg-neutral-800 dark:has-checked:border-primary-400"
 																>
 																	<RadioGroupItem
 																		id={`option-${index}`}
 																		disabled={option.disabled}
 																		value={option.option}
-																		className="dark:border-primary-300 border-primary-300"
+																		className="border-primary-300 dark:border-primary-300"
 																	/>
-																	<div className="flex flex-col justify-start items-start gap-1">
+																	<div className="flex flex-col items-start justify-start gap-1">
 																		<h1 className="text-md font-semibold text-black dark:text-white">{option.title}</h1>
 																		<p className="text-sm text-neutral-500 dark:text-neutral-400">{option.description}</p>
 																	</div>
@@ -237,7 +225,7 @@ export default function Index() {
 									<AlertDialogFooter>
 										<Button
 											type="button"
-											className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+											className="mt-2 rounded-3xl bg-[#2B3236] p-5 py-6 sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40"
 											onClick={() => onOpenChange(false)}
 										>
 											Cancel
@@ -307,7 +295,7 @@ export default function Index() {
 											control={twoFactorCodeForm.control}
 											name="trustDevice"
 											render={({ field }) => (
-												<FormItem className="flex justify-start items-center gap-1 space-y-0 mt-2">
+												<FormItem className="mt-2 flex items-center justify-start gap-1 space-y-0">
 													<FormControl>
 														<Checkbox checked={field.value} onCheckedChange={field.onChange}></Checkbox>
 													</FormControl>
@@ -321,7 +309,7 @@ export default function Index() {
 									<AlertDialogFooter>
 										<Button
 											type="button"
-											className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+											className="mt-2 rounded-3xl bg-[#2B3236] p-5 py-6 sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40"
 											onClick={() => onOpenChange(false)}
 										>
 											Cancel

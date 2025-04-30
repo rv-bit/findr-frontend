@@ -6,9 +6,7 @@ import { UAParser } from "ua-parser-js";
 
 import { toast } from "sonner";
 
-import { authClient } from "~/lib/auth";
-import type { ModalProps } from "~/lib/types/modal";
-import { formatTime } from "~/lib/utils";
+import type { ModalProps } from "~/lib/types/ui/modal";
 
 import { EllipsisVertical, ExternalLink, Laptop, type LucideIcon } from "lucide-react";
 import { type IconType } from "react-icons";
@@ -18,8 +16,66 @@ import { Button } from "~/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table";
 
+import { authClient, type Sessions } from "~/lib/auth";
+import queryClient from "~/lib/query/query-client";
+
 import TwoFactorDisableModal from "./modals/two-factor-disable";
 import TwoFactorEnableModal from "./modals/two-factor-enable";
+
+const formatTime = (time: number | string | Date): string => {
+	switch (typeof time) {
+		case "number":
+			break;
+		case "string":
+			time = +new Date(time);
+			break;
+		case "object":
+			if (time.constructor === Date) time = time.getTime();
+			break;
+		default:
+			time = +new Date();
+	}
+
+	var time_formats = [
+		[60, "seconds", 1], // 60
+		[120, "1 minute ago", "1 minute from now"], // 60*2
+		[3600, "minutes", 60], // 60*60, 60
+		[7200, "1 hour ago", "1 hour from now"], // 60*60*2
+		[86400, "hours", 3600], // 60*60*24, 60*60
+		[172800, "Yesterday", "Tomorrow"], // 60*60*24*2
+		[604800, "days", 86400], // 60*60*24*7, 60*60*24
+		[1209600, "Last week", "Next week"], // 60*60*24*7*4*2
+		[2419200, "weeks", 604800], // 60*60*24*7*4, 60*60*24*7
+		[4838400, "Last month", "Next month"], // 60*60*24*7*4*2
+		[29030400, "months", 2419200], // 60*60*24*7*4*12, 60*60*24*7*4
+		[58060800, "Last year", "Next year"], // 60*60*24*7*4*12*2
+		[2903040000, "years", 29030400], // 60*60*24*7*4*12*100, 60*60*24*7*4*12
+		[5806080000, "Last century", "Next century"], // 60*60*24*7*4*12*100*2
+		[58060800000, "centuries", 2903040000], // 60*60*24*7*4*12*100*20, 60*60*24*7*4*12*100
+	];
+
+	var seconds = (new Date().getTime() - +time) / 1000,
+		token = "ago",
+		list_choice = 1;
+
+	if (seconds == 0) {
+		return "Just now";
+	}
+	if (seconds < 0) {
+		seconds = Math.abs(seconds);
+		token = "from now";
+		list_choice = 2;
+	}
+	var i = 0,
+		format;
+	while ((format = time_formats[i++]))
+		if (seconds < Number(format[0])) {
+			if (typeof format[2] == "string") return String(format[list_choice]);
+			else return Math.floor(seconds / format[2]) + " " + format[1] + " " + token;
+		}
+
+	return String(time);
+};
 
 interface Actions {
 	title: string;
@@ -40,22 +96,7 @@ interface Actions {
 	items?: Actions[];
 }
 
-const Sessions = (props: {
-	sessionsData: Record<
-		number,
-		{
-			id: string;
-			createdAt: Date;
-			updatedAt: Date;
-			userId: string;
-			expiresAt: Date;
-			token: string;
-			ipAddress?: string | null | undefined | undefined;
-			userAgent?: string | null | undefined;
-		}
-	>;
-	currentSession: string;
-}) => {
+const Sessions = (props: { currentSession: string; sessions: Sessions[] }) => {
 	return (
 		<Table containerClass="border rounded-xl border-sidebar-foreground dark:border-sidebar-accent">
 			<TableHeader className="rounded-full border-sidebar-foreground dark:border-sidebar-accent">
@@ -68,21 +109,28 @@ const Sessions = (props: {
 				</TableRow>
 			</TableHeader>
 			<TableBody className="rounded-full">
-				{props?.sessionsData &&
-					Object.entries(props.sessionsData).map(([key, value]) => {
+				{props.sessions &&
+					props.sessions.map((value, index) => {
 						const lastUsed = formatTime(new Date(value.updatedAt));
 						const firstCreated = formatTime(new Date(value.createdAt));
 						const expiresAt = formatTime(new Date(value.expiresAt));
 
 						return (
-							<TableRow key={key} className="border-sidebar-foreground dark:border-sidebar-accent">
-								<TableCell className="text-black dark:text-white tracking-tight">
+							<TableRow key={index} className="border-sidebar-foreground dark:border-sidebar-accent">
+								<TableCell className="tracking-tight text-black dark:text-white">
 									<span className="flex flex-col gap-0.5">
-										<span className="flex justify-start items-center gap-1">
-											{new UAParser(value.userAgent || "").getDevice().type === "mobile" ? <CiMobile3 size={16} /> : <Laptop size={16} />}
-											{new UAParser(value.userAgent || "").getOS().name}, {new UAParser(value.userAgent || "").getBrowser().name}
+										<span className="flex items-center justify-start gap-1">
+											{new UAParser(value.userAgent || "").getDevice().type === "mobile" ? (
+												<CiMobile3 size={16} />
+											) : (
+												<Laptop size={16} />
+											)}
+											{new UAParser(value.userAgent || "").getOS().name},{" "}
+											{new UAParser(value.userAgent || "").getBrowser().name}
 										</span>
-										{value.id === props.currentSession && <p className="text-xs text-neutral-500 dark:text-neutral-400">(This Device)</p>}
+										{value.id === props.currentSession && (
+											<p className="text-xs text-neutral-500 dark:text-neutral-400">(This Device)</p>
+										)}
 									</span>
 								</TableCell>
 								<TableCell className="text-black dark:text-white">{lastUsed}</TableCell>
@@ -91,12 +139,12 @@ const Sessions = (props: {
 								<TableCell className="text-right text-black dark:text-white">
 									<DropdownMenu>
 										<DropdownMenuTrigger asChild>
-											<Button variant="link" className="hover:no-underline hover:text-sidebar-foreground/50">
+											<Button variant="link" className="hover:text-sidebar-foreground/50 hover:no-underline">
 												<EllipsisVertical />
 											</Button>
 										</DropdownMenuTrigger>
 										<DropdownMenuContent
-											className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg dark:bg-modal border border-sidebar-foreground dark:border-sidebar-accent mt-3.5"
+											className="mt-3.5 w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg border border-sidebar-foreground dark:border-sidebar-accent dark:bg-modal"
 											side={"bottom"}
 											align="end"
 											sideOffset={4}
@@ -108,10 +156,12 @@ const Sessions = (props: {
 															token: value.token,
 														});
 
+														queryClient.invalidateQueries({ queryKey: ["listSessions"] });
+
 														window.location.reload();
 													}}
 													variant={"link"}
-													className="w-full h-auto flex items-center justify-start gap-2 px-3 text-left text-sm hover:no-underline text-red-500 dark:text-red-500 hover:text-primary-400 transition-all duration-150 dark:hover:bg-primary-400/5 hover:bg-primary-400/10"
+													className="flex h-auto w-full items-center justify-start gap-2 px-3 text-left text-sm text-red-500 transition-all duration-150 hover:bg-primary-400/10 hover:text-primary-400 hover:no-underline dark:text-red-500 dark:hover:bg-primary-400/5"
 												>
 													{props.currentSession === value.id ? "Logout" : "Revoke"}
 												</Button>
@@ -128,8 +178,8 @@ const Sessions = (props: {
 };
 
 export default function Index({ matches }: Route.ComponentProps) {
-	const loader = matches[1];
-	const loaderData = loader.data;
+	const shared = matches[1];
+	const sharedData = shared.data;
 
 	const navigate = useNavigate();
 
@@ -140,17 +190,17 @@ export default function Index({ matches }: Route.ComponentProps) {
 				items: [
 					{
 						title: "Two-Factor Authentication",
-						defaultValue: loaderData.hasTwoFactor ? "Enabled" : "Disabled",
+						defaultValue: sharedData.hasTwoFactor ? "Enabled" : "Disabled",
 						icon: ExternalLink,
 						modalActionOnClickCheck: () => {
-							const isValid = loaderData.hasEmailVerified && loaderData.hasPassword;
+							const isValid = sharedData.hasEmailVerified && sharedData.hasPassword;
 							if (!isValid) {
 								return { success: false, error: "Please verify your email and create a password" };
 							}
 
 							return { success: true, error: null };
 						},
-						componentLoad: !loaderData.hasTwoFactor ? TwoFactorEnableModal : TwoFactorDisableModal,
+						componentLoad: !sharedData.hasTwoFactor ? TwoFactorEnableModal : TwoFactorDisableModal,
 					},
 				],
 			},
@@ -160,7 +210,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 				children: Sessions,
 			},
 		],
-		[loaderData],
+		[sharedData],
 	);
 
 	const [showModal, setShowModal] = React.useState<{ [key: string]: boolean }>({});
@@ -172,10 +222,12 @@ export default function Index({ matches }: Route.ComponentProps) {
 					return (
 						<React.Fragment key={action.title}>
 							<span key={action.title} className="mb-2">
-								<h1 className="text-2xl font-bricolage-grotesque tracking-tighter font-semibold capitalize text-black dark:text-white">{action.title}</h1>
+								<h1 className="font-bricolage text-2xl font-semibold tracking-tighter text-black capitalize dark:text-white">
+									{action.title}
+								</h1>
 								{action.description && <p className="text-sm text-gray-500 dark:text-gray-400">{action.description}</p>}
 							</span>
-							{action.children && <action.children sessionsData={loaderData.sessions} currentSession={loaderData.session.id} />}
+							{action.children && <action.children currentSession={sharedData.session.id} sessions={sharedData.listSessions} />}
 
 							{action.items &&
 								action.items.map((item) => {
@@ -193,7 +245,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 												key={item.title}
 												variant={"link"}
 												disabled={item.disabled}
-												className="group flex w-full items-center justify-between gap-4 bg-none p-0 h-auto hover:no-underline"
+												className="group flex h-auto w-full items-center justify-between gap-4 bg-none p-0 hover:no-underline"
 												onClick={(e) => {
 													if (item.route) {
 														navigate(item.route);
@@ -221,9 +273,13 @@ export default function Index({ matches }: Route.ComponentProps) {
 													}
 												}}
 											>
-												<div className="flex flex-col items-start justify-center gap-[0.15rem] w-fit">
+												<div className="flex w-fit flex-col items-start justify-center gap-[0.15rem]">
 													<span>{item.title}</span>
-													{item.description && <span className="text-balance text-left text-xs text-gray-500 dark:text-gray-400">{item.description}</span>}
+													{item.description && (
+														<span className="text-left text-xs text-balance text-gray-500 dark:text-gray-400">
+															{item.description}
+														</span>
+													)}
 												</div>
 												<div className="flex items-center justify-center gap-2">
 													<h1 className="">{item?.defaultValue}</h1>

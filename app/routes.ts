@@ -1,8 +1,11 @@
 import { type RouteConfig, index, layout, prefix, route } from "@react-router/dev/routes";
 
 export default [
-	index("routes/index.tsx"), // This is the default route which will be the home page
-	route("legal", "routes/static/legal.tsx"), // This is the legal page which is a static page, so it doesn't need a layout and it pre renders the content at build time
+	index("routes/home/index.tsx"), // This is the default route which will be the home page
+
+	...prefix("explore", [
+		index("./routes/explore/index.tsx"), // This is the default route which will be the explore page
+	]),
 
 	...prefix("auth", [
 		index("./routes/auth/login.tsx"), // This is the default route which will be the login page
@@ -22,6 +25,13 @@ export default [
 		]),
 	]),
 
-	...prefix("user", [route(":id", "./routes/user/index.tsx"), route("/:id/new", "./routes/post/new.tsx", { id: "new-post-user" })]),
-	...prefix("post", [route(":id", "./routes/post/index.tsx"), route("new", "./routes/post/new.tsx")]),
+	...prefix("users", [route(":username", "./routes/users/profile.tsx")]),
+	...prefix("post", [
+		route(":postId", "./routes/post/$post.tsx"),
+		route(":postId/edit", "./routes/post/$post.edit.tsx"),
+		route("new", "./routes/post/new.tsx"),
+	]),
+
+	// Static routes
+	route("legal", "routes/static/legal.tsx"), // This is the legal page which is a static page, so it doesn't need a layout and it pre renders the content at build time
 ] satisfies RouteConfig;

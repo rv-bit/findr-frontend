@@ -36,6 +36,15 @@
 ._contentEditable_uazmk_379 blockquote {
 	@apply border-l-4 border-neutral-200 p-2 dark:border-neutral-800;
 }
+._contentEditable_uazmk_379 h1 {
+	@apply text-[2rem];
+}
+._contentEditable_uazmk_379 h2 {
+	@apply text-[1.5rem];
+}
+._contentEditable_uazmk_379 h3 {
+	@apply text-[1.17rem];
+}
 
 ._placeholder_uazmk_1084 {
 	@apply hidden;
@@ -65,7 +74,7 @@
 	@apply text-black dark:text-white;
 }
 ._tooltipTrigger_uazmk_676 button {
-	@apply flex items-center justify-center;
+	@apply flex items-center justify-center rounded-4xl;
 }
 
 ._bold_1tncs_10 {

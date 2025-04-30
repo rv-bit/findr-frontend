@@ -59,51 +59,66 @@ export default function ForgotPassword() {
 	});
 
 	const handleEmailSubmit = async (values: z.infer<typeof formSchema>) => {
-		setLoading(true);
+		await authClient.forgetPassword(
+			{
+				email: values.email,
+				redirectTo: "/auth/forgot-password/",
+			},
+			{
+				onRequest: () => {
+					setLoading(true);
 
-		toast.info("Email Change", {
-			description: "If the email exists in our system, you will receive an email with instructions to reset your password",
-		});
+					toast.info("Sending email...", {
+						description: "Please check your email for the password reset link.",
+					});
+				},
+				onSuccess: () => {
+					toast.success("Success", {
+						description: "Email sent successfully",
+					});
 
-		const { data, error } = await authClient.forgetPassword({
-			email: values.email,
-			redirectTo: "/auth/forgot-password/",
-		});
-
-		setLoading(false);
-
-		if (error) {
-			toast.error("Error", {
-				description: error.message,
-			});
-			return;
-		}
-
-		navigate("/auth");
+					navigate("/auth");
+				},
+				onResponse: () => {
+					setLoading(false);
+				},
+				onError: (context) => {
+					toast.error("Error", {
+						description: context.error.message,
+					});
+				},
+			},
+		);
 	};
 
 	const handleSubmit = async (values: z.infer<typeof newPasswordSchema>) => {
-		setLoading(true);
-
-		const { data, error } = await authClient.resetPassword({
-			token: searchParams.get("token")!,
-			newPassword: values.confirmPassword,
-		});
-
-		setLoading(false);
-
-		if (error) {
-			toast.error("Error", {
-				description: error.message,
-			});
-			return;
-		}
-
-		toast.error("Success", {
-			description: "Password reset successfully",
-		});
-
-		navigate("/auth");
+		await authClient.resetPassword(
+			{
+				token: searchParams.get("token")!,
+				newPassword: values.confirmPassword,
+			},
+			{
+				onRequest: () => {
+					setLoading(true);
+					toast.info("Resetting password...", {
+						description: "Please wait...",
+					});
+				},
+				onSuccess: () => {
+					toast.success("Success", {
+						description: "Password reset successfully",
+					});
+				},
+				onResponse: () => {
+					setLoading(false);
+				},
+				onError: (context) => {
+					toast.error("Error", {
+						description: context.error.message,
+					});
+				},
+			},
+		);
 	};
 
 	function handlePasswordVisibilityToggle(e: React.MouseEvent<HTMLButtonElement>) {

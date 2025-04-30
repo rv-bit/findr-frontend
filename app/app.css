@@ -1,5 +1,10 @@
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Courgette&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap");
+
 @import "tailwindcss";
+@plugin "tailwindcss-animate";
 @config '../tailwind.config.ts';
+
+@custom-variant dark (&:is(.dark *));
 
 /*
   The default border color has changed to `currentColor` in Tailwind CSS v4,
@@ -17,6 +22,16 @@
 	::file-selector-button {
 		border-color: var(--color-gray-200, currentColor);
 	}
+
+	html,
+	body {
+		@apply bg-sidebar;
+		@apply font-sans font-medium;
+
+		@media (prefers-color-scheme: dark) {
+			color-scheme: dark;
+		}
+	}
 }
 
 @utility no-scrollbar {
@@ -27,18 +42,6 @@
 	/* Hide scrollbar for IE, Edge and Firefox */
 	-ms-overflow-style: none; /* IE and Edge */
 	scrollbar-width: none; /* Firefox */
-}
-
-@layer utilities {
-	html,
-	body {
-		@media (prefers-color-scheme: dark) {
-			color-scheme: dark;
-		}
-
-		@apply bg-sidebar;
-		@apply font-sans font-medium;
-	}
 }
 
 @layer base {
@@ -73,6 +76,10 @@
 	[role="button"]:not(:disabled) {
 		cursor: pointer;
 	}
+}
+
+@theme {
+	--font-bricolage: "Bricolage Grotesque", sans-serif;
 }
 
 .dark input:-webkit-autofill,

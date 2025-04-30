@@ -1,6 +1,7 @@
 import editor_stylesheet from "~/styles/form.default.mdx.css?url";
+import type { Route } from "./+types/new";
 
-import type { Route } from "./+types/index";
+import type { AxiosError } from "axios";
 
 import React from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router";
@@ -8,9 +9,11 @@ import { ClientOnly } from "remix-utils/client-only";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+	BlockTypeSelect,
 	BoldItalicUnderlineToggles,
 	codeBlockPlugin,
 	CodeToggle,
+	headingsPlugin,
 	InsertThematicBreak,
 	listsPlugin,
 	ListsToggle,
@@ -20,13 +23,12 @@ import {
 	thematicBreakPlugin,
 	toolbarPlugin,
 	UndoRedo,
-	useCodeBlockEditorContext,
-	type CodeBlockEditorDescriptor,
 	type MDXEditorMethods,
 } from "@mdxeditor/editor";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import axiosInstance from "~/lib/axios-instance";
 import { cn } from "~/lib/utils";
 
 import { ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
@@ -40,16 +42,14 @@ export const links: Route.LinksFunction = () => [
 	{ rel: "stylesheet", href: editor_stylesheet }, // override styles
 ];
 
-interface Types {
+const types: {
 	title: string;
 	url: string;
 	queryKey: string;
 	query: string;
 	icon?: LucideIcon;
 	disabled?: boolean;
-}
-
-const types: Types[] = [
+}[] = [
 	{
 		title: "Text",
 		url: "/post/new/",
@@ -72,30 +72,13 @@ const types: Types[] = [
 	},
 ];
 
-const PlainTextCodeEditorDescriptor: CodeBlockEditorDescriptor = {
-	// always use the editor, no matter the language or the meta of the code block
-	match: (language, meta) => true,
-	// You can have multiple editors with different priorities, so that there's a "catch-all" editor (with the lowest priority)
-	priority: 0,
-	// The Editor is a React component
-	Editor: (props) => {
-		const cb = useCodeBlockEditorContext();
-		// stops the propagation so that the parent lexical editor does not handle certain events.
-		return (
-			<div onKeyDown={(e) => e.nativeEvent.stopImmediatePropagation()}>
-				<textarea rows={3} cols={20} defaultValue={props.code} onChange={(e) => cb.setCode(e.target.value)} />
-			</div>
-		);
-	},
-};
-
 // making only one schema for now, since the other two types are disabled
 const newPostSchema = z.object({
 	title: z.string().nonempty("Title is required").max(300),
 	content: z.string().nonempty("Content is required"),
 });
 
-export default function Index({ loaderData }: Route.ComponentProps) {
+export default function Index() {
 	const contentRef = React.useRef<MDXEditorMethods>(null);
 	const navRef = React.useRef<HTMLDivElement>(null);
 
@@ -106,7 +89,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 	const navigate = useNavigate();
 
 	const [searchParams, setSearchParams] = useSearchParams();
-
+	const [error, setError] = React.useState<string>();
 	const [loading, setLoading] = React.useState(false);
 
 	const newPostForm = useForm<z.infer<typeof newPostSchema>>({
@@ -121,7 +104,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 	const { formState } = newPostForm;
 	const isFormIsComplete = formState.isValid;
 
-	const handleSubmit = async (values: z.infer<typeof newPostSchema>) => {
+	const handleSubmit = (values: z.infer<typeof newPostSchema>) => {
 		setLoading(true);
 
 		const content = contentRef.current?.getMarkdown();
@@ -132,25 +115,30 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 			return;
 		}
 
-		const res = await fetch("/api/v1/post/insert", {
-			method: "POST",
-			body: JSON.stringify({
-				...values,
-				slug,
-				content,
-			}),
-			headers: {
-				"Content-Type": "application/json",
-			},
-		});
+		axiosInstance
+			.post(
+				"/api/v0/post/insert",
+				{
+					...values,
+					slug,
+					content,
+				},
+				{
+					headers: {
+						"Content-Type": "application/json",
+					},
+				},
+			)
+			.then((response) => {
+				setLoading(false);
+				navigate("/");
+			})
+			.catch((error: AxiosError) => {
+				setLoading(false);
 
-		if (!res.ok) {
-			setLoading(false);
-			return;
-		}
-
-		setLoading(false);
-		navigate("/");
+				const errorData = error.response?.data as { error: string };
+				setError(errorData.error);
+			});
 	};
 
 	const handleScrollAndResize = () => {
@@ -197,10 +185,13 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 	return (
 		<div className="flex h-full w-full flex-col items-center justify-start max-md:w-screen">
 			<div className="flex w-full max-w-5xl flex-col gap-5 px-10 pt-8 max-sm:px-4">
-				<h1 className="text-3xl font-semibold capitalize text-black dark:text-white mb-2">Create Post</h1>
+				<h1 className="mb-2 text-3xl font-semibold text-black capitalize dark:text-white">Create Post</h1>
 
 				<section className="relative w-full">
-					<nav ref={navRef} className="no-scrollbar flex h-full w-full flex-nowrap items-start justify-start gap-2 overflow-x-auto overflow-y-visible">
+					<nav
+						ref={navRef}
+						className="no-scrollbar flex h-full w-full flex-nowrap items-start justify-start gap-2 overflow-x-auto overflow-y-visible"
+					>
 						{types.map((action, index) => (
 							<Button
 								key={index}
@@ -217,7 +208,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 									});
 								}}
 								className={cn(
-									"group relative h-auto min-w-fit shrink-0 items-center justify-center px-4 py-2 hover:no-underline rounded-none",
+									"group relative h-auto min-w-fit shrink-0 items-center justify-center rounded-none px-4 py-2 hover:no-underline",
 									isActive(action.url, action?.queryKey, action?.query)
 										? "border-b-2 border-black dark:border-white"
 										: "hover:border-b-2 hover:border-black/50 dark:hover:border-white/80",
@@ -238,7 +229,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 						))}
 					</nav>
 
-					<div className="absolute left-0 top-0 bg-linear-to-l from-transparent from-0% to-sidebar to-30% pr-3">
+					<div className="absolute top-0 left-0 bg-linear-to-l from-transparent from-0% to-sidebar to-30% pr-3">
 						<button
 							ref={navGoLeftRef}
 							onClick={() => {
@@ -252,7 +243,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 						</button>
 					</div>
 
-					<div className="absolute right-0 top-0 bg-linear-to-r from-transparent from-0% to-sidebar to-30% pl-3">
+					<div className="absolute top-0 right-0 bg-linear-to-r from-transparent from-0% to-sidebar to-30% pl-3">
 						<button
 							ref={navGoRightRef}
 							onClick={() => {
@@ -271,6 +262,9 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 					<Form {...newPostForm}>
 						<form className="w-full" onSubmit={newPostForm.handleSubmit(handleSubmit)}>
 							<div className="flex flex-col gap-4">
+								<div className="flex flex-col gap-2">
+									<div className="text-sm text-red-500 dark:text-red-400">{error}</div>
+								</div>
 								<div className="flex flex-col gap-7">
 									<FormField
 										control={newPostForm.control}
@@ -278,7 +272,11 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 										render={({ field }) => (
 											<FormItem>
 												<FormControl>
-													<Textarea {...field} placeholder="Title" className="rounded-xl resize-none text-black dark:text-white" />
+													<Textarea
+														{...field}
+														placeholder="Title"
+														className="resize-none rounded-xl text-black dark:text-white"
+													/>
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -301,18 +299,35 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 																	quotePlugin(),
 																	listsPlugin(),
 																	codeBlockPlugin(),
+																	headingsPlugin({
+																		allowedHeadingLevels: [1, 2, 3],
+																	}),
 																	quotePlugin(),
-																	markdownShortcutPlugin(),
 																	thematicBreakPlugin(),
+																	markdownShortcutPlugin(),
 																	toolbarPlugin({
 																		toolbarContents: () => (
 																			<>
+																				{/* <ToggleGroup type="multiple" size={"lg"}>
+																					<ToggleGroupItem
+																						onSelect={(e: React.SyntheticEvent<HTMLButtonElement>) => {
+																							e.preventDefault();
+																							applyFormat$({ type: "bold" });
+																						}}
+																						value="bold"
+																						aria-label="Bold"
+																					>
+																						<Bold />
+																					</ToggleGroupItem>
+																				</ToggleGroup> */}
+
 																				<UndoRedo />
-																				<hr className="border-sidebar-foreground dark:border-sidebar-accent border-l-2 h-5" />
+																				<hr className="h-5 border-l-2 border-sidebar-foreground dark:border-sidebar-accent" />
 																				<BoldItalicUnderlineToggles />
-																				<hr className="border-sidebar-foreground dark:border-sidebar-accent border-l-2 h-5" />
+																				<BlockTypeSelect />
+																				<hr className="h-5 border-l-2 border-sidebar-foreground dark:border-sidebar-accent" />
 																				<ListsToggle options={["bullet", "number"]} />
-																				<hr className="border-sidebar-foreground dark:border-sidebar-accent border-l-2 h-5" />
+																				<hr className="h-5 border-l-2 border-sidebar-foreground dark:border-sidebar-accent" />
 																				<CodeToggle />
 																				<InsertThematicBreak />
 																			</>
@@ -333,7 +348,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
 								<AlertDialogFooter>
 									<Button
 										type="button"
-										className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+										className="mt-2 rounded-3xl bg-[#2B3236] p-5 py-6 sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40"
 										onClick={() => console.log(contentRef.current?.getMarkdown())}
 									>
 										Cancel

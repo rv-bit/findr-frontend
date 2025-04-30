@@ -10,7 +10,8 @@ import { z } from "zod";
 import { toast } from "sonner";
 
 import { authClient } from "~/lib/auth";
-import type { ModalProps } from "~/lib/types/modal";
+
+import type { ModalProps } from "~/lib/types/ui/modal";
 
 import { AlertDialogFooter } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
@@ -20,6 +21,8 @@ import { Input } from "~/components/ui/input";
 import WarningComponent from "~/components/warning-dialog";
 
 import { ChevronRight, TriangleAlert, type LucideIcon } from "lucide-react";
+
+import queryClient from "~/lib/query/query-client";
 
 import DeleteModal from "./modals/delete-account";
 import EmailModal from "./modals/email-change";
@@ -47,8 +50,8 @@ const emailVerifySchema = z.object({
 });
 
 export default function Index({ matches }: Route.ComponentProps) {
-	const loader = matches[1];
-	const loaderData = loader.data;
+	const shared = matches[1];
+	const sharedData = shared.data;
 
 	const navigate = useNavigate();
 
@@ -59,10 +62,10 @@ export default function Index({ matches }: Route.ComponentProps) {
 				items: [
 					{
 						title: "Email Address",
-						defaultValue: loaderData.user.email,
+						defaultValue: sharedData.user.email,
 						icon: ChevronRight,
 						modalActionOnClickCheck: () => {
-							const isValid = loaderData.hasEmailVerified && loaderData.hasPassword;
+							const isValid = sharedData.hasEmailVerified && sharedData.hasPassword;
 							if (!isValid) {
 								return { success: false, error: "Please verify your email and create a password" };
 							}
@@ -75,7 +78,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 						title: "Password",
 						icon: ChevronRight,
 						modalActionOnClickCheck: () => {
-							const isValid = loaderData.hasEmailVerified && loaderData.hasPassword;
+							const isValid = sharedData.hasEmailVerified && sharedData.hasPassword;
 							if (!isValid) {
 								return { success: false, error: "Please verify your email and create a password" };
 							}
@@ -92,15 +95,15 @@ export default function Index({ matches }: Route.ComponentProps) {
 				items: [
 					{
 						title: "Google",
-						defaultValue: loaderData.accountLists?.some((account) => account.provider === "google") ? "Connected" : "Not Connected",
+						defaultValue: sharedData.accountLists?.some((account) => account.provider === "google") ? "Connected" : "Not Connected",
 						icon: ChevronRight,
 						onClick: async () => {
-							const hasLinked = loaderData.accountLists?.some((account) => account.provider === "google");
+							const hasLinked = sharedData.accountLists?.some((account) => account.provider === "google");
 
 							if (!hasLinked) {
 								await authClient.linkSocial({
 									provider: "google",
-									callbackURL: "/settings/account",
+									callbackURL: window.location.origin + "/settings/account",
 								});
 								return;
 							}
@@ -109,20 +112,21 @@ export default function Index({ matches }: Route.ComponentProps) {
 								providerId: "google",
 							});
 
+							queryClient.invalidateQueries({ queryKey: ["listAccounts"] });
 							window.location.reload();
 						},
 					},
 					{
 						title: "Github",
-						defaultValue: loaderData.accountLists?.some((account) => account.provider === "github") ? "Connected" : "Not Connected",
+						defaultValue: sharedData.accountLists?.some((account) => account.provider === "github") ? "Connected" : "Not Connected",
 						icon: ChevronRight,
 						onClick: async () => {
-							const hasLinked = loaderData.accountLists?.some((account) => account.provider === "github");
+							const hasLinked = sharedData.accountLists?.some((account) => account.provider === "github");
 
 							if (!hasLinked) {
 								await authClient.linkSocial({
 									provider: "github",
-									callbackURL: "/settings/account",
+									callbackURL: window.location.origin + "/settings/account",
 								});
 								return;
 							}
@@ -131,6 +135,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 								providerId: "github",
 							});
 
+							queryClient.invalidateQueries({ queryKey: ["listAccounts"] });
 							window.location.reload();
 						},
 					},
@@ -143,17 +148,17 @@ export default function Index({ matches }: Route.ComponentProps) {
 						title: "Delete Account",
 						icon: ChevronRight,
 						modalActionOnClickCheck: () => {
-							const isValid = loaderData.hasEmailVerified && loaderData.hasPassword;
+							const isValid = sharedData.hasEmailVerified && sharedData.hasPassword;
 							if (!isValid) {
 								return { success: false, error: "Please verify your email and create a password" };
 							}
 
-							const hasLinked = loaderData.accountLists?.some((account) => account.provider !== "credential");
+							const hasLinked = sharedData.accountLists?.some((account) => account.provider !== "credential");
 							if (hasLinked) {
 								return { success: false, error: "You need to unlink your social account/s first" };
 							}
 
-							const hasTwoFactor = loaderData.hasTwoFactor;
+							const hasTwoFactor = sharedData.hasTwoFactor;
 							if (hasTwoFactor) {
 								return { success: false, error: "You need to disable two-factor authentication first" };
 							}
@@ -171,7 +176,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 				],
 			},
 		],
-		[loaderData],
+		[sharedData],
 	);
 
 	const [loading, setLoading] = React.useState(false);
@@ -190,7 +195,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 	const isFormIsComplete = formState.isValid;
 
 	const handleNewEmailSubmit = async (values: z.infer<typeof emailVerifySchema>) => {
-		if (loaderData?.user?.email !== values.email) {
+		if (sharedData?.user?.email !== values.email) {
 			emailVerifyForm.setError("email", {
 				type: "manual",
 				message: "Email does not match the email in our system",
@@ -220,7 +225,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 	return (
 		<React.Fragment>
 			<div className="flex h-full w-full flex-col items-start justify-center gap-2">
-				{!loaderData.hasPassword && (
+				{!sharedData.hasPassword && (
 					<WarningComponent
 						open={showWarningModal.createPassword}
 						onChangeState={() => setShowWarningModal({ ...showWarningModal, createPassword: !showWarningModal.createPassword })}
@@ -229,12 +234,12 @@ export default function Index({ matches }: Route.ComponentProps) {
 						title="Create Password"
 						description="Create a password to secure your account."
 						onContinue={(e) => {
-							navigate("/auth/forgot-password", { state: { from: "create-password", email: loaderData.user.email } });
+							navigate("/auth/forgot-password", { state: { from: "create-password", email: sharedData.user.email } });
 						}}
 					/>
 				)}
 
-				{loaderData.hasPassword && !loaderData.hasEmailVerified && (
+				{sharedData.hasPassword && !sharedData.hasEmailVerified && (
 					<WarningComponent
 						open={showWarningModal.emailVerify}
 						onChangeState={() => setShowWarningModal({ ...showWarningModal, emailVerify: !showWarningModal.emailVerify })}
@@ -264,7 +269,7 @@ export default function Index({ matches }: Route.ComponentProps) {
 									<AlertDialogFooter>
 										<Button
 											type="button"
-											className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+											className="mt-2 rounded-3xl bg-[#2B3236] p-5 py-6 sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40"
 											onClick={() =>
 												setShowWarningModal({
 													...showWarningModal,
@@ -287,7 +292,10 @@ export default function Index({ matches }: Route.ComponentProps) {
 				{actions.map((action) => {
 					return (
 						<React.Fragment key={action.title}>
-							<h1 key={action.title} className="text-2xl font-bricolage-grotesque tracking-tighter font-semibold capitalize text-black dark:text-white mb-2">
+							<h1
+								key={action.title}
+								className="mb-2 font-bricolage text-2xl font-semibold tracking-tighter text-black capitalize dark:text-white"
+							>
 								{action.title}
 							</h1>
 

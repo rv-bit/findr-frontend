@@ -4,9 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { useSession } from "~/hooks/use-auth";
 import { authClient } from "~/lib/auth";
-import type { ModalProps } from "~/lib/types/modal";
+import type { ModalProps } from "~/lib/types/ui/modal";
 
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
@@ -18,7 +17,6 @@ const twoFactorEnableSchema = z.object({
 });
 
 export default function Index({ open, onOpenChange }: ModalProps) {
-	const { refetch } = useSession();
 	const [loading, setLoading] = React.useState(false);
 
 	const twoFactorForm = useForm<z.infer<typeof twoFactorEnableSchema>>({
@@ -44,8 +42,6 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 				},
 				onSuccess: async () => {
 					onOpenChange(false);
-
-					await refetch();
 					window.location.reload();
 				},
 				onError: (ctx) => {
@@ -86,7 +82,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 								<AlertDialogFooter>
 									<Button
 										type="button"
-										className="mt-2 bg-[#2B3236] sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40 rounded-3xl p-5 py-6"
+										className="mt-2 rounded-3xl bg-[#2B3236] p-5 py-6 sm:mt-0 dark:bg-[#2B3236] dark:text-white dark:hover:bg-[#2B3236]/40"
 										onClick={() => onOpenChange(false)}
 									>
 										Cancel

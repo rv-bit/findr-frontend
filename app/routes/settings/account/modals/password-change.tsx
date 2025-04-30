@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { authClient } from "~/lib/auth";
-import type { ModalProps } from "~/lib/types/modal";
+import type { ModalProps } from "~/lib/types/ui/modal";
 import { cn } from "~/lib/utils";
 
 import { Eye, EyeOff } from "lucide-react";
