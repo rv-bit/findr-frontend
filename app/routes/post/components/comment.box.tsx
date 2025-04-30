@@ -55,7 +55,9 @@ const CommentBox = React.forwardRef<HTMLTextAreaElement, CommentBoxProps>(({ cla
 			onClick={(e) => {
 				props.onHandleOpenCommentButton && props.onHandleOpenCommentButton();
 
-				setCommentButtonClicked(true);
+				if (!props.readOnly) {
+					setCommentButtonClicked(true);
+				}
 			}}
 			className={cn(
 				"group relative flex cursor-default flex-col items-center justify-between overflow-hidden rounded-full border border-neutral-500/50 bg-transparent px-0 py-0 pb-0 font-bricolage text-black focus-within:border-neutral-500 dark:border-white/50 dark:bg-transparent dark:text-white focus-within:dark:border-white",
