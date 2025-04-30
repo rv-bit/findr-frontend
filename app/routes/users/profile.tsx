@@ -1,4 +1,4 @@
-import editor_stylesheet from "~/styles/card.posts.mdx.css?url";
+import editor_stylesheet from "~/styles/card.posts.unfiltered.mdx.css?url";
 import type { Route } from "./+types/profile";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -282,7 +282,11 @@ export default function Index() {
 					<section className="flex items-center justify-between gap-4">
 						<span className="size-fit rounded-full bg-sidebar-foreground/20 p-1 dark:bg-sidebar-accent">
 							<Avatar className="size-18 rounded-full">
-								<AvatarImage loading="lazy" src={`${user.image?.startsWith("http") ? user.image : `${import.meta.env.VITE_CLOUD_FRONT_URL}/${user.image}`}`} alt={user.username} />
+								<AvatarImage
+									loading="lazy"
+									src={`${user.image?.startsWith("http") ? user.image : `${import.meta.env.VITE_CLOUD_FRONT_URL}/${user.image}`}`}
+									alt={user.username}
+								/>
 								<AvatarFallback className="rounded-lg bg-sidebar-foreground/50">
 									{user.username
 										?.split(" ")
@@ -302,7 +306,10 @@ export default function Index() {
 					</section>
 					<section className="flex w-full flex-col gap-2 border-b border-sidebar-border pb-5">
 						<div className="relative w-full">
-							<nav ref={navRef} className="no-scrollbar flex h-full w-full flex-nowrap items-start justify-start gap-2 overflow-x-auto overflow-y-visible">
+							<nav
+								ref={navRef}
+								className="no-scrollbar flex h-full w-full flex-nowrap items-start justify-start gap-2 overflow-x-auto overflow-y-visible"
+							>
 								{types.map((action, index) => (
 									<Button
 										key={index}
@@ -376,7 +383,11 @@ export default function Index() {
 							<SelectContent className="w-20 rounded-sm border-0 p-0 shadow-none dark:bg-modal">
 								<h1 className="px-2 pt-2 pb-3 text-sm font-semibold text-black dark:text-white">Sort by</h1>
 								{sortOptions.map((option) => (
-									<SelectItem key={option.value} value={option.value} className="cursor-pointer py-2 text-left hover:bg-sidebar-accent/50 dark:hover:bg-sidebar-accent">
+									<SelectItem
+										key={option.value}
+										value={option.value}
+										className="cursor-pointer py-2 text-left hover:bg-sidebar-accent/50 dark:hover:bg-sidebar-accent"
+									>
 										{option.title}
 									</SelectItem>
 								))}
