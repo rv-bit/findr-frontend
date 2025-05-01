@@ -25,6 +25,11 @@ export const links: Route.LinksFunction = () => [
 	{ rel: "stylesheet", href: editor_stylesheet }, // override styles
 ];
 
+export function meta({ params }: Route.MetaArgs) {
+	const username = params.username;
+	return [{ title: `u/${username}` }, { name: "description", content: `Findr User Profile` }];
+}
+
 export async function loader({ params }: Route.LoaderArgs) {
 	const { username } = params;
 

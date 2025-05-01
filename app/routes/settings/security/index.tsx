@@ -6,21 +6,25 @@ import { UAParser } from "ua-parser-js";
 
 import { toast } from "sonner";
 
-import type { ModalProps } from "~/lib/types/ui/modal";
+import { authClient, type Sessions } from "~/lib/auth";
+import queryClient from "~/lib/query/query-client";
 
-import { EllipsisVertical, ExternalLink, Laptop, type LucideIcon } from "lucide-react";
-import { type IconType } from "react-icons";
-import { CiMobile3 } from "react-icons/ci";
+import type { ModalProps } from "~/lib/types/ui/modal";
 
 import { Button } from "~/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table";
 
-import { authClient, type Sessions } from "~/lib/auth";
-import queryClient from "~/lib/query/query-client";
+import { EllipsisVertical, ExternalLink, Laptop, type LucideIcon } from "lucide-react";
+import { type IconType } from "react-icons";
+import { CiMobile3 } from "react-icons/ci";
 
 import TwoFactorDisableModal from "./modals/two-factor-disable";
 import TwoFactorEnableModal from "./modals/two-factor-enable";
+
+export function meta({ params }: Route.MetaArgs) {
+	return [{ title: "Security Settings" }, { name: "description", content: "Security Settings" }];
+}
 
 const formatTime = (time: number | string | Date): string => {
 	switch (typeof time) {
@@ -95,87 +99,6 @@ interface Actions {
 
 	items?: Actions[];
 }
-
-const Sessions = (props: { currentSession: string; sessions: Sessions[] }) => {
-	return (
-		<Table containerClass="border rounded-xl border-sidebar-foreground dark:border-sidebar-accent">
-			<TableHeader className="rounded-full border-sidebar-foreground dark:border-sidebar-accent">
-				<TableRow className="rounded-full border-sidebar-foreground dark:border-sidebar-accent">
-					<TableHead>Name</TableHead>
-					<TableHead>Last Login</TableHead>
-					<TableHead>First Created</TableHead>
-					<TableHead>Expires At</TableHead>
-					<TableHead className="text-right"></TableHead>
-				</TableRow>
-			</TableHeader>
-			<TableBody className="rounded-full">
-				{props.sessions &&
-					props.sessions.map((value, index) => {
-						const lastUsed = formatTime(new Date(value.updatedAt));
-						const firstCreated = formatTime(new Date(value.createdAt));
-						const expiresAt = formatTime(new Date(value.expiresAt));
-
-						return (
-							<TableRow key={index} className="border-sidebar-foreground dark:border-sidebar-accent">
-								<TableCell className="tracking-tight text-black dark:text-white">
-									<span className="flex flex-col gap-0.5">
-										<span className="flex items-center justify-start gap-1">
-											{new UAParser(value.userAgent || "").getDevice().type === "mobile" ? (
-												<CiMobile3 size={16} />
-											) : (
-												<Laptop size={16} />
-											)}
-											{new UAParser(value.userAgent || "").getOS().name},{" "}
-											{new UAParser(value.userAgent || "").getBrowser().name}
-										</span>
-										{value.id === props.currentSession && (
-											<p className="text-xs text-neutral-500 dark:text-neutral-400">(This Device)</p>
-										)}
-									</span>
-								</TableCell>
-								<TableCell className="text-black dark:text-white">{lastUsed}</TableCell>
-								<TableCell className="text-black dark:text-white">{firstCreated}</TableCell>
-								<TableCell className="text-black dark:text-white">{expiresAt}</TableCell>
-								<TableCell className="text-right text-black dark:text-white">
-									<DropdownMenu>
-										<DropdownMenuTrigger asChild>
-											<Button variant="link" className="hover:text-sidebar-foreground/50 hover:no-underline">
-												<EllipsisVertical />
-											</Button>
-										</DropdownMenuTrigger>
-										<DropdownMenuContent
-											className="mt-3.5 w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg border border-sidebar-foreground dark:border-sidebar-accent dark:bg-modal"
-											side={"bottom"}
-											align="end"
-											sideOffset={4}
-										>
-											<DropdownMenuLabel className="p-1 font-normal">
-												<Button
-													onClick={async () => {
-														await authClient.revokeSession({
-															token: value.token,
-														});
-
-														queryClient.invalidateQueries({ queryKey: ["listSessions"] });
-
-														window.location.reload();
-													}}
-													variant={"link"}
-													className="flex h-auto w-full items-center justify-start gap-2 px-3 text-left text-sm text-red-500 transition-all duration-150 hover:bg-primary-400/10 hover:text-primary-400 hover:no-underline dark:text-red-500 dark:hover:bg-primary-400/5"
-												>
-													{props.currentSession === value.id ? "Logout" : "Revoke"}
-												</Button>
-											</DropdownMenuLabel>
-										</DropdownMenuContent>
-									</DropdownMenu>
-								</TableCell>
-							</TableRow>
-						);
-					})}
-			</TableBody>
-		</Table>
-	);
-};
 
 export default function Index({ matches }: Route.ComponentProps) {
 	const shared = matches[1];
@@ -298,3 +221,84 @@ export default function Index({ matches }: Route.ComponentProps) {
 		</React.Fragment>
 	);
 }
+
+const Sessions = (props: { currentSession: string; sessions: Sessions[] }) => {
+	return (
+		<Table containerClass="border rounded-xl border-sidebar-foreground dark:border-sidebar-accent">
+			<TableHeader className="rounded-full border-sidebar-foreground dark:border-sidebar-accent">
+				<TableRow className="rounded-full border-sidebar-foreground dark:border-sidebar-accent">
+					<TableHead>Name</TableHead>
+					<TableHead>Last Login</TableHead>
+					<TableHead>First Created</TableHead>
+					<TableHead>Expires At</TableHead>
+					<TableHead className="text-right"></TableHead>
+				</TableRow>
+			</TableHeader>
+			<TableBody className="rounded-full">
+				{props.sessions &&
+					props.sessions.map((value, index) => {
+						const lastUsed = formatTime(new Date(value.updatedAt));
+						const firstCreated = formatTime(new Date(value.createdAt));
+						const expiresAt = formatTime(new Date(value.expiresAt));
+
+						return (
+							<TableRow key={index} className="border-sidebar-foreground dark:border-sidebar-accent">
+								<TableCell className="tracking-tight text-black dark:text-white">
+									<span className="flex flex-col gap-0.5">
+										<span className="flex items-center justify-start gap-1">
+											{new UAParser(value.userAgent || "").getDevice().type === "mobile" ? (
+												<CiMobile3 size={16} />
+											) : (
+												<Laptop size={16} />
+											)}
+											{new UAParser(value.userAgent || "").getOS().name},{" "}
+											{new UAParser(value.userAgent || "").getBrowser().name}
+										</span>
+										{value.id === props.currentSession && (
+											<p className="text-xs text-neutral-500 dark:text-neutral-400">(This Device)</p>
+										)}
+									</span>
+								</TableCell>
+								<TableCell className="text-black dark:text-white">{lastUsed}</TableCell>
+								<TableCell className="text-black dark:text-white">{firstCreated}</TableCell>
+								<TableCell className="text-black dark:text-white">{expiresAt}</TableCell>
+								<TableCell className="text-right text-black dark:text-white">
+									<DropdownMenu>
+										<DropdownMenuTrigger asChild>
+											<Button variant="link" className="hover:text-sidebar-foreground/50 hover:no-underline">
+												<EllipsisVertical />
+											</Button>
+										</DropdownMenuTrigger>
+										<DropdownMenuContent
+											className="mt-3.5 w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg border border-sidebar-foreground dark:border-sidebar-accent dark:bg-modal"
+											side={"bottom"}
+											align="end"
+											sideOffset={4}
+										>
+											<DropdownMenuLabel className="p-1 font-normal">
+												<Button
+													onClick={async () => {
+														await authClient.revokeSession({
+															token: value.token,
+														});
+
+														queryClient.invalidateQueries({ queryKey: ["listSessions"] });
+
+														window.location.reload();
+													}}
+													variant={"link"}
+													className="flex h-auto w-full items-center justify-start gap-2 px-3 text-left text-sm text-red-500 transition-all duration-150 hover:bg-primary-400/10 hover:text-primary-400 hover:no-underline dark:text-red-500 dark:hover:bg-primary-400/5"
+												>
+													{props.currentSession === value.id ? "Logout" : "Revoke"}
+												</Button>
+											</DropdownMenuLabel>
+										</DropdownMenuContent>
+									</DropdownMenu>
+								</TableCell>
+							</TableRow>
+						);
+					})}
+			</TableBody>
+		</Table>
+	);
+};

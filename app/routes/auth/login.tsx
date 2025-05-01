@@ -9,11 +9,15 @@ import { z } from "zod";
 
 import { authClient } from "~/lib/auth";
 
-import { FaGithub, FaGoogle } from "react-icons/fa";
-
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+
+import { FaGithub, FaGoogle } from "react-icons/fa";
+
+export function meta({ params }: Route.MetaArgs) {
+	return [{ title: "Login" }, { name: "description", content: "Login to your account" }];
+}
 
 export async function clientLoader({ serverLoader, params }: Route.ClientLoaderArgs) {
 	const { data: sessionData } = await authClient.getSession();
@@ -107,7 +111,13 @@ export default function Login() {
 										render={({ field }) => (
 											<FormItem>
 												<FormControl>
-													<Input type="text" placeholder="username" required className="text-black dark:text-white" {...field} />
+													<Input
+														type="text"
+														placeholder="username"
+														required
+														className="text-black dark:text-white"
+														{...field}
+													/>
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -119,7 +129,13 @@ export default function Login() {
 										render={({ field }) => (
 											<FormItem>
 												<FormControl>
-													<Input type="password" placeholder="password" required className="text-black dark:text-white" {...field} />
+													<Input
+														type="password"
+														placeholder="password"
+														required
+														className="text-black dark:text-white"
+														{...field}
+													/>
 												</FormControl>
 												<div className="flex items-center justify-end">
 													<Link
@@ -184,7 +200,8 @@ export default function Login() {
 					</div>
 				</div>
 				<div className="text-center text-xs text-balance text-neutral-500 dark:text-neutral-400 [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-neutral-900 dark:[&_a]:hover:text-neutral-50">
-					By clicking continue, you agree to our <Link to={{ pathname: "/legal" }}>Terms of Service</Link> and <Link to={{ pathname: "/legal" }}>Privacy Policy</Link>.
+					By clicking continue, you agree to our <Link to={{ pathname: "/legal" }}>Terms of Service</Link> and{" "}
+					<Link to={{ pathname: "/legal" }}>Privacy Policy</Link>.
 				</div>
 			</div>
 		</div>

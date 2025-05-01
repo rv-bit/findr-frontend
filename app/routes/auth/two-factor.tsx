@@ -1,3 +1,5 @@
+import type { Route } from "./+types/two-factor";
+
 import React from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,13 +9,24 @@ import { z } from "zod";
 import { authClient } from "~/lib/auth";
 
 import { useNavigate } from "react-router";
-import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "~/components/ui/alert-dialog";
+import {
+	AlertDialog,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "~/components/ui/input-otp";
 import { Label } from "~/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
+
+export function meta({ params }: Route.MetaArgs) {
+	return [{ title: "Two Factor Authentication" }, { name: "description", content: "Two Factor Authentication" }];
+}
 
 interface OptionsProps {
 	option: string;
@@ -209,8 +222,12 @@ export default function Index() {
 																		className="border-primary-300 dark:border-primary-300"
 																	/>
 																	<div className="flex flex-col items-start justify-start gap-1">
-																		<h1 className="text-md font-semibold text-black dark:text-white">{option.title}</h1>
-																		<p className="text-sm text-neutral-500 dark:text-neutral-400">{option.description}</p>
+																		<h1 className="text-md font-semibold text-black dark:text-white">
+																			{option.title}
+																		</h1>
+																		<p className="text-sm text-neutral-500 dark:text-neutral-400">
+																			{option.description}
+																		</p>
 																	</div>
 																</Label>
 															))}

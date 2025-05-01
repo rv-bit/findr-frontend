@@ -14,13 +14,18 @@ import { authClient } from "~/lib/auth";
 
 import { cn } from "~/lib/utils";
 
-import { Eye, EyeOff } from "lucide-react";
-import { FaGithub, FaGoogle } from "react-icons/fa";
-
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+
+import { Eye, EyeOff } from "lucide-react";
+import { FaGithub, FaGoogle } from "react-icons/fa";
+
 import { getPasswordStrength, strengthVariants } from "~/styles/variants/password-variants";
+
+export function meta({ params }: Route.MetaArgs) {
+	return [{ title: "Onboarding" }, { name: "description", content: "Onboarding for Findr" }];
+}
 
 export async function clientLoader({ serverLoader, params }: Route.ClientLoaderArgs) {
 	const { data: sessionData } = await authClient.getSession();
