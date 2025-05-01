@@ -50,7 +50,7 @@ export const links: Route.LinksFunction = () => [
 
 export function loader({ request }: LoaderFunctionArgs) {
 	const cookie = parse(request.headers.get("cookie") ?? "");
-	const cachedTheme = cookie[THEME_COOKIE_NAME] ?? null;
+	const cachedTheme = cookie[THEME_COOKIE_NAME] ?? "light";
 	const cachedSidebar = cookie[THEME_COOKIE_NAME] ? cookie[THEME_COOKIE_NAME] === "true" : true;
 
 	return {

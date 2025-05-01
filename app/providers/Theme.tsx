@@ -27,7 +27,8 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
 	const [theme, setThemeState] = useState<"dark" | "light">("light");
 
 	useEffect(() => {
-		const preferredDark = !document.cookie.match(new RegExp(`(^| )${THEME_COOKIE_NAME}=([^;]+)`)) && window.matchMedia("(prefers-color-scheme: dark)").matches;
+		const preferredDark =
+			!document.cookie.match(new RegExp(`(^| )${THEME_COOKIE_NAME}=([^;]+)`)) && window.matchMedia("(prefers-color-scheme: dark)").matches;
 		const cookieMatch = document.cookie.match(new RegExp(`(^| )${THEME_COOKIE_NAME}=([^;]+)`));
 		const cachedTheme = cookieMatch ? (cookieMatch[2] as "dark" | "light") : preferredDark ? "dark" : "light";
 
@@ -37,12 +38,13 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
 	}, []);
 
 	const setTheme = (newTheme: "dark" | "light") => {
-		const preferredDark = !document.cookie.match(new RegExp(`(^| )${THEME_COOKIE_NAME}=([^;]+)`)) && window.matchMedia("(prefers-color-scheme: dark)").matches;
+		const preferredDark =
+			!document.cookie.match(new RegExp(`(^| )${THEME_COOKIE_NAME}=([^;]+)`)) && window.matchMedia("(prefers-color-scheme: dark)").matches;
 
 		document.cookie = `${THEME_COOKIE_NAME}=${newTheme}; max-age=${THEME_COOKIE_MAX_AGE}; path=/`;
 		setThemeState(newTheme);
 
-		document.documentElement.classList.toggle("dark", newTheme === "dark" || preferredDark);
+		document.documentElement.classList.toggle("dark", (newTheme === "dark" && preferredDark) || newTheme === "dark");
 	};
 
 	return <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>;
