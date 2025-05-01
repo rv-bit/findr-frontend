@@ -4,12 +4,12 @@ import { Link, useNavigate } from "react-router";
 import { ClientOnly } from "remix-utils/client-only";
 import { toast } from "sonner";
 
-import { authClient } from "~/lib/auth";
 import { cn, formatTime } from "~/lib/utils";
 
 import axiosInstance from "~/lib/axios-instance";
 import queryClient from "~/lib/query/query-client";
 
+import type { Session } from "~/lib/auth";
 import type { Post, User } from "~/lib/types/shared";
 
 import { useMutatePostVote } from "~/hooks/useMutatePostVote";
@@ -53,17 +53,18 @@ type DropDownActions = {
 export default function PostCard({
 	className,
 	data,
+	session,
 	onCommentIconClick,
 	onBackButtonClick,
 }: React.ComponentProps<"article"> & {
 	data: Post & {
 		user: User;
 	};
+	session: Session | null;
 	onCommentIconClick: () => void;
 	onBackButtonClick: () => void;
 }) {
 	const navigate = useNavigate();
-	const { data: session } = authClient.useSession();
 	const { mutate } = useMutatePostVote({
 		queryKey: ["post", data.id],
 	});
@@ -160,6 +161,8 @@ export default function PostCard({
 		],
 		[data, editable, session],
 	);
+
+	console.log("PostCard", data);
 
 	return (
 		<article className={cn("relative flex h-auto flex-col justify-between gap-6", className)}>

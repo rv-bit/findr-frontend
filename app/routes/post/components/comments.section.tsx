@@ -10,9 +10,9 @@ import { z } from "zod";
 
 import { cn } from "~/lib/utils";
 
-import { authClient } from "~/lib/auth";
 import axiosInstance from "~/lib/axios-instance";
 
+import type { Session } from "~/lib/auth";
 import type { Post, User } from "~/lib/types/shared";
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
@@ -26,6 +26,7 @@ type CommentSectionProps = React.ComponentProps<"section"> & {
 	data: Post & {
 		user: User;
 	};
+	session: Session | null;
 };
 
 export const sortOptions: {
@@ -60,9 +61,8 @@ const newCommentSchema = z.object({
 	content: z.string().nonempty("Content is required"),
 });
 
-const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps>(({ className, data, ...props }, commentTextAreaRef) => {
+const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps>(({ className, data, session, ...props }, commentTextAreaRef) => {
 	const [searchParams, setSearchParams] = useSearchParams();
-	const { data: session } = authClient.useSession();
 
 	const [currentSortOption, setCurrentSortOption] = React.useState(sortOptions[0].value);
 
@@ -144,13 +144,22 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 		newCommentForm.reset(); // Reset the form values
 	};
 
+	const placeholderText = React.useMemo(() => {
+		console.log(session);
+		if (!session || !session.user) {
+			return "Login to join the conversation";
+		}
+
+		return "Join in the conversation";
+	}, [session]);
+
 	return (
 		<section className={cn("flex flex-col gap-5", className)}>
 			<CommentBox
 				className="w-full"
 				ref={commentTextAreaRef}
 				readOnly={!session || !session.user}
-				placeholder={session && session.user ? "Join in the conversation" : "Login to join the conversation"}
+				placeholder={placeholderText}
 				form={newCommentForm}
 				onHandleOpenCommentButton={handleOpenCommentButton}
 				onHandleSubmit={handleSubmit}
@@ -190,7 +199,7 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 					</Select>
 				</section>
 
-				<Comments postId={data.id} />
+				<Comments session={session} postId={data.id} />
 			</div>
 		</section>
 	);

@@ -8,11 +8,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { authClient, type Session } from "~/lib/auth";
 import axiosInstance from "~/lib/axios-instance";
 
 import { cn, formatTime } from "~/lib/utils";
 
+import type { Session } from "~/lib/auth";
 import type { User } from "~/lib/types/shared";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -49,10 +49,10 @@ type CommentNodeProps = React.ComponentProps<"section"> & {
 
 type CommentsProps = React.ComponentProps<"section"> & {
 	postId: string;
+	session: Session | null;
 };
 
-function Comments({ className, postId, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentsProps) {
-	const { data: session } = authClient.useSession();
+function Comments({ className, postId, session, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentsProps) {
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	const inViewportRef = React.useRef(null);
