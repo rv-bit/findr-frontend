@@ -22,10 +22,12 @@ import LoadingBar from "react-top-loading-bar";
 import { THEME_COOKIE_NAME } from "~/providers/Theme";
 import Providers from "./providers";
 
+import * as config from "~/config/app";
+
 import ErrorIcon from "~/icons/error";
 
 export function meta({}: Route.MetaArgs) {
-	return [{ title: "New React Router App" }, { name: "description", content: "Welcome to React Router!" }];
+	return [{ title: config.APP_NAME }, { name: "description", content: config.APP_DESCRIPTION }];
 }
 
 export const links: Route.LinksFunction = () => [
