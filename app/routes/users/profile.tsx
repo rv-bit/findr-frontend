@@ -201,7 +201,6 @@ export default function Index() {
 			if (currentSortOption === "newest") {
 				return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
 			} else if (currentSortOption === "oldest") {
-				console.log("oldest");
 				return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
 			} else if (currentSortOption === "top") {
 				if (params === "posts" || params === "overview") {

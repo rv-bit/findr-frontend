@@ -162,8 +162,6 @@ export default function PostCard({
 		[data, editable, session],
 	);
 
-	console.log("PostCard", data);
-
 	return (
 		<article className={cn("relative flex h-auto flex-col justify-between gap-6", className)}>
 			<div className="flex flex-col justify-between gap-1">
