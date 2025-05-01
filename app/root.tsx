@@ -22,10 +22,12 @@ import LoadingBar from "react-top-loading-bar";
 import { THEME_COOKIE_NAME } from "~/providers/Theme";
 import Providers from "./providers";
 
+import * as config from "~/config/app";
+
 import ErrorIcon from "~/icons/error";
 
 export function meta({}: Route.MetaArgs) {
-	return [{ title: "New React Router App" }, { name: "description", content: "Welcome to React Router!" }];
+	return [{ title: config.APP_NAME }, { name: "description", content: config.APP_DESCRIPTION }];
 }
 
 export const links: Route.LinksFunction = () => [
@@ -140,7 +142,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 				</h1>
 				<p className="text-md text-center text-balance max-sm:text-sm">
 					You can go back to the{" "}
-					<a className="font-bold italic hover:underline" href="/">
+					<a className="font-bold text-primary-300 italic hover:underline dark:text-primary-300" href="/">
 						home page
 					</a>{" "}
 					or try again later.

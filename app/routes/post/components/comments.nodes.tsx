@@ -8,16 +8,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { authClient, type Session } from "~/lib/auth";
 import axiosInstance from "~/lib/axios-instance";
 
 import { cn, formatTime } from "~/lib/utils";
 
+import type { Session } from "~/lib/auth";
 import type { User } from "~/lib/types/shared";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/hover-card";
 
 import Loading from "~/icons/loading";
 
@@ -25,6 +24,7 @@ import { BiDownvote, BiSolidDownvote, BiSolidUpvote, BiUpvote } from "react-icon
 
 import { ChevronDown, ChevronRight, MessageCircle } from "lucide-react";
 
+import HoverCardUser from "~/components/hover.card.user";
 import { useMutateCommentVote } from "~/hooks/useMutateCommentVote";
 import CommentBox from "./comment.box";
 import { sortOptions } from "./comments.section";
@@ -49,10 +49,10 @@ type CommentNodeProps = React.ComponentProps<"section"> & {
 
 type CommentsProps = React.ComponentProps<"section"> & {
 	postId: string;
+	session: Session | null;
 };
 
-function Comments({ className, postId, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentsProps) {
-	const { data: session } = authClient.useSession();
+function Comments({ className, postId, session, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentsProps) {
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	const inViewportRef = React.useRef(null);
@@ -381,20 +381,13 @@ function CommentContent({ className, comment, ...props }: React.HTMLAttributes<H
 
 				<span className="flex w-full flex-col justify-center gap-1">
 					<span className="flex items-center justify-start gap-1">
-						<HoverCard>
-							<HoverCardTrigger asChild>
-								<Link
-									to={`/users/${comment.user.username}`}
-									className="group flex w-fit cursor-pointer items-center justify-start gap-1"
-								>
-									<h2 className="text-sm break-all text-black group-hover:text-primary-300 dark:text-white group-hover:dark:text-primary-300">
-										{comment.user.username}
-									</h2>
-								</Link>
-							</HoverCardTrigger>
-							<HoverCardContent align="start" className="flex flex-col gap-2 rounded-2xl border-none dark:bg-modal"></HoverCardContent>
-						</HoverCard>
-
+						<HoverCardUser username={comment.user.username}>
+							<Link to={`/users/${comment.user.username}`} className="group flex w-fit cursor-pointer items-center justify-start gap-1">
+								<h2 className="text-sm break-all text-black group-hover:text-primary-300 dark:text-white group-hover:dark:text-primary-300">
+									{comment.user.username}
+								</h2>
+							</Link>
+						</HoverCardUser>
 						<span className="my-0 inline-block text-[#333a3e] dark:text-[#333a3e]">•</span>
 						<h2 className="text-xs text-black dark:text-white">{formatTime(comment.createdAt)}</h2>
 						{isEdited && <span className="text-xs text-black/50 dark:text-white/50">(edited) at {formatTime(comment.updatedAt)}</span>}

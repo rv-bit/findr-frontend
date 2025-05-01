@@ -10,6 +10,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 
 import { authClient } from "~/lib/auth";
+import queryClient from "~/lib/query/query-client";
 
 import type { ModalProps } from "~/lib/types/ui/modal";
 
@@ -18,15 +19,17 @@ import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 
-import WarningComponent from "~/components/warning-dialog";
+import WarningComponent from "~/components/ui/warning-dialog";
 
 import { ChevronRight, TriangleAlert, type LucideIcon } from "lucide-react";
-
-import queryClient from "~/lib/query/query-client";
 
 import DeleteModal from "./modals/delete-account";
 import EmailModal from "./modals/email-change";
 import PasswordChangeModal from "./modals/password-change";
+
+export function meta({ params }: Route.MetaArgs) {
+	return [{ title: "Account Settings" }, { name: "description", content: "Account Settings" }];
+}
 
 interface Actions {
 	title: string;

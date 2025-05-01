@@ -14,6 +14,10 @@ import AvatarChangeModal from "./modals/change-avatar";
 import DescriptionChangeModal from "./modals/change-description";
 import UsernameChangeModal from "./modals/change-username";
 
+export function meta({ params }: Route.MetaArgs) {
+	return [{ title: "Profile Settings" }, { name: "description", content: "Profile Settings" }];
+}
+
 interface Actions {
 	title: string;
 	description?: string;
@@ -102,7 +106,10 @@ export default function Index({ matches }: Route.ComponentProps) {
 				{actions.map((action) => {
 					return (
 						<React.Fragment key={action.title}>
-							<h1 key={action.title} className="mb-2 font-bricolage text-2xl font-semibold tracking-tighter text-black capitalize dark:text-white">
+							<h1
+								key={action.title}
+								className="mb-2 font-bricolage text-2xl font-semibold tracking-tighter text-black capitalize dark:text-white"
+							>
 								{action.title}
 							</h1>
 
@@ -152,7 +159,11 @@ export default function Index({ matches }: Route.ComponentProps) {
 											>
 												<div className="flex w-fit flex-col items-start justify-center gap-[0.15rem]">
 													<span>{item.title}</span>
-													{item.description && <span className="text-left text-xs text-balance text-gray-500 dark:text-gray-400">{item.description}</span>}
+													{item.description && (
+														<span className="text-left text-xs text-balance text-gray-500 dark:text-gray-400">
+															{item.description}
+														</span>
+													)}
 												</div>
 												<div className="flex items-center justify-center gap-2">
 													<h1 className="">{item?.defaultValue}</h1>

@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router";
 
 import { authClient } from "~/lib/auth";
+import queryClient from "~/lib/query/query-client";
+
+import { cn } from "~/lib/utils";
 
 import { useIsTablet } from "~/hooks/use-tablet";
 import { useTheme } from "~/providers/Theme";
@@ -25,8 +28,6 @@ import { Switch } from "~/components/ui/switch";
 import { type LucideIcon, LogOut, Moon, Plus, Settings, X } from "lucide-react";
 
 import LogoIcon from "~/icons/logo";
-import queryClient from "~/lib/query/query-client";
-import { cn } from "~/lib/utils";
 
 interface DropDownActions {
 	title: string;

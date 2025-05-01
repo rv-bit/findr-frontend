@@ -19,8 +19,17 @@ export const links: Route.LinksFunction = () => [
 	{ rel: "stylesheet", href: editor_stylesheet }, // override styles
 ];
 
-export function meta({}: Route.MetaArgs) {
-	return [{ title: "Findr" }, { name: "description", content: "Findr" }];
+export function meta({ location }: Route.MetaArgs) {
+	const searchFeed = new URLSearchParams(location.search).get("feed") || "home";
+	const feed = searchFeed === "home" ? "Findr" : "f/" + searchFeed;
+
+	return [
+		{ title: feed },
+		{
+			name: "description",
+			content: `Findr - ${feed} feed`,
+		},
+	];
 }
 
 const sortOptions: {

@@ -1,8 +1,8 @@
-// organize-imports-ignore
+import type { Route } from "./+types/forgot-password";
 
+import { motion } from "motion/react";
 import React from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router";
-import { motion } from "motion/react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -12,12 +12,17 @@ import { toast } from "sonner";
 import { authClient } from "~/lib/auth";
 import { cn } from "~/lib/utils";
 
-import { Eye, EyeOff } from "lucide-react";
-
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+
+import { Eye, EyeOff } from "lucide-react";
+
 import { getPasswordStrength, strengthVariants } from "~/styles/variants/password-variants";
+
+export function meta({ params }: Route.MetaArgs) {
+	return [{ title: "Forgot Password" }, { name: "description", content: "Forgot Password" }];
+}
 
 const formSchema = z.object({
 	email: z.string().email().nonempty("Email is required"),
@@ -211,7 +216,9 @@ export default function ForgotPassword() {
 															animate={{ opacity: 1, y: 0, scale: 1 }}
 															exit={{ opacity: 0, y: -10, scale: 0.9 }}
 															transition={{ type: "spring", stiffness: 500, damping: 30 }}
-															className={cn(`text-muted-foreground mb-1.5 h-4 text-right text-xs ${newPasswordForm.watch("password").length > 0 ? "block" : "hidden"}`)}
+															className={cn(
+																`text-muted-foreground mb-1.5 h-4 text-right text-xs ${newPasswordForm.watch("password").length > 0 ? "block" : "hidden"}`,
+															)}
 														>
 															{passwordStrength.verdict}
 														</motion.div>
@@ -222,7 +229,10 @@ export default function ForgotPassword() {
 																type={isPasswordVisible ? "text" : "password"}
 																placeholder="password"
 																required
-																className={cn("pe-9 text-black duration-350 dark:text-white", passwordStrength.styles)}
+																className={cn(
+																	"pe-9 text-black duration-350 dark:text-white",
+																	passwordStrength.styles,
+																)}
 																{...field}
 															/>
 															<Button
@@ -234,7 +244,11 @@ export default function ForgotPassword() {
 																type="button"
 																size="icon"
 															>
-																{isPasswordVisible ? <EyeOff className="size-4" strokeWidth={2} /> : <Eye className="size-4" strokeWidth={2} />}
+																{isPasswordVisible ? (
+																	<EyeOff className="size-4" strokeWidth={2} />
+																) : (
+																	<Eye className="size-4" strokeWidth={2} />
+																)}
 															</Button>
 														</div>
 													</FormControl>
@@ -254,7 +268,9 @@ export default function ForgotPassword() {
 															animate={{ opacity: 1, y: 0, scale: 1 }}
 															exit={{ opacity: 0, y: -10, scale: 0.9 }}
 															transition={{ type: "spring", stiffness: 500, damping: 30 }}
-															className={cn(`text-muted-foreground mb-1.5 h-4 text-right text-xs ${newPasswordForm.watch("password").length > 0 ? "block" : "hidden"}`)}
+															className={cn(
+																`text-muted-foreground mb-1.5 h-4 text-right text-xs ${newPasswordForm.watch("password").length > 0 ? "block" : "hidden"}`,
+															)}
 														>
 															{passwordConfirmStrength.verdict}
 														</motion.div>
@@ -265,7 +281,10 @@ export default function ForgotPassword() {
 																type={isPasswordVisible ? "text" : "password"}
 																placeholder="confirm password"
 																required
-																className={cn("pe-9 text-black duration-350 dark:text-white", passwordConfirmStrength.styles)}
+																className={cn(
+																	"pe-9 text-black duration-350 dark:text-white",
+																	passwordConfirmStrength.styles,
+																)}
 																{...field}
 															/>
 															<Button
@@ -277,7 +296,11 @@ export default function ForgotPassword() {
 																type="button"
 																size="icon"
 															>
-																{isPasswordVisible ? <EyeOff className="size-4" strokeWidth={2} /> : <Eye className="size-4" strokeWidth={2} />}
+																{isPasswordVisible ? (
+																	<EyeOff className="size-4" strokeWidth={2} />
+																) : (
+																	<Eye className="size-4" strokeWidth={2} />
+																)}
 															</Button>
 														</div>
 													</FormControl>

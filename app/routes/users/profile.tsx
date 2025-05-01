@@ -25,6 +25,11 @@ export const links: Route.LinksFunction = () => [
 	{ rel: "stylesheet", href: editor_stylesheet }, // override styles
 ];
 
+export function meta({ params }: Route.MetaArgs) {
+	const username = params.username;
+	return [{ title: `u/${username}` }, { name: "description", content: `Findr User Profile` }];
+}
+
 export async function loader({ params }: Route.LoaderArgs) {
 	const { username } = params;
 
@@ -201,7 +206,6 @@ export default function Index() {
 			if (currentSortOption === "newest") {
 				return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
 			} else if (currentSortOption === "oldest") {
-				console.log("oldest");
 				return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
 			} else if (currentSortOption === "top") {
 				if (params === "posts" || params === "overview") {

@@ -4,31 +4,19 @@ import { Link, useNavigate } from "react-router";
 import { ClientOnly } from "remix-utils/client-only";
 import { toast } from "sonner";
 
-import { authClient } from "~/lib/auth";
 import { cn, formatTime } from "~/lib/utils";
 
 import axiosInstance from "~/lib/axios-instance";
 import queryClient from "~/lib/query/query-client";
 
+import type { Session } from "~/lib/auth";
 import type { Post, User } from "~/lib/types/shared";
 
 import { useMutatePostVote } from "~/hooks/useMutatePostVote";
 
-import {
-	ArrowLeft,
-	BellDot,
-	Bookmark,
-	Cake,
-	Ellipsis,
-	Flag,
-	MessageCircle,
-	Pencil,
-	ThumbsDown,
-	ThumbsUp,
-	Trash2,
-	type LucideIcon,
-} from "lucide-react";
+import { ArrowLeft, BellDot, Bookmark, Ellipsis, Flag, MessageCircle, Pencil, ThumbsDown, ThumbsUp, Trash2, type LucideIcon } from "lucide-react";
 
+import HoverCardUser from "~/components/hover.card.user";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import {
@@ -39,7 +27,6 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/hover-card";
 
 type DropDownActions = {
 	title: string;
@@ -53,17 +40,18 @@ type DropDownActions = {
 export default function PostCard({
 	className,
 	data,
+	session,
 	onCommentIconClick,
 	onBackButtonClick,
 }: React.ComponentProps<"article"> & {
 	data: Post & {
 		user: User;
 	};
+	session: Session | null;
 	onCommentIconClick: () => void;
 	onBackButtonClick: () => void;
 }) {
 	const navigate = useNavigate();
-	const { data: session } = authClient.useSession();
 	const { mutate } = useMutatePostVote({
 		queryKey: ["post", data.id],
 	});
@@ -190,76 +178,14 @@ export default function PostCard({
 
 							<span className="flex flex-col justify-start gap-0">
 								<h1 className="text-sm break-all text-black dark:text-white">{data.slug}</h1>
-								<HoverCard>
-									<HoverCardTrigger asChild>
-										<Link
-											to={`/users/${data.user.username}`}
-											className="group flex w-fit cursor-pointer items-center justify-start gap-1"
-										>
-											<h2 className="text-xs break-all text-neutral-500 group-hover:dark:text-primary-300">
-												{data.user.username}
-											</h2>
-										</Link>
-									</HoverCardTrigger>
-									<HoverCardContent align="start" className="flex flex-col gap-2 rounded-2xl border-none dark:bg-modal">
-										<div className="flex w-full items-center justify-start gap-2">
-											<Avatar className="size-12 rounded-full">
-												<AvatarImage
-													loading="lazy"
-													src={`${data.user.image?.startsWith("http") ? data.user.image : `${import.meta.env.VITE_CLOUD_FRONT_URL}/${data.user.image}`}`}
-													alt={data.user.username}
-												/>
-												<AvatarFallback className="rounded-lg bg-sidebar-foreground/50 text-[0.75rem]">
-													{data.user.username
-														?.split(" ")
-														.map((name) => name[0])
-														.join("")}
-												</AvatarFallback>
-											</Avatar>
-											<div className="flex flex-col justify-start gap-1">
-												<span className="flex flex-col justify-start -space-y-2">
-													<Link
-														to={`/users/${data.user.username}`}
-														className="group flex cursor-pointer items-center justify-start gap-1"
-													>
-														<h1 className="text-lg break-all text-black group-hover:text-primary-300 group-hover:underline dark:text-white group-hover:dark:text-primary-300">
-															{data.user.username}
-														</h1>
-													</Link>
-													<span className="text-xs break-all text-black/50 dark:text-neutral-500">
-														<span>u/</span>
-														{data.user.username}
-													</span>
-												</span>
-
-												<div className="flex gap-1 text-xs break-all text-black/50 dark:text-neutral-500">
-													<Cake className="size-4" />
-													{new Date(data.user.createdAt).toLocaleDateString("en-US", {
-														year: "numeric",
-														month: "long",
-														day: "numeric",
-													})}
-												</div>
-											</div>
-										</div>
-										<span className="text-xs break-all text-black/50 dark:text-neutral-500">{data.user.about_description}</span>
-
-										<span className="flex items-center justify-start gap-2">
-											<span className="flex flex-col items-start justify-start">
-												<h1 className="font-bricolage text-base font-semibold break-all text-black/50 dark:text-neutral-500">
-													{data.user.postsCount}
-												</h1>
-												<p className="font-bricolage text-xs break-all text-black/50 dark:text-neutral-500">Posts</p>
-											</span>
-											<span className="flex flex-col items-start justify-start">
-												<h1 className="font-bricolage text-base font-semibold break-all text-black/50 dark:text-neutral-500">
-													{data.user.commentsCount}
-												</h1>
-												<p className="font-bricolage text-xs break-all text-black/50 dark:text-neutral-500">Comments</p>
-											</span>
-										</span>
-									</HoverCardContent>
-								</HoverCard>
+								<HoverCardUser username={data.user.username}>
+									<Link
+										to={`/users/${data.user.username}`}
+										className="group flex w-fit cursor-pointer items-center justify-start gap-1"
+									>
+										<h2 className="text-xs break-all text-neutral-500 group-hover:dark:text-primary-300">{data.user.username}</h2>
+									</Link>
+								</HoverCardUser>
 							</span>
 						</span>
 						<span className="my-0 inline-block text-[#333a3e] dark:text-[#333a3e]">•</span>
