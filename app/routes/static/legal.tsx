@@ -1,13 +1,13 @@
 import { useState } from "react";
-import * as constants from "~/constants/tos";
+import * as config from "~/config/tos";
 
-type SectionKey = keyof typeof constants.tos;
+type SectionKey = keyof typeof config.tos;
 
 export default function Legal() {
 	const [currentSection, setCurrentSection] = useState<SectionKey>("termsOfService");
 
 	return (
-		<div className="flex h-full w-full items-start justify-center px-7 pb-5 pt-32 max-xl:flex-col">
+		<div className="flex h-full w-full items-start justify-center px-7 pt-32 pb-5 max-xl:flex-col">
 			<section className="top-5 flex max-w-4xl flex-col items-start justify-start max-xl:mb-10 xl:sticky xl:mr-16">
 				<h1 className="mb-2 text-left text-xl font-semibold text-black dark:text-white">Legal</h1>
 				<button
@@ -27,8 +27,10 @@ export default function Legal() {
 			</section>
 
 			<section className="flex max-w-4xl flex-col gap-6">
-				<h1 className="font-medium tracking-tighter text-black max-xl:text-3xl xl:text-5xl dark:text-white">{constants.tos[currentSection].title}</h1>
-				{constants.tos[currentSection].sections.map((section) => (
+				<h1 className="font-medium tracking-tighter text-black max-xl:text-3xl xl:text-5xl dark:text-white">
+					{config.tos[currentSection].title}
+				</h1>
+				{config.tos[currentSection].sections.map((section) => (
 					<section key={section.title} className="flex flex-col gap-2">
 						<h2 className="font-medium tracking-tight text-black max-xl:text-xl xl:text-2xl dark:text-white">{section.title}</h2>
 						<p className="text-sm text-black dark:text-white">{section.content}</p>

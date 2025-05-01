@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import * as constants from "~/constants/app";
+import * as config from "~/config/app";
 
 import { authClient } from "~/lib/auth";
 
@@ -118,7 +118,7 @@ export default function Register() {
 			<div className="flex max-w-lg flex-col gap-6">
 				<div className="flex flex-col gap-6">
 					<div className="flex flex-col items-center gap-1">
-						<h1 className="text-center text-xl font-semibold text-neutral-500 dark:text-neutral-400">Welcome to {constants.APP_NAME}</h1>
+						<h1 className="text-center text-xl font-semibold text-neutral-500 dark:text-neutral-400">Welcome to {config.APP_NAME}</h1>
 						<div className="text-center text-sm text-balance text-neutral-500 dark:text-neutral-400">
 							Already have an account?
 							<Link
@@ -146,7 +146,13 @@ export default function Register() {
 										render={({ field }) => (
 											<FormItem>
 												<FormControl>
-													<Input type="email" placeholder="name@example.com" required className="text-black dark:text-white" {...field} />
+													<Input
+														type="email"
+														placeholder="name@example.com"
+														required
+														className="text-black dark:text-white"
+														{...field}
+													/>
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -158,7 +164,13 @@ export default function Register() {
 										render={({ field }) => (
 											<FormItem>
 												<FormControl>
-													<Input type="text" placeholder="name" required className="text-black dark:text-white" {...field} />
+													<Input
+														type="text"
+														placeholder="name"
+														required
+														className="text-black dark:text-white"
+														{...field}
+													/>
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -170,7 +182,13 @@ export default function Register() {
 										render={({ field }) => (
 											<FormItem>
 												<FormControl>
-													<Input type="text" placeholder="username" required className="text-black dark:text-white" {...field} />
+													<Input
+														type="text"
+														placeholder="username"
+														required
+														className="text-black dark:text-white"
+														{...field}
+													/>
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -188,7 +206,9 @@ export default function Register() {
 														animate={{ opacity: 1, y: 0, scale: 1 }}
 														exit={{ opacity: 0, y: -10, scale: 0.9 }}
 														transition={{ type: "spring", stiffness: 500, damping: 30 }}
-														className={cn(`text-muted-foreground mb-1.5 h-4 text-right text-xs ${form.watch("password").length > 0 ? "block" : "hidden"}`)}
+														className={cn(
+															`text-muted-foreground mb-1.5 h-4 text-right text-xs ${form.watch("password").length > 0 ? "block" : "hidden"}`,
+														)}
 													>
 														{passwordStrength.verdict}
 													</motion.div>
@@ -211,7 +231,11 @@ export default function Register() {
 															type="button"
 															size="icon"
 														>
-															{isPasswordVisible ? <EyeOff className="size-4" strokeWidth={2} /> : <Eye className="size-4" strokeWidth={2} />}
+															{isPasswordVisible ? (
+																<EyeOff className="size-4" strokeWidth={2} />
+															) : (
+																<Eye className="size-4" strokeWidth={2} />
+															)}
 														</Button>
 													</div>
 												</FormControl>
@@ -231,7 +255,9 @@ export default function Register() {
 														animate={{ opacity: 1, y: 0, scale: 1 }}
 														exit={{ opacity: 0, y: -10, scale: 0.9 }}
 														transition={{ type: "spring", stiffness: 500, damping: 30 }}
-														className={cn(`text-muted-foreground mb-1.5 h-4 text-right text-xs ${form.watch("confirmPassword").length > 0 ? "block" : "hidden"}`)}
+														className={cn(
+															`text-muted-foreground mb-1.5 h-4 text-right text-xs ${form.watch("confirmPassword").length > 0 ? "block" : "hidden"}`,
+														)}
 													>
 														{passwordConfirmStrength.verdict}
 													</motion.div>
@@ -242,7 +268,10 @@ export default function Register() {
 															type={isPasswordVisible ? "text" : "password"}
 															placeholder="confirm password"
 															required
-															className={cn("pe-9 text-black duration-350 dark:text-white", passwordConfirmStrength.styles)}
+															className={cn(
+																"pe-9 text-black duration-350 dark:text-white",
+																passwordConfirmStrength.styles,
+															)}
 															{...field}
 														/>
 														<Button
@@ -254,7 +283,11 @@ export default function Register() {
 															type="button"
 															size="icon"
 														>
-															{isPasswordVisible ? <EyeOff className="size-4" strokeWidth={2} /> : <Eye className="size-4" strokeWidth={2} />}
+															{isPasswordVisible ? (
+																<EyeOff className="size-4" strokeWidth={2} />
+															) : (
+																<Eye className="size-4" strokeWidth={2} />
+															)}
 														</Button>
 													</div>
 												</FormControl>
@@ -303,7 +336,8 @@ export default function Register() {
 					</div>
 				</div>
 				<div className="text-center text-xs text-balance text-neutral-500 dark:text-neutral-400 [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-neutral-900 dark:[&_a]:hover:text-neutral-50">
-					By clicking continue, you agree to our <Link to={{ pathname: "/legal" }}>Terms of Service</Link> and <Link to={{ pathname: "/legal" }}>Privacy Policy</Link>.
+					By clicking continue, you agree to our <Link to={{ pathname: "/legal" }}>Terms of Service</Link> and{" "}
+					<Link to={{ pathname: "/legal" }}>Privacy Policy</Link>.
 				</div>
 			</div>
 		</div>
