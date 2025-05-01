@@ -145,7 +145,6 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 	};
 
 	const placeholderText = React.useMemo(() => {
-		console.log(session);
 		if (!session || !session.user) {
 			return "Login to join the conversation";
 		}
@@ -160,11 +159,11 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 				ref={commentTextAreaRef}
 				readOnly={!session || !session.user}
 				placeholder={placeholderText}
+				disabled={loading}
 				form={newCommentForm}
 				onHandleOpenCommentButton={handleOpenCommentButton}
 				onHandleSubmit={handleSubmit}
 				onCancelComment={handleCloseCommentButton}
-				disabled={loading}
 			/>
 
 			<div className="flex w-full flex-col gap-5">
