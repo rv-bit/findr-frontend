@@ -142,7 +142,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 				</h1>
 				<p className="text-md text-center text-balance max-sm:text-sm">
 					You can go back to the{" "}
-					<a className="font-bold italic hover:underline" href="/">
+					<a className="font-bold text-primary-300 italic hover:underline dark:text-primary-300" href="/">
 						home page
 					</a>{" "}
 					or try again later.
