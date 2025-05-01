@@ -13,8 +13,8 @@ import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { Toaster } from "~/components/ui/sonner";
 import { Topbar, TopbarInset, TopbarProvider } from "~/components/ui/topbar";
 
-import SidebarActions from "~/components/sidebar-main";
-import TopbarActions from "~/components/topbar-actions";
+import SidebarActions from "~/components/navigation.sidebar.main";
+import TopbarActions from "~/components/navigation.top.main";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
 	const [searchParams, setSearchParams] = useSearchParams();
