@@ -22,6 +22,8 @@ import LoadingBar from "react-top-loading-bar";
 import { THEME_COOKIE_NAME } from "~/providers/Theme";
 import Providers from "./providers";
 
+import { SIDEBAR_COOKIE_NAME } from "./components/ui/sidebar";
+
 import * as config from "~/config/app";
 
 import ErrorIcon from "~/icons/error";
@@ -50,8 +52,8 @@ export const links: Route.LinksFunction = () => [
 
 export function loader({ request }: LoaderFunctionArgs) {
 	const cookie = parse(request.headers.get("cookie") ?? "");
-	const cachedTheme = cookie[THEME_COOKIE_NAME] ?? "light";
-	const cachedSidebar = cookie[THEME_COOKIE_NAME] ? cookie[THEME_COOKIE_NAME] === "true" : true;
+	const cachedTheme = cookie[THEME_COOKIE_NAME] ?? null;
+	const cachedSidebar = cookie[SIDEBAR_COOKIE_NAME] ? cookie[SIDEBAR_COOKIE_NAME] === "true" : true;
 
 	return {
 		theme: cachedTheme,
