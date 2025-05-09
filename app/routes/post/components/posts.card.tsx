@@ -1,3 +1,8 @@
+import React from "react";
+import { Link, useNavigate } from "react-router";
+import { ClientOnly } from "remix-utils/client-only";
+import { toast } from "sonner";
+
 import {
 	headingsPlugin,
 	linkDialogPlugin,
@@ -8,10 +13,6 @@ import {
 	quotePlugin,
 	thematicBreakPlugin,
 } from "@mdxeditor/editor";
-import React from "react";
-import { Link, useNavigate } from "react-router";
-import { ClientOnly } from "remix-utils/client-only";
-import { toast } from "sonner";
 
 import { cn, formatTime } from "~/lib/utils";
 

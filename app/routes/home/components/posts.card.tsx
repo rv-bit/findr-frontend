@@ -2,7 +2,16 @@ import React from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { toast } from "sonner";
 
-import { codeBlockPlugin, headingsPlugin, linkDialogPlugin, linkPlugin, listsPlugin, markdownShortcutPlugin, MDXEditor, quotePlugin, thematicBreakPlugin } from "@mdxeditor/editor";
+import {
+	headingsPlugin,
+	linkDialogPlugin,
+	linkPlugin,
+	listsPlugin,
+	markdownShortcutPlugin,
+	MDXEditor,
+	quotePlugin,
+	thematicBreakPlugin,
+} from "@mdxeditor/editor";
 import { ClientOnly } from "remix-utils/client-only";
 
 import { authClient } from "~/lib/auth";
