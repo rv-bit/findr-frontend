@@ -1,12 +1,9 @@
 .DS_Store
+.well-known
 /node_modules/
 
 # React Router
 /.react-router/
 /build/
-
-# package files
-# package-lock.json
-# pnpm-lock.yaml
 
 *.env*
