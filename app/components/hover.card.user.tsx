@@ -50,7 +50,7 @@ export default function HoverCardUser({ username, ...props }: React.ComponentPro
 	};
 
 	return (
-		<HoverCard closeDelay={0}>
+		<HoverCard closeDelay={10}>
 			<HoverCardTrigger asChild onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
 				{props.children}
 			</HoverCardTrigger>
