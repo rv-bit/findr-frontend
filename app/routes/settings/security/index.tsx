@@ -2,7 +2,6 @@ import type { Route } from "../profile/+types/index"; // Import the Route type f
 
 import React from "react";
 import { useNavigate } from "react-router";
-import { UAParser } from "ua-parser-js";
 
 import { toast } from "sonner";
 
@@ -19,6 +18,7 @@ import { EllipsisVertical, ExternalLink, Laptop, type LucideIcon } from "lucide-
 import { type IconType } from "react-icons";
 import { CiMobile3 } from "react-icons/ci";
 
+import { parseUserAgent } from "~/lib/utils";
 import TwoFactorDisableModal from "./modals/two-factor-disable";
 import TwoFactorEnableModal from "./modals/two-factor-enable";
 
@@ -241,18 +241,15 @@ const Sessions = (props: { currentSession: string; sessions: Sessions[] }) => {
 						const firstCreated = formatTime(new Date(value.createdAt));
 						const expiresAt = formatTime(new Date(value.expiresAt));
 
+						const { system, browser, isMobile } = parseUserAgent(value.userAgent!);
+
 						return (
 							<TableRow key={index} className="border-sidebar-foreground dark:border-sidebar-accent">
 								<TableCell className="tracking-tight text-black dark:text-white">
 									<span className="flex flex-col gap-0.5">
 										<span className="flex items-center justify-start gap-1">
-											{new UAParser(value.userAgent || "").getDevice().type === "mobile" ? (
-												<CiMobile3 size={16} />
-											) : (
-												<Laptop size={16} />
-											)}
-											{new UAParser(value.userAgent || "").getOS().name},{" "}
-											{new UAParser(value.userAgent || "").getBrowser().name}
+											{isMobile ? <CiMobile3 size={16} /> : <Laptop size={16} />}
+											{system}, {browser}
 										</span>
 										{value.id === props.currentSession && (
 											<p className="text-xs text-neutral-500 dark:text-neutral-400">(This Device)</p>

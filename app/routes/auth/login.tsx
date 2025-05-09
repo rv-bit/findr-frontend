@@ -11,7 +11,7 @@ import { authClient } from "~/lib/auth";
 
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
+import InputLabel from "~/components/ui/input-label";
 
 import { FaGithub, FaGoogle } from "react-icons/fa";
 
@@ -111,13 +111,7 @@ export default function Login() {
 										render={({ field }) => (
 											<FormItem>
 												<FormControl>
-													<Input
-														type="text"
-														placeholder="username"
-														required
-														className="text-black dark:text-white"
-														{...field}
-													/>
+													<InputLabel type="text" required className="text-black dark:text-white" {...field} />
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -129,13 +123,7 @@ export default function Login() {
 										render={({ field }) => (
 											<FormItem>
 												<FormControl>
-													<Input
-														type="password"
-														placeholder="password"
-														required
-														className="text-black dark:text-white"
-														{...field}
-													/>
+													<InputLabel type="password" required className="text-black dark:text-white" {...field} />
 												</FormControl>
 												<div className="flex items-center justify-end">
 													<Link
