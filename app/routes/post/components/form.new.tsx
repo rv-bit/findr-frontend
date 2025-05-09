@@ -1,6 +1,4 @@
 "use client";
-import "@blocknote/mantine/style.css";
-
 import React from "react";
 import { useNavigate } from "react-router";
 
