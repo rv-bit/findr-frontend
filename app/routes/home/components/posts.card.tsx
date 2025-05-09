@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { toast } from "sonner";
 
-import { codeBlockPlugin, headingsPlugin, listsPlugin, markdownShortcutPlugin, MDXEditor, quotePlugin, thematicBreakPlugin } from "@mdxeditor/editor";
+import { codeBlockPlugin, headingsPlugin, linkDialogPlugin, linkPlugin, listsPlugin, markdownShortcutPlugin, MDXEditor, quotePlugin, thematicBreakPlugin } from "@mdxeditor/editor";
 import { ClientOnly } from "remix-utils/client-only";
 
 import { authClient } from "~/lib/auth";
@@ -275,13 +275,14 @@ export default function PostsCard({
 								plugins={[
 									quotePlugin(),
 									listsPlugin(),
-									codeBlockPlugin(),
 									headingsPlugin({
 										allowedHeadingLevels: [1, 2, 3],
 									}),
 									quotePlugin(),
 									thematicBreakPlugin(),
 									markdownShortcutPlugin(),
+									linkPlugin(),
+									linkDialogPlugin(),
 								]}
 								className="w-full overflow-hidden text-ellipsis"
 								contentEditableClassName="text-ellipsis line-clamp-10 text-gray-500 dark:text-gray-400 w-full"

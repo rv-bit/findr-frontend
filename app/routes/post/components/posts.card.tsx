@@ -1,4 +1,13 @@
-import { codeBlockPlugin, headingsPlugin, listsPlugin, markdownShortcutPlugin, MDXEditor, quotePlugin, thematicBreakPlugin } from "@mdxeditor/editor";
+import {
+	headingsPlugin,
+	linkDialogPlugin,
+	linkPlugin,
+	listsPlugin,
+	markdownShortcutPlugin,
+	MDXEditor,
+	quotePlugin,
+	thematicBreakPlugin,
+} from "@mdxeditor/editor";
 import React from "react";
 import { Link, useNavigate } from "react-router";
 import { ClientOnly } from "remix-utils/client-only";
@@ -279,13 +288,14 @@ export default function PostCard({
 								plugins={[
 									quotePlugin(),
 									listsPlugin(),
-									codeBlockPlugin(),
 									headingsPlugin({
 										allowedHeadingLevels: [1, 2, 3],
 									}),
 									quotePlugin(),
 									thematicBreakPlugin(),
 									markdownShortcutPlugin(),
+									linkPlugin(),
+									linkDialogPlugin(),
 								]}
 								className="w-full overflow-hidden text-ellipsis"
 								contentEditableClassName="text-ellipsis text-gray-500 dark:text-gray-400 w-full"

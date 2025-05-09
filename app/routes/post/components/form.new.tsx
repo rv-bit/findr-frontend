@@ -9,8 +9,6 @@ import { z } from "zod";
 import {
 	BlockTypeSelect,
 	BoldItalicUnderlineToggles,
-	codeBlockPlugin,
-	codeMirrorPlugin,
 	CodeToggle,
 	CreateLink,
 	headingsPlugin,
@@ -173,15 +171,6 @@ export default function ActionForm() {
 													quotePlugin(),
 													thematicBreakPlugin(),
 													markdownShortcutPlugin(),
-													codeBlockPlugin({ defaultCodeBlockLanguage: "txt" }),
-													codeMirrorPlugin({
-														codeBlockLanguages: {
-															js: "JavaScript",
-															css: "CSS",
-															txt: "text",
-															tsx: "TypeScript",
-														},
-													}),
 													linkPlugin(),
 													linkDialogPlugin(),
 													toolbarPlugin({

@@ -24,15 +24,12 @@
 ._contentEditable_uazmk_379 ul {
 	@apply list-inside list-disc;
 }
-
 ._contentEditable_uazmk_379 ol {
 	@apply list-inside list-decimal;
 }
-
 ._contentEditable_uazmk_379 li {
 	@apply ml-4;
 }
-
 ._contentEditable_uazmk_379 blockquote {
 	@apply border-l-4 border-neutral-200 p-2 dark:border-neutral-800;
 }
@@ -45,7 +42,9 @@
 ._contentEditable_uazmk_379 h3 {
 	@apply text-[1.17rem];
 }
-
+._contentEditable_uazmk_379 a {
+	@apply text-blue-500 underline;
+}
 ._placeholder_uazmk_1084 {
 	@apply hidden;
 }
