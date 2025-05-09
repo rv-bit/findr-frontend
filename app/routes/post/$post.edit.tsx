@@ -1,3 +1,4 @@
+import default_editor_stylesheet from "@mdxeditor/editor/style.css?url";
 import editor_stylesheet from "~/styles/form.default.mdx.css?url";
 import type { Route } from "./+types/new";
 
@@ -12,14 +13,19 @@ import {
 	BlockTypeSelect,
 	BoldItalicUnderlineToggles,
 	codeBlockPlugin,
+	codeMirrorPlugin,
 	CodeToggle,
+	CreateLink,
 	headingsPlugin,
 	InsertThematicBreak,
+	linkDialogPlugin,
+	linkPlugin,
 	listsPlugin,
 	ListsToggle,
 	markdownShortcutPlugin,
 	MDXEditor,
 	quotePlugin,
+	StrikeThroughSupSubToggles,
 	thematicBreakPlugin,
 	toolbarPlugin,
 	UndoRedo,
@@ -37,6 +43,7 @@ import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
 
 export const links: Route.LinksFunction = () => [
+	{ rel: "stylesheet", href: default_editor_stylesheet }, // default styles
 	{ rel: "stylesheet", href: editor_stylesheet }, // override styles
 ];
 
@@ -83,7 +90,7 @@ export default function Index() {
 		mode: "onChange",
 		resolver: zodResolver(newPostSchema),
 		defaultValues: {
-			content: loaderData.data.content,
+			content: JSON.parse(loaderData.data.content),
 		},
 	});
 
@@ -105,7 +112,7 @@ export default function Index() {
 				`/api/v0/post/edit/${loaderData.data.id}`,
 				{
 					...values,
-					content,
+					content: JSON.stringify(content),
 				},
 				{
 					headers: {
@@ -124,6 +131,11 @@ export default function Index() {
 				setError(errorData.error);
 			});
 	};
+
+	React.useEffect(() => {
+		console.log("JSON.parse(loaderData.data.content)", JSON.parse(loaderData.data.content));
+		return () => {};
+	}, []);
 
 	return (
 		<div className="flex h-full w-full flex-col items-center justify-start max-md:w-screen">
@@ -153,43 +165,41 @@ export default function Index() {
 																plugins={[
 																	quotePlugin(),
 																	listsPlugin(),
-																	codeBlockPlugin(),
 																	headingsPlugin({
 																		allowedHeadingLevels: [1, 2, 3],
 																	}),
 																	quotePlugin(),
 																	thematicBreakPlugin(),
 																	markdownShortcutPlugin(),
+																	codeBlockPlugin({ defaultCodeBlockLanguage: "txt" }),
+																	codeMirrorPlugin({
+																		codeBlockLanguages: {
+																			js: "JavaScript",
+																			css: "CSS",
+																			txt: "text",
+																			tsx: "TypeScript",
+																		},
+																	}),
+																	linkPlugin(),
+																	linkDialogPlugin(),
 																	toolbarPlugin({
 																		toolbarContents: () => (
 																			<>
-																				{/* <ToggleGroup type="multiple" size={"lg"}>
-																					<ToggleGroupItem
-																						onSelect={(e: React.SyntheticEvent<HTMLButtonElement>) => {
-																							e.preventDefault();
-																							applyFormat$({ type: "bold" });
-																						}}
-																						value="bold"
-																						aria-label="Bold"
-																					>
-																						<Bold />
-																					</ToggleGroupItem>
-																				</ToggleGroup> */}
-
 																				<UndoRedo />
-																				<hr className="h-5 border-l-2 border-sidebar-foreground dark:border-sidebar-accent" />
 																				<BoldItalicUnderlineToggles />
+																				<StrikeThroughSupSubToggles />
+																				<CreateLink />
 																				<BlockTypeSelect />
-																				<hr className="h-5 border-l-2 border-sidebar-foreground dark:border-sidebar-accent" />
-																				<ListsToggle options={["bullet", "number"]} />
-																				<hr className="h-5 border-l-2 border-sidebar-foreground dark:border-sidebar-accent" />
-																				<CodeToggle />
-																				<InsertThematicBreak />
+																				<div className="_toolbarGroupOfGroups_uazmk_217">
+																					<ListsToggle options={["bullet", "number"]} />
+																					<CodeToggle />
+																					<InsertThematicBreak />
+																				</div>
 																			</>
 																		),
 																	}),
 																]}
-																className="px-3 py-2"
+																contentEditableClassName="px-3"
 															/>
 														)}
 													</ClientOnly>

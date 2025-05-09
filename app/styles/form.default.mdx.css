@@ -10,29 +10,29 @@
 }
 
 .mdxeditor-root-contenteditable {
-	@apply h-full min-h-full w-full flex-1 text-black focus-visible:outline-none dark:text-white dark:focus-visible:outline-none;
+	@apply h-full min-h-full w-full flex-1 text-black focus-visible:outline-none dark:focus-visible:outline-none;
 }
-
 .mdxeditor-root-contenteditable div {
 	@apply h-full min-h-[250px] w-full focus-visible:outline-none dark:focus-visible:outline-none;
 }
 
+.dark ._contentEditable_uazmk_379,
 ._contentEditable_uazmk_379 {
-	@apply h-full w-full flex-1 focus-visible:outline-none dark:focus-visible:outline-none;
+	@apply h-full w-full flex-1 text-black focus-visible:outline-none dark:focus-visible:outline-none;
+}
+.dark ._contentEditable_uazmk_379 {
+	@apply text-white;
 }
 
 ._contentEditable_uazmk_379 ul {
 	@apply list-inside list-disc;
 }
-
 ._contentEditable_uazmk_379 ol {
 	@apply list-inside list-decimal;
 }
-
 ._contentEditable_uazmk_379 li {
 	@apply ml-4;
 }
-
 ._contentEditable_uazmk_379 blockquote {
 	@apply border-l-4 border-neutral-200 p-2 dark:border-neutral-800;
 }
@@ -45,80 +45,105 @@
 ._contentEditable_uazmk_379 h3 {
 	@apply text-[1.17rem];
 }
-
 ._placeholder_uazmk_1084 {
 	@apply hidden;
 }
 
 .mdxeditor-toolbar {
-	@apply flex h-fit w-full flex-row items-center justify-start gap-2;
+	@apply flex h-12 min-h-12 w-full flex-row items-center justify-start gap-1 overflow-y-hidden rounded-none bg-sidebar-accent px-2;
 }
 
 ._toolbarGroupOfGroups_uazmk_217 {
 	@apply flex items-center justify-center;
 }
 
-._toolbarToggleSingleGroup_uazmk_222 {
-	@apply flex items-center justify-center;
+._toolbarRoot_uazmk_160 {
+	@apply relative;
 }
 
-._toolbarToggleSingleGroup_uazmk_222 button {
-	@apply text-black dark:text-white;
+.dark ._toolbarRoot_uazmk_160 svg {
+	@apply text-white;
 }
-._toolbarToggleSingleGroup_uazmk_222 button:active,
-._toolbarToggleSingleGroup_uazmk_222 button[data-state="on"] {
-	@apply bg-sidebar-foreground/20 dark:bg-sidebar-accent;
+._toolbarRoot_uazmk_160 svg {
+	@apply text-black;
 }
 
-._tooltipTrigger_uazmk_676 {
-	@apply text-black dark:text-white;
+.dark ._toolbarButton_uazmk_237 {
+	@apply h-10 rounded-sm px-2 text-white;
 }
-._tooltipTrigger_uazmk_676 button {
-	@apply flex items-center justify-center rounded-4xl;
+._toolbarButton_uazmk_237 {
+	@apply h-10 rounded-sm px-2 text-black;
+}
+
+.dark ._toolbarButton_uazmk_237:hover {
+	@apply bg-sidebar-foreground/30;
+}
+._toolbarButton_uazmk_237:hover {
+	@apply bg-sidebar;
+}
+
+.dark ._toolbarToggleItem_uazmk_206 {
+	@apply h-10 rounded-sm px-2 text-white;
+}
+._toolbarToggleItem_uazmk_206 {
+	@apply h-10 rounded-sm px-2 text-black;
+}
+
+.dark ._toolbarToggleItem_uazmk_206:hover {
+	@apply bg-sidebar-foreground/30;
+}
+._toolbarToggleItem_uazmk_206:hover {
+	@apply bg-sidebar;
+}
+
+.dark ._toolbarToggleItem_uazmk_206:active,
+.dark ._toolbarToggleItem_uazmk_206[data-state="on"] {
+	@apply bg-sidebar-foreground/40 text-white;
+}
+._toolbarToggleItem_uazmk_206:active,
+._toolbarToggleItem_uazmk_206[data-state="on"] {
+	@apply bg-sidebar-foreground text-black;
+}
+
+.dark ._selectTrigger_uazmk_307 {
+	@apply bg-sidebar-foreground/40 text-white;
+}
+._selectTrigger_uazmk_307 {
+	@apply h-8 bg-sidebar text-black;
 }
 
 ._bold_1tncs_10 {
 	font-weight: bold;
 }
-
 ._italic_1tncs_14 {
 	font-style: italic;
 }
-
 ._underline_1tncs_18 {
 	text-decoration: underline;
 }
-
 ._bold_1tncs_10 {
 	font-weight: 700;
 }
-
 ._italic_1tncs_14 {
 	font-style: italic;
 }
-
 ._underline_1tncs_18 {
 	text-decoration: underline;
 }
-
 ._strikethrough_1tncs_34 {
 	text-decoration: line-through;
 }
-
 ._underlineStrikethrough_1tncs_38 {
 	text-decoration: underline line-through;
 }
-
 ._subscript_1tncs_42 {
 	font-size: 0.8em;
 	vertical-align: sub !important;
 }
-
 ._superscript_1tncs_47 {
 	font-size: 0.8em;
 	vertical-align: super;
 }
-
 ._code_1tncs_52 {
 	@apply bg-neutral-100 dark:bg-neutral-800;
 
@@ -215,9 +240,4 @@
 ._nestedListItem_1tncs_59:before,
 ._nestedListItem_1tncs_59:after {
 	display: none;
-}
-
-/* for on text hover toolbar action buttons */
-.mdxeditor-popup-container {
-	@apply text-black dark:text-white;
 }

@@ -263,7 +263,7 @@ export default function PostsCard({
 					<ClientOnly>
 						{() => (
 							<MDXEditor
-								markdown={data.content}
+								markdown={JSON.parse(data.content)}
 								plugins={[
 									quotePlugin(),
 									listsPlugin(),
