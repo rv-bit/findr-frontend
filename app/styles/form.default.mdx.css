@@ -10,15 +10,15 @@
 }
 
 .mdxeditor-root-contenteditable {
-	@apply h-full min-h-full w-full flex-1 text-black focus-visible:outline-none dark:focus-visible:outline-none;
+	@apply h-full min-h-full w-full flex-1 text-black focus-visible:outline-none;
 }
 .mdxeditor-root-contenteditable div {
-	@apply h-full min-h-[250px] w-full focus-visible:outline-none dark:focus-visible:outline-none;
+	@apply h-full min-h-[250px] w-full focus-visible:outline-none;
 }
 
 .dark ._contentEditable_uazmk_379,
 ._contentEditable_uazmk_379 {
-	@apply h-full w-full flex-1 text-black focus-visible:outline-none dark:focus-visible:outline-none;
+	@apply h-full w-full flex-1 text-black focus-visible:outline-none;
 }
 .dark ._contentEditable_uazmk_379 {
 	@apply text-white;
@@ -240,4 +240,45 @@
 ._nestedListItem_1tncs_59:before,
 ._nestedListItem_1tncs_59:after {
 	display: none;
+}
+
+.dark ._linkDialogPopoverContent_uazmk_600,
+._linkDialogPopoverContent_uazmk_600 {
+	@apply w-[300px] max-w-[300px] rounded-md border border-neutral-200 bg-white p-4 shadow-lg;
+}
+.dark ._linkDialogPopoverContent_uazmk_600 {
+	@apply border-neutral-800 bg-modal;
+}
+
+._multiFieldForm_uazmk_1194,
+._linkDialogEditForm_uazmk_540 {
+	@apply flex w-full flex-col gap-2;
+}
+
+.dark ._textInput_uazmk_1186,
+._textInput_uazmk_1186 {
+	@apply flex h-9 rounded-md border border-neutral-500 bg-transparent px-3 py-1 text-base shadow-xs transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-neutral-950 placeholder:text-neutral-500 focus-visible:ring-1 focus-visible:ring-neutral-950 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 md:text-sm;
+}
+
+.dark ._textInput_uazmk_1186 {
+	@apply border-neutral-400 file:text-neutral-50 placeholder:text-neutral-400 focus-visible:ring-neutral-300;
+}
+
+._secondaryButton_uazmk_507,
+._primaryButton_uazmk_506 {
+	@apply inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-1 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50;
+}
+
+._secondaryButton_uazmk_507 {
+	@apply border border-neutral-200 bg-neutral-600/50 text-white ring-neutral-900 hover:bg-neutral-500 focus-visible:ring-neutral-300;
+}
+.dark ._secondaryButton_uazmk_507 {
+	@apply border-none bg-neutral-800 text-neutral-50 ring-neutral-900 hover:bg-neutral-700 focus-visible:ring-neutral-300;
+}
+
+._primaryButton_uazmk_506 {
+	@apply border-none bg-neutral-950 text-neutral-50 ring-neutral-900 hover:bg-neutral-800 focus-visible:ring-neutral-300;
+}
+.dark ._primaryButton_uazmk_506 {
+	@apply border-none bg-neutral-200 text-neutral-950 hover:bg-neutral-300 focus-visible:ring-neutral-300;
 }
