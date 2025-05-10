@@ -65,7 +65,7 @@ export default function Index() {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const feed = searchParams.get("feed") || "home";
 
-	const inViewportRef = React.useRef(null);
+	const inViewportRef = React.useRef<HTMLDivElement | null>(null);
 	const [currentSortOption, setCurrentSortOption] = React.useState("newest");
 
 	const fetchData = React.useCallback(
@@ -94,30 +94,33 @@ export default function Index() {
 
 	const virtualizer = useWindowVirtualizer({
 		count: data?.pages.reduce((acc, group) => acc.concat(group.data), []).sort(sortingFn).length || 0,
-		estimateSize: () => 150,
-		debug: true,
+		estimateSize: () => 190,
+		paddingEnd: 20,
+		overscan: 5,
 	});
 	const virtualItems = virtualizer.getVirtualItems();
 
 	React.useEffect(() => {
-		if (!inViewportRef.current) return;
+		const currentRef = inViewportRef.current;
+		if (!currentRef) return;
 
-		if (status === "success") {
-			const observer = new IntersectionObserver(
-				(entries) => {
-					if (entries[0].isIntersecting) {
-						fetchNextPage();
-					}
-				},
-				{ threshold: 1 },
-			);
+		const observer = new IntersectionObserver(
+			(entries) => {
+				if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+					fetchNextPage().catch(console.error);
+				}
+			},
+			{
+				threshold: 0.1,
+				rootMargin: "100px 0px",
+			},
+		);
 
-			observer.observe(inViewportRef.current);
-			return () => {
-				observer.disconnect();
-			};
-		}
-	}, [status, fetchNextPage, inViewportRef]);
+		observer.observe(currentRef);
+		return () => {
+			observer.disconnect();
+		};
+	}, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
 	return (
 		<main className="mx-auto flex w-full flex-col items-center justify-start overflow-hidden max-md:w-screen">
@@ -142,7 +145,7 @@ export default function Index() {
 					</Select>
 				</section>
 
-				<section id="content" className="mb-10 flex h-full w-full flex-col gap-2">
+				<section id="content" className="flex h-full w-full flex-col gap-2">
 					{status === "pending" ? (
 						<div className="my-20 flex w-full items-center justify-center">
 							<Loading className="size-24" />
@@ -152,39 +155,40 @@ export default function Index() {
 							{!data?.pages.some((group) => group.data.length > 0) ? (
 								<p className="my-20 text-center text-xl font-semibold text-black dark:text-white">No results found for this feed.</p>
 							) : (
-								<div className="relative" style={{ height: `${virtualizer.getTotalSize()}px` }}>
-									<div
-										style={{
-											position: "absolute",
-											top: 0,
-											left: 0,
-											width: "100%",
-											transform: `translateY(${virtualItems[0]?.start ?? 0}px)`,
-										}}
-									>
-										{virtualItems.map((virtualRow) => {
-											const post = data.pages.reduce((acc, group) => acc.concat(group.data), []).sort(sortingFn)[
-												virtualRow.index
-											];
-											return (
-												<div key={post.id} data-index={virtualRow.index} ref={virtualizer.measureElement}>
-													<PostsCard className="my-1" data={post} />
-													<hr className="w-full border-t-0 border-b border-sidebar-border" />
-												</div>
-											);
-										})}
-									</div>
-								</div>
-							)}
-
-							{hasNextPage && (
-								<div ref={inViewportRef}>
-									{isFetchingNextPage && (
-										<div className="my-20 flex w-full items-center justify-center">
-											<Loading className="size-24" />
+								<>
+									<div className="relative" style={{ height: `${virtualizer.getTotalSize()}px` }}>
+										<div
+											style={{
+												position: "absolute",
+												top: 0,
+												left: 0,
+												width: "100%",
+												transform: `translateY(${virtualItems[0]?.start ?? 0}px)`,
+											}}
+										>
+											{virtualItems.map((virtualRow) => {
+												const post = data.pages.reduce((acc, group) => acc.concat(group.data), []).sort(sortingFn)[
+													virtualRow.index
+												];
+												return (
+													<div key={post.id} data-index={virtualRow.index} ref={virtualizer.measureElement}>
+														<PostsCard className="my-1" data={post} />
+														<hr className="w-full border-t-0 border-b border-sidebar-border" />
+													</div>
+												);
+											})}
 										</div>
-									)}
-								</div>
+									</div>
+
+									<div ref={inViewportRef} className="w-full py-4">
+										{isFetchingNextPage && (
+											<div className="flex w-full items-center justify-center">
+												<Loading className="size-24" />
+											</div>
+										)}
+										{hasNextPage && !isFetchingNextPage && <div className="h-10 w-full" />}
+									</div>
+								</>
 							)}
 						</div>
 					)}
