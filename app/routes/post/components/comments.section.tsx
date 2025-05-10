@@ -19,8 +19,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~
 
 import queryClient from "~/lib/query/query-client";
 
-import CommentBox from "./comment.box";
 import Comments, { type CommentNode } from "./comments.nodes";
+const CommentBox = React.lazy(() => import("./comment.box")); // client-side only
 
 type CommentSectionProps = React.ComponentProps<"section"> & {
 	data: Post & {
@@ -103,9 +103,6 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 			)
 			.then((response) => {
 				(async () => {
-					const promise = new Promise((resolve) => setTimeout(resolve, 2000));
-					await promise; // add a timeout since the comment is added instantly, and the UI could format the time in negative
-
 					setLoading(false);
 					if (response.status === 200) {
 						toast.success("Comment added successfully");
@@ -141,7 +138,7 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 	};
 
 	const handleCloseCommentButton = () => {
-		newCommentForm.reset(); // Reset the form values
+		newCommentForm.reset();
 	};
 
 	const placeholderText = React.useMemo(() => {
@@ -154,17 +151,19 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 
 	return (
 		<section className={cn("flex flex-col gap-5", className)}>
-			<CommentBox
-				className="w-full"
-				ref={commentTextAreaRef}
-				readOnly={!session || !session.user}
-				placeholder={placeholderText}
-				disabled={loading}
-				form={newCommentForm}
-				onHandleOpenCommentButton={handleOpenCommentButton}
-				onHandleSubmit={handleSubmit}
-				onCancelComment={handleCloseCommentButton}
-			/>
+			<React.Suspense fallback={<div className="h-10 w-full animate-pulse rounded-md bg-black/10 dark:bg-white/10" />}>
+				<CommentBox
+					className="w-full"
+					ref={commentTextAreaRef}
+					readOnly={!session || !session.user}
+					placeholder={placeholderText}
+					disabled={loading}
+					form={newCommentForm}
+					onHandleOpenCommentButton={handleOpenCommentButton}
+					onHandleSubmit={handleSubmit}
+					onCancelComment={handleCloseCommentButton}
+				/>
+			</React.Suspense>
 
 			<div className="flex w-full flex-col gap-5">
 				<section className="flex w-full items-center gap-1">
