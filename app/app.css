@@ -46,6 +46,15 @@
 
 @layer base {
 	:root {
+		body[data-scroll-locked][data-scroll-locked] {
+			overflow: auto !important;
+		}
+		body[data-scroll-locked] {
+			margin-right: 0 !important;
+		}
+	}
+
+	:root {
 		--radius: 0.5rem;
 		--sidebar-background: 0 0% 98%;
 		--sidebar-foreground: 240 5.3% 26.1%;
