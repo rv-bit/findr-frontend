@@ -300,8 +300,6 @@ const PostsCard = React.memo(
 								/>
 							)}
 						</ClientOnly>
-
-						{/* <p className="line-clamp-10 w-full overflow-hidden text-ellipsis text-gray-500 dark:text-gray-400">{data.content}</p> */}
 					</span>
 
 					<span className="flex items-start justify-start gap-2">
