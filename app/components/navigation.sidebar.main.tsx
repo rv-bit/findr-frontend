@@ -85,6 +85,7 @@ const actions: Actions[] = [
 				url: Routes.EXPLORE,
 
 				icon: UsersRound,
+				isDisabled: true,
 			},
 		],
 	},
