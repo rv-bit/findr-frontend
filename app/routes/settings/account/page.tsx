@@ -10,7 +10,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 
 import { authClient } from "~/lib/auth.client";
-import queryClient from "~/lib/query/query.client";
+import queryClient from "~/lib/query.client";
 
 import type { ModalProps } from "~/lib/types/ui/modal";
 

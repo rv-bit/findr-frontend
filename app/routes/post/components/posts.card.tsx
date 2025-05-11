@@ -17,7 +17,7 @@ import {
 import { cn, formatTime } from "~/lib/utils";
 
 import axiosInstance from "~/lib/axios.instance";
-import queryClient from "~/lib/query/query.client";
+import queryClient from "~/lib/query.client";
 
 import type { Session } from "~/lib/auth.client";
 import type { Post, User } from "~/lib/types/shared";

@@ -6,7 +6,7 @@ import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
 import { authClient, type Sessions } from "~/lib/auth.client";
-import queryClient from "~/lib/query/query.client";
+import queryClient from "~/lib/query.client";
 
 import type { ModalProps } from "~/lib/types/ui/modal";
 

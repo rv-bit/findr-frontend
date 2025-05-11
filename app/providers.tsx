@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { AuthQueryProvider } from "@daveyplate/better-auth-tanstack";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 
-import queryClient, { idbPersister } from "./lib/query/query.client";
+import queryClient, { idbPersister } from "./lib/query.client";
 
 import { ThemeProvider } from "~/providers/Theme";
 
