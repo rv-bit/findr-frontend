@@ -60,7 +60,7 @@ const PostsCard = React.memo(
 
 		const { data: session } = authClient.useSession();
 		const { mutate } = useMutatePostVote({
-			queryKey: ["userData", user.username],
+			queryKey: ["user", user.username],
 		});
 
 		const handleUpvote = (e: React.MouseEvent) => {
@@ -116,7 +116,7 @@ const PostsCard = React.memo(
 					show: editable,
 					onClick: async () => {
 						const cachedIndividualPost = queryClient.getQueryData(["post", data.id]) as Post & { user: User };
-						const cachedProfilePosts = queryClient.getQueryData(["userData", user.username, searchParams.get("type")]) as Post & {
+						const cachedProfilePosts = queryClient.getQueryData(["user", user.username, searchParams.get("type")]) as Post & {
 							user: User;
 						};
 						const response = await axiosInstance.delete(`/api/v0/post/${data.id}`);
@@ -132,7 +132,7 @@ const PostsCard = React.memo(
 						}
 
 						if (cachedProfilePosts) {
-							queryClient.setQueryData(["userData", user.username], (oldData: any) => {
+							queryClient.setQueryData(["user", user.username], (oldData: any) => {
 								if (!oldData) return oldData;
 
 								return {
