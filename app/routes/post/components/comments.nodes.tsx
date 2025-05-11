@@ -30,17 +30,12 @@ import type { CommentNode } from "../shared/types";
 
 import CommentBox from "./comment.box";
 
-type CommentNodeProps = React.ComponentProps<"section"> & {
-	comment: CommentNode;
-	session: Session | null;
-};
-
 type CommentsProps = React.ComponentProps<"section"> & {
 	postId: string;
 	session: Session | null;
 };
 
-function Comments({ className, postId, session, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentsProps) {
+const Comments = React.memo(({ className, postId, session, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentsProps) => {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const currentSortOption = searchParams.get("filter") || sortOptions[0].value;
 
@@ -112,9 +107,9 @@ function Comments({ className, postId, session, ...props }: React.HTMLAttributes
 	}
 
 	return (
-		<div className={cn("comment-tree-content", className)}>
+		<section className={cn("comment-tree-content", className)}>
 			{sortedData.map((comment: CommentNode) => {
-				return <CommentNode key={comment.id} comment={comment} session={session} />;
+				return <Comment key={comment.id} comment={comment} session={session} />;
 			})}
 
 			{hasNextPage && (
@@ -133,11 +128,15 @@ function Comments({ className, postId, session, ...props }: React.HTMLAttributes
 					)}
 				</div>
 			)}
-		</div>
+		</section>
 	);
-}
+});
 
-function CommentNode({ className, comment, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentNodeProps) {
+type CommentNodeProps = React.ComponentProps<"section"> & {
+	comment: CommentNode;
+	session: Session | null;
+};
+const Comment = React.memo(({ className, comment, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentNodeProps) => {
 	const containerRef = React.useRef<HTMLDivElement>(null);
 	const [showReplies, setShowReplies] = React.useState(true);
 
@@ -212,7 +211,7 @@ function CommentNode({ className, comment, ...props }: React.HTMLAttributes<HTML
 							) : (
 								<>
 									{repliesData.map((reply) => (
-										<CommentNode key={reply.id} comment={reply} session={props.session} className="ml-0" />
+										<Comment key={reply.id} comment={reply} session={props.session} className="ml-0" />
 									))}
 
 									{hasNextPage && (
@@ -238,9 +237,9 @@ function CommentNode({ className, comment, ...props }: React.HTMLAttributes<HTML
 			)}
 		</div>
 	);
-}
+});
 
-function CommentContent({ className, comment, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentNodeProps) {
+const CommentContent = React.memo(({ className, comment, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentNodeProps) => {
 	const commentTextAreaRef = React.useRef<HTMLTextAreaElement>(null);
 
 	const [replyCommentBoxOpen, setReplyCommentBoxOpen] = React.useState(false);
@@ -451,6 +450,6 @@ function CommentContent({ className, comment, ...props }: React.HTMLAttributes<H
 			</span>
 		</summary>
 	);
-}
+});
 
 export default Comments;
