@@ -62,7 +62,13 @@ export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
 	};
 }
 
-clientLoader.hydrate = true; // Disable hydration
+export function HydrateFallback() {
+	return (
+		<div className="flex w-full items-center justify-center">
+			<Loading className="size-24" />
+		</div>
+	);
+}
 
 const types: {
 	title: string;
@@ -122,14 +128,6 @@ const sortOptions: {
 		},
 	},
 ];
-
-export function HydrateFallback() {
-	return (
-		<div className="flex w-full items-center justify-center">
-			<Loading className="size-24" />
-		</div>
-	);
-}
 
 export default function Index() {
 	const { user } = useLoaderData<typeof loader>();

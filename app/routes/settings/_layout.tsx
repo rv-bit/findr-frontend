@@ -7,9 +7,11 @@ import { authClient } from "~/lib/auth";
 
 import { cn } from "~/lib/utils";
 
+import { Button } from "~/components/ui/button";
+
 import { ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
 import { type IconType } from "react-icons";
-import { Button } from "~/components/ui/button";
+import Loading from "~/icons/loading";
 
 export async function clientLoader({ serverLoader, params }: Route.ClientLoaderArgs) {
 	const { data: sessionData } = await authClient.getSession();
@@ -68,7 +70,11 @@ const actions: Actions[] = [
 ];
 
 export function HydrateFallback() {
-	return <div>Loading...</div>;
+	return (
+		<div className="flex w-full items-center justify-center">
+			<Loading className="size-24" />
+		</div>
+	);
 }
 
 export default function Layout({ loaderData }: Route.ComponentProps) {
@@ -126,7 +132,10 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
 				<div className="flex w-full max-w-7xl flex-col gap-5 px-10 pt-8 max-sm:px-4">
 					<h1 className="font-bricolage text-4xl font-semibold tracking-tighter text-black capitalize dark:text-white">Settings</h1>
 					<section className="relative w-full">
-						<nav ref={navRef} className="no-scrollbar flex h-full w-full flex-nowrap items-start justify-start gap-2 overflow-x-auto overflow-y-visible">
+						<nav
+							ref={navRef}
+							className="no-scrollbar flex h-full w-full flex-nowrap items-start justify-start gap-2 overflow-x-auto overflow-y-visible"
+						>
 							{actions.map((action, index) => (
 								<Button
 									key={index}
@@ -138,14 +147,18 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
 									}}
 									className={cn(
 										"group relative h-auto min-w-fit shrink-0 items-center justify-center rounded-none px-4 py-2 hover:no-underline",
-										isActive(action.url) ? "border-b-2 border-black dark:border-white" : "hover:border-b-2 hover:border-black/50 dark:hover:border-white/80",
+										isActive(action.url)
+											? "border-b-2 border-black dark:border-white"
+											: "hover:border-b-2 hover:border-black/50 dark:hover:border-white/80",
 									)}
 								>
 									{action.icon && <action.icon />}
 									<h1
 										className={cn(
 											"inline-flex text-black",
-											isActive(action.url) ? "text-black dark:text-white" : "group-hover:text-black/50 dark:text-[#8BA2AE] dark:group-hover:text-white/80",
+											isActive(action.url)
+												? "text-black dark:text-white"
+												: "group-hover:text-black/50 dark:text-[#8BA2AE] dark:group-hover:text-white/80",
 										)}
 									>
 										{action.title}
