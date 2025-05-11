@@ -5,7 +5,7 @@ import { cn } from "~/lib/utils";
 
 import { CaseSensitive, ImageIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { Form, FormControl, FormField, FormItem } from "~/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
 import { Textarea } from "~/components/ui/textarea";
 
 type CommentBoxProps = React.ComponentProps<"div"> & {
@@ -13,16 +13,9 @@ type CommentBoxProps = React.ComponentProps<"div"> & {
 	disabled?: boolean;
 	readOnly?: boolean;
 	placeholder?: string;
+	maxLength?: number;
 
-	form: UseFormReturn<
-		{
-			content: string;
-		},
-		any,
-		{
-			content: string;
-		}
-	>;
+	form: UseFormReturn<any>;
 
 	onHandleOpenCommentButton?: () => void;
 	onHandleSubmit: (data: any) => void;
@@ -31,11 +24,6 @@ type CommentBoxProps = React.ComponentProps<"div"> & {
 
 const CommentBox = React.forwardRef<HTMLTextAreaElement, CommentBoxProps>(({ className, ...props }, commentTextAreaRef) => {
 	const [commentButtonClicked, setCommentButtonClicked] = React.useState(props.open || false);
-	const [isClient, setIsClient] = React.useState(false);
-
-	React.useEffect(() => {
-		setIsClient(true);
-	}, []);
 
 	React.useEffect(() => {
 		if (props.open) {
@@ -79,22 +67,23 @@ const CommentBox = React.forwardRef<HTMLTextAreaElement, CommentBoxProps>(({ cla
 									<Textarea
 										{...field}
 										ref={commentTextAreaRef}
-										required
-										readOnly={!isClient || props.readOnly} // <-- make textarea readonly if not logged in
+										readOnly={props.readOnly} // <-- make textarea readonly if not logged in
+										placeholder={props.placeholder ?? "Join in the conversation"}
+										maxLength={props.maxLength ?? undefined}
 										onClick={() => {
 											props.onHandleOpenCommentButton && props.onHandleOpenCommentButton();
 										}}
-										placeholder={props.placeholder ?? "Join in the conversation"}
 										className={cn(
 											"rounded-xl border-none px-5 font-bricolage text-sm text-black shadow-none focus-within:border-none focus-visible:ring-0 md:text-sm dark:text-white",
 											{
 												"min-h-20 resize-y py-3 font-light": commentButtonClicked,
 												"min-h-0 resize-none py-0 pt-2.5 max-sm:pt-4 max-sm:pb-1": !commentButtonClicked,
-												"cursor-default": !isClient || props.readOnly,
+												"cursor-default": props.readOnly,
 											},
 										)}
 									/>
 								</FormControl>
+								<FormMessage />
 							</FormItem>
 						)}
 					/>

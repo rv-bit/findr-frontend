@@ -11,16 +11,19 @@ import { z } from "zod";
 import { cn } from "~/lib/utils";
 
 import axiosInstance from "~/lib/axios-instance";
+import queryClient from "~/lib/query/query-client";
 
 import type { Session } from "~/lib/auth";
 import type { Post, User } from "~/lib/types/shared";
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 
-import queryClient from "~/lib/query/query-client";
-
-import Comments, { type CommentNode } from "./comments.nodes";
 const CommentBox = React.lazy(() => import("./comment.box")); // client-side only
+
+import { sortOptions } from "../shared/constants";
+import { MAX_CONTENT_LENGTH, newCommentSchema } from "../shared/schemas";
+
+import Comments from "./comments.nodes";
 
 type CommentSectionProps = React.ComponentProps<"section"> & {
 	data: Post & {
@@ -28,38 +31,6 @@ type CommentSectionProps = React.ComponentProps<"section"> & {
 	};
 	session: Session | null;
 };
-
-export const sortOptions: {
-	title: string;
-	value: string;
-	sortingFn?: (a: CommentNode, b: CommentNode) => number;
-}[] = [
-	{
-		title: "Newest",
-		value: "newest",
-		sortingFn: (a: CommentNode, b: CommentNode) => {
-			return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-		},
-	},
-	{
-		title: "Oldest",
-		value: "oldest",
-		sortingFn: (a: CommentNode, b: CommentNode) => {
-			return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-		},
-	},
-	// {
-	// 	title: "Top",
-	// 	value: "top",
-	// 	sortingFn: (a: CommentNode, b: CommentNode) => {
-	// 		return b.likesCount - a.likesCount;
-	// 	},
-	// },
-];
-
-const newCommentSchema = z.object({
-	content: z.string().nonempty("Content is required"),
-});
 
 const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps>(({ className, data, session, ...props }, commentTextAreaRef) => {
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -86,7 +57,6 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 		const { content } = values;
 
 		setLoading(true);
-
 		axiosInstance
 			.post(
 				"/api/v0/comments/insert",
@@ -158,6 +128,7 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 					readOnly={!session || !session.user}
 					placeholder={placeholderText}
 					disabled={loading}
+					maxLength={MAX_CONTENT_LENGTH}
 					form={newCommentForm}
 					onHandleOpenCommentButton={handleOpenCommentButton}
 					onHandleSubmit={handleSubmit}

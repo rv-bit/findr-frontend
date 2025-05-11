@@ -8,39 +8,27 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import axiosInstance from "~/lib/axios-instance";
+import { useMutateCommentVote } from "~/hooks/useMutateCommentVote";
 
+import axiosInstance from "~/lib/axios-instance";
 import { cn, formatTime } from "~/lib/utils";
 
 import type { Session } from "~/lib/auth";
-import type { User } from "~/lib/types/shared";
 
+import HoverCardUser from "~/components/hover.card.user";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 
-import Loading from "~/icons/loading";
-
+import { ChevronDown, ChevronRight, MessageCircle } from "lucide-react";
 import { BiDownvote, BiSolidDownvote, BiSolidUpvote, BiUpvote } from "react-icons/bi";
 
-import { ChevronDown, ChevronRight, MessageCircle } from "lucide-react";
+import Loading from "~/icons/loading";
 
-import HoverCardUser from "~/components/hover.card.user";
-import { useMutateCommentVote } from "~/hooks/useMutateCommentVote";
+import { sortOptions } from "../shared/constants";
+import { MAX_CONTENT_LENGTH, newCommentSchema } from "../shared/schemas";
+import type { CommentNode } from "../shared/types";
+
 import CommentBox from "./comment.box";
-import { sortOptions } from "./comments.section";
-
-export type CommentNode = {
-	id: string;
-	text: string;
-	postId: string;
-	parentId: string | null;
-	upvoted: boolean;
-	downvoted: boolean;
-	user: User;
-	createdAt: Date;
-	updatedAt: Date;
-	replyCount: number;
-};
 
 type CommentNodeProps = React.ComponentProps<"section"> & {
 	comment: CommentNode;
@@ -54,8 +42,10 @@ type CommentsProps = React.ComponentProps<"section"> & {
 
 function Comments({ className, postId, session, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentsProps) {
 	const [searchParams, setSearchParams] = useSearchParams();
+	const currentSortOption = searchParams.get("filter") || sortOptions[0].value;
 
-	const inViewportRef = React.useRef(null);
+	const inViewportRef = React.useRef<HTMLDivElement>(null);
+	const containerRef = React.useRef<HTMLDivElement>(null);
 
 	const fetchTopLevelComments = React.useCallback(async ({ page, postId }: { page: number; postId: string }) => {
 		const { data } = await axiosInstance.get(`/api/v0/comments/${postId}/?page=${page}`);
@@ -74,14 +64,18 @@ function Comments({ className, postId, session, ...props }: React.HTMLAttributes
 		getPreviousPageParam: (firstPage, allPages, firstPageParam, allPageParams) => firstPage.prevCursor,
 	});
 
+	const sortingFn = React.useMemo(() => {
+		const sortOption = sortOptions.find((option) => option.value === currentSortOption);
+		return sortOption?.sortingFn;
+	}, [currentSortOption]);
+
 	const sortedData = React.useMemo(() => {
 		if (!data) return [];
-		const currentSortOption = searchParams.get("filter") || sortOptions[0].value;
 
-		const sortFn = sortOptions.find((option) => option.value === currentSortOption)?.sortingFn;
-		if (sortFn) {
-			return data.pages.flatMap((page) => page.data).sort(sortFn);
+		if (sortingFn) {
+			return data.pages.flatMap((page) => page.data).sort(sortingFn);
 		}
+
 		return data.pages.flatMap((page) => page.data);
 	}, [data, searchParams]);
 
@@ -119,17 +113,9 @@ function Comments({ className, postId, session, ...props }: React.HTMLAttributes
 
 	return (
 		<div className={cn("comment-tree-content", className)}>
-			{sortedData
-				.sort((a: CommentNode, b: CommentNode) => {
-					const sortFn = sortOptions.find((option) => option.value === searchParams.get("filter"))?.sortingFn;
-					if (sortFn) {
-						return sortFn(a, b);
-					}
-					return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(); // return default sort by createdAt from newest to oldest
-				})
-				.map((comment: CommentNode) => {
-					return <CommentNode key={comment.id} comment={comment} session={session} />;
-				})}
+			{sortedData.map((comment: CommentNode) => {
+				return <CommentNode key={comment.id} comment={comment} session={session} />;
+			})}
 
 			{hasNextPage && (
 				<div ref={inViewportRef} className="py-2 text-center">
@@ -253,10 +239,6 @@ function CommentNode({ className, comment, ...props }: React.HTMLAttributes<HTML
 		</div>
 	);
 }
-
-const newCommentSchema = z.object({
-	content: z.string().min(1, { message: "Comment is required" }),
-});
 
 function CommentContent({ className, comment, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentNodeProps) {
 	const commentTextAreaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -383,18 +365,18 @@ function CommentContent({ className, comment, ...props }: React.HTMLAttributes<H
 					<span className="flex items-center justify-start gap-1">
 						<HoverCardUser username={comment.user.username}>
 							<Link to={`/users/${comment.user.username}`} className="group flex w-fit cursor-pointer items-center justify-start gap-1">
-								<h2 className="text-sm break-all text-black group-hover:text-primary-300 dark:text-white group-hover:dark:text-primary-300">
+								<h1 className="text-sm break-all text-black group-hover:text-primary-300 dark:text-white group-hover:dark:text-primary-300">
 									{comment.user.username}
-								</h2>
+								</h1>
 							</Link>
 						</HoverCardUser>
 						<span className="my-0 inline-block text-[#333a3e] dark:text-[#333a3e]">•</span>
-						<h2 className="text-xs text-black dark:text-white">{formatTime(comment.createdAt)}</h2>
+						<p className="text-xs text-black dark:text-white">{formatTime(comment.createdAt)}</p>
 						{isEdited && <span className="text-xs text-black/50 dark:text-white/50">(edited) at {formatTime(comment.updatedAt)}</span>}
 					</span>
 
 					<span className="flex flex-col justify-start gap-0">
-						<p className="text-sm text-black/50 dark:text-white/50">{comment.text}</p>
+						<p className="text-sm break-all text-black/50 dark:text-white/50">{comment.text}</p>
 
 						<span className="mt-1 flex items-center justify-start gap-1">
 							<span className={cn("flex w-fit items-center justify-between")}>
@@ -459,6 +441,7 @@ function CommentContent({ className, comment, ...props }: React.HTMLAttributes<H
 							open={replyCommentBoxOpen}
 							placeholder="Write a reply..."
 							disabled={loading}
+							maxLength={MAX_CONTENT_LENGTH}
 							form={newCommentForm}
 							onHandleSubmit={handleSubmit}
 							onCancelComment={handleCloseCommentButton}
