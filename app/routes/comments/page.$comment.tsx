@@ -34,8 +34,6 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
 	}
 
 	const cachedData = queryClient.getQueryData(["individual-comment", commentId]) as { postData: Post & { user: User }; commentData: CommentNode };
-	console.log("Cached data", cachedData);
-
 	if (cachedData) {
 		return {
 			...cachedData,
@@ -70,8 +68,6 @@ export default function Index({ loaderData, params }: Route.ComponentProps) {
 	const navigate = useNavigate();
 	const location = useLocation();
 
-	const commentTextAreaRef = React.useRef<HTMLTextAreaElement>(null);
-
 	// this is just to create a cache for the post inside the indexdb persister
 	const { data, isLoading } = useQuery<{
 		postData: Post & { user: User };
@@ -79,20 +75,9 @@ export default function Index({ loaderData, params }: Route.ComponentProps) {
 	}>({
 		staleTime: 1000 * 60 * 1, // 1 minutes
 		queryKey: ["individual-comment", params.commentId],
-		queryFn: () => axiosInstance.get(`/api/v0/comments/comment/${params.commentId}`).then((res) => res.data.data),
+		queryFn: () => axiosInstance.get(`/api/v0/comments/comment/${params.commentId}`).then((res) => res.data),
 		initialData: loaderData,
 	});
-
-	const handleOnCommentIconClick = () => {
-		if (commentTextAreaRef && "current" in commentTextAreaRef && commentTextAreaRef.current) {
-			commentTextAreaRef.current.scrollIntoView({
-				block: "center",
-				behavior: "smooth",
-			});
-
-			commentTextAreaRef.current.focus();
-		}
-	};
 
 	React.useEffect(() => {
 		const currentPath = location.pathname;
@@ -115,9 +100,9 @@ export default function Index({ loaderData, params }: Route.ComponentProps) {
 				) : (
 					<>
 						<PostCard
-							data={data.postData}
+							postData={data.postData}
+							commentId={params.commentId}
 							session={session}
-							onCommentIconClick={handleOnCommentIconClick}
 							onBackButtonClick={() => {
 								navigate(-1);
 							}}

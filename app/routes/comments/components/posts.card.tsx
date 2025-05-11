@@ -47,23 +47,27 @@ type DropDownActions = {
 	onClick?: () => void;
 };
 
-export default function PostCard({
-	className,
-	data,
-	session,
-	onCommentIconClick,
-	onBackButtonClick,
-}: React.ComponentProps<"article"> & {
-	data: Post & {
+type PostCardProps = {
+	className?: string;
+	postData: Post & {
 		user: User;
 	};
+	commentId?: string;
 	session: Session | null;
-	onCommentIconClick: () => void;
 	onBackButtonClick: () => void;
-}) {
+};
+
+export default function PostCard({
+	className,
+	postData,
+	commentId,
+	session,
+	onBackButtonClick,
+	...props
+}: React.ComponentProps<"article"> & PostCardProps) {
 	const navigate = useNavigate();
 	const { mutate } = useMutatePostVote({
-		queryKey: ["post", data.id],
+		queryKey: ["individual-comment", commentId],
 	});
 
 	const handleUpvote = () => {
@@ -72,7 +76,7 @@ export default function PostCard({
 			return;
 		}
 
-		mutate({ postId: data.id, type: "upvote" });
+		mutate({ postId: postData.id, type: "upvote" });
 	};
 
 	const handleDownvote = () => {
@@ -81,7 +85,7 @@ export default function PostCard({
 			return;
 		}
 
-		mutate({ postId: data.id, type: "downvote" });
+		mutate({ postId: postData.id, type: "downvote" });
 	};
 
 	const editable = React.useMemo(() => {
@@ -89,13 +93,13 @@ export default function PostCard({
 			return false;
 		}
 
-		return data.user.username === session.user.username;
-	}, [session, data]);
+		return postData.user.username === session.user.username;
+	}, [session, postData]);
 
 	const time = React.useMemo(() => {
-		const date = new Date(data.createdAt);
+		const date = new Date(postData.createdAt);
 		return formatTime(date);
-	}, [data.createdAt]);
+	}, [postData.createdAt]);
 
 	const dropDownActions: DropDownActions[] = React.useMemo(
 		() => [
@@ -105,7 +109,7 @@ export default function PostCard({
 					{
 						title: "Follow User",
 						icon: BellDot,
-						show: (session && session.user.username !== data.user.username) || false,
+						show: (session && session.user.username !== postData.user.username) || false,
 					},
 					{
 						title: "Save",
@@ -128,7 +132,7 @@ export default function PostCard({
 						icon: Pencil,
 						show: editable,
 						onClick: () => {
-							navigate(`/post/${data.id}/edit`);
+							navigate(`/post/${postData.id}/edit`);
 						},
 					},
 					{
@@ -136,16 +140,16 @@ export default function PostCard({
 						icon: Trash2,
 						show: editable,
 						onClick: async () => {
-							const cachedData = queryClient.getQueryData(["post", data.id]) as Post & { user: User };
-							const response = await axiosInstance.delete(`/api/v0/post/${data.id}`);
+							const response = await axiosInstance.delete(`/api/v0/post/${postData.id}`);
 							if (response.status !== 200) {
 								toast.error("Error deleting post");
 								return;
 							}
 
+							const cachedData = queryClient.getQueryData(["individual-comment", commentId]);
 							if (cachedData) {
 								queryClient.invalidateQueries({
-									queryKey: ["post", data.id],
+									queryKey: ["individual-comment", commentId],
 								});
 							}
 
@@ -156,7 +160,7 @@ export default function PostCard({
 				],
 			},
 		],
-		[data, editable, session],
+		[postData, editable, session],
 	);
 
 	return (
@@ -173,9 +177,9 @@ export default function PostCard({
 						</Button>
 						<span className="flex items-center justify-start gap-2">
 							<Avatar className="size-9 rounded-full">
-								<AvatarImage loading="lazy" src={data.user.image ?? ""} alt={data.user.username} />
+								<AvatarImage loading="lazy" src={postData.user.image ?? ""} alt={postData.user.username} />
 								<AvatarFallback className="rounded-lg bg-sidebar-foreground/50 text-[0.75rem]">
-									{data.user.username
+									{postData.user.username
 										?.split(" ")
 										.map((name) => name[0])
 										.join("")}
@@ -183,13 +187,15 @@ export default function PostCard({
 							</Avatar>
 
 							<span className="flex flex-col justify-start gap-0">
-								<h1 className="text-sm break-all text-black dark:text-white">{data.slug}</h1>
-								<HoverCardUser username={data.user.username}>
+								<h1 className="text-sm break-all text-black dark:text-white">{postData.slug}</h1>
+								<HoverCardUser username={postData.user.username}>
 									<Link
-										to={`/users/${data.user.username}`}
+										to={`/users/${postData.user.username}`}
 										className="group flex w-fit cursor-pointer items-center justify-start gap-1"
 									>
-										<h2 className="text-xs break-all text-neutral-500 group-hover:dark:text-primary-300">{data.user.username}</h2>
+										<h2 className="text-xs break-all text-neutral-500 group-hover:dark:text-primary-300">
+											{postData.user.username}
+										</h2>
 									</Link>
 								</HoverCardUser>
 							</span>
@@ -277,11 +283,11 @@ export default function PostCard({
 				</span>
 
 				<span className="flex h-full flex-col items-start justify-start gap-1 overflow-hidden text-ellipsis">
-					<h1 className="w-full text-lg font-bold break-all text-black dark:text-white">{data.title}</h1>
+					<h1 className="w-full text-lg font-bold break-all text-black dark:text-white">{postData.title}</h1>
 					<ClientOnly>
 						{() => (
 							<MDXEditor
-								markdown={JSON.parse(data.content)}
+								markdown={JSON.parse(postData.content)}
 								plugins={[
 									quotePlugin(),
 									listsPlugin(),
@@ -306,8 +312,8 @@ export default function PostCard({
 			<span className="flex items-start justify-start gap-2">
 				<span
 					className={cn("flex w-fit items-center justify-between gap-1 rounded-3xl bg-[#E5EBEE] dark:bg-sidebar-accent", {
-						"bg-red-400/85 dark:bg-red-400/85": data.downvoted,
-						"bg-primary-400 dark:bg-primary-400": data.upvoted,
+						"bg-red-400/85 dark:bg-red-400/85": postData.downvoted,
+						"bg-primary-400 dark:bg-primary-400": postData.upvoted,
 					})}
 				>
 					<span className="flex items-center justify-center">
@@ -316,13 +322,13 @@ export default function PostCard({
 							className={cn(
 								"group flex items-center justify-center gap-1 rounded-full bg-transparent p-2 px-3 text-black/70 shadow-none hover:bg-[#75858f]/20 dark:bg-transparent dark:text-white dark:hover:bg-[#333a3e] [&_svg]:size-4",
 								{
-									"text-white hover:bg-[#75858f]/50 dark:hover:bg-[#333a3e]/40": data.upvoted || data.downvoted,
+									"text-white hover:bg-[#75858f]/50 dark:hover:bg-[#333a3e]/40": postData.upvoted || postData.downvoted,
 								},
 							)}
 						>
 							<ThumbsUp
 								className={cn("group-hover:text-primary-400", {
-									"group-hover:text-white": data.upvoted || data.downvoted,
+									"group-hover:text-white": postData.upvoted || postData.downvoted,
 								})}
 							/>
 						</Button>
@@ -330,10 +336,10 @@ export default function PostCard({
 
 					<h1
 						className={cn("text-sm text-black/70 dark:text-white", {
-							"text-white": data.upvoted || data.downvoted,
+							"text-white": postData.upvoted || postData.downvoted,
 						})}
 					>
-						{data.likesCount}
+						{postData.likesCount}
 					</h1>
 
 					<span className="flex items-center justify-center">
@@ -342,13 +348,13 @@ export default function PostCard({
 							className={cn(
 								"group flex items-center justify-center gap-1 rounded-full bg-transparent p-2 px-3 text-black/70 shadow-none hover:bg-[#75858f]/20 dark:bg-transparent dark:text-white dark:hover:bg-[#333a3e] [&_svg]:size-4",
 								{
-									"text-white hover:bg-[#75858f]/50 dark:hover:bg-[#333a3e]/40": data.upvoted || data.downvoted,
+									"text-white hover:bg-[#75858f]/50 dark:hover:bg-[#333a3e]/40": postData.upvoted || postData.downvoted,
 								},
 							)}
 						>
 							<ThumbsDown
 								className={cn("group-hover:text-red-400/85", {
-									"group-hover:text-white": data.upvoted || data.downvoted,
+									"group-hover:text-white": postData.upvoted || postData.downvoted,
 								})}
 							/>
 						</Button>
@@ -357,12 +363,12 @@ export default function PostCard({
 
 				<Button
 					onClick={() => {
-						navigate(`/post/${data.id}`);
+						navigate(`/post/${postData.id}`);
 					}}
 					className="flex h-9 w-fit items-center justify-start gap-1 rounded-3xl bg-[#E5EBEE] px-3 py-2 text-black hover:bg-[#75858f]/20 dark:bg-sidebar-accent dark:text-white dark:hover:bg-[#333a3e] [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
 				>
 					<MessageCircle />
-					<span className="text-sm text-black dark:text-white">{data.commentsCount}</span>
+					<span className="text-sm text-black dark:text-white">{postData.commentsCount}</span>
 				</Button>
 			</span>
 		</article>

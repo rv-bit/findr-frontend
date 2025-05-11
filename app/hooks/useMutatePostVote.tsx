@@ -60,6 +60,17 @@ export const useMutatePostVote = ({ queryKey }: { queryKey: (string | undefined)
 			queryClient.setQueryData(queryKey, (oldData: any) => {
 				if (!oldData) return oldData;
 
+				// Logic for handling individual comment post data
+				if ("postData" in oldData) {
+					if (oldData.postData.id === postId) {
+						return {
+							...oldData,
+							postData: mutatePost(oldData.postData, type),
+						};
+					}
+				}
+
+				// Logic for handling paginated post data
 				if (oldData.pages) {
 					return {
 						...oldData,
