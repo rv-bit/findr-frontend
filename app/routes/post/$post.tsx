@@ -106,6 +106,8 @@ export default function Index({ loaderData, params }: Route.ComponentProps) {
 	const navigate = useNavigate();
 	const location = useLocation();
 
+	const commentTextAreaRef = React.useRef<HTMLTextAreaElement>(null);
+
 	const { data, isLoading } = useQuery<Post & { user: User }>({
 		// this is just to create a cache for the post inside the indexdb perister
 		staleTime: 1000 * 60 * 1, // 1 minutes
@@ -113,8 +115,6 @@ export default function Index({ loaderData, params }: Route.ComponentProps) {
 		queryFn: () => axiosInstance.get(`/api/v0/post/${params.postId}`).then((res) => res.data.data),
 		initialData: loaderData.data,
 	});
-
-	const commentTextAreaRef = React.useRef<HTMLTextAreaElement>(null);
 
 	const handleOnCommentIconClick = () => {
 		if (commentTextAreaRef && "current" in commentTextAreaRef && commentTextAreaRef.current) {
