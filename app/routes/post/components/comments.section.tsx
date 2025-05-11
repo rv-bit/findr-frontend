@@ -11,16 +11,19 @@ import { z } from "zod";
 import { cn } from "~/lib/utils";
 
 import axiosInstance from "~/lib/axios-instance";
+import queryClient from "~/lib/query/query-client";
 
 import type { Session } from "~/lib/auth";
 import type { Post, User } from "~/lib/types/shared";
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 
-import queryClient from "~/lib/query/query-client";
+import { sortOptions } from "../shared/constants";
+import { MAX_CONTENT_LENGTH, newCommentSchema } from "../shared/schemas";
 
-import CommentBox from "./comment.box";
-import Comments, { type CommentNode } from "./comments.nodes";
+const CommentBox = React.lazy(() => import("./comment.box")); // client-side only
+
+import Comments from "./comments.nodes";
 
 type CommentSectionProps = React.ComponentProps<"section"> & {
 	data: Post & {
@@ -29,43 +32,10 @@ type CommentSectionProps = React.ComponentProps<"section"> & {
 	session: Session | null;
 };
 
-export const sortOptions: {
-	title: string;
-	value: string;
-	sortingFn?: (a: CommentNode, b: CommentNode) => number;
-}[] = [
-	{
-		title: "Newest",
-		value: "newest",
-		sortingFn: (a: CommentNode, b: CommentNode) => {
-			return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-		},
-	},
-	{
-		title: "Oldest",
-		value: "oldest",
-		sortingFn: (a: CommentNode, b: CommentNode) => {
-			return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-		},
-	},
-	// {
-	// 	title: "Top",
-	// 	value: "top",
-	// 	sortingFn: (a: CommentNode, b: CommentNode) => {
-	// 		return b.likesCount - a.likesCount;
-	// 	},
-	// },
-];
-
-const newCommentSchema = z.object({
-	content: z.string().nonempty("Content is required"),
-});
-
 const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps>(({ className, data, session, ...props }, commentTextAreaRef) => {
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	const [currentSortOption, setCurrentSortOption] = React.useState(sortOptions[0].value);
-
 	const [loading, setLoading] = React.useState(false);
 	const [error, setError] = React.useState<string | null>(null);
 
@@ -86,7 +56,6 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 		const { content } = values;
 
 		setLoading(true);
-
 		axiosInstance
 			.post(
 				"/api/v0/comments/insert",
@@ -103,9 +72,6 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 			)
 			.then((response) => {
 				(async () => {
-					const promise = new Promise((resolve) => setTimeout(resolve, 2000));
-					await promise; // add a timeout since the comment is added instantly, and the UI could format the time in negative
-
 					setLoading(false);
 					if (response.status === 200) {
 						toast.success("Comment added successfully");
@@ -141,10 +107,10 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 	};
 
 	const handleCloseCommentButton = () => {
-		newCommentForm.reset(); // Reset the form values
+		newCommentForm.reset();
 	};
 
-	const placeholderText = React.useMemo(() => {
+	const placeholder = React.useMemo(() => {
 		if (!session || !session.user) {
 			return "Login to join the conversation";
 		}
@@ -153,20 +119,23 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 	}, [session]);
 
 	return (
-		<section className={cn("flex flex-col gap-5", className)}>
-			<CommentBox
-				className="w-full"
-				ref={commentTextAreaRef}
-				readOnly={!session || !session.user}
-				placeholder={placeholderText}
-				disabled={loading}
-				form={newCommentForm}
-				onHandleOpenCommentButton={handleOpenCommentButton}
-				onHandleSubmit={handleSubmit}
-				onCancelComment={handleCloseCommentButton}
-			/>
+		<section className={cn("flex flex-col gap-5 overflow-hidden", className)}>
+			<React.Suspense fallback={<div className="h-10 w-full animate-pulse rounded-md bg-black/10 dark:bg-white/10" />}>
+				<CommentBox
+					className="w-full"
+					ref={commentTextAreaRef}
+					readOnly={!session || !session.user}
+					placeholder={placeholder}
+					disabled={loading}
+					maxLength={MAX_CONTENT_LENGTH}
+					form={newCommentForm}
+					onHandleOpenCommentButton={handleOpenCommentButton}
+					onHandleSubmit={handleSubmit}
+					onCancelComment={handleCloseCommentButton}
+				/>
+			</React.Suspense>
 
-			<div className="flex w-full flex-col gap-5">
+			<span className="flex w-full flex-col gap-5">
 				<section className="flex w-full items-center gap-1">
 					<p className="text-sm font-semibold text-black/50 dark:text-white/50">Sort by:</p>
 					<Select
@@ -198,8 +167,8 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 					</Select>
 				</section>
 
-				<Comments session={session} postId={data.id} />
-			</div>
+				<Comments postId={data.id} session={session} />
+			</span>
 		</section>
 	);
 });

@@ -120,7 +120,7 @@ const SidebarProvider = React.forwardRef<
 				<div
 					style={
 						{
-							minHeight: "calc(100vh-var(--topbar-height))",
+							minHeight: "calc(100vh-var(--nav-height))",
 							"--sidebar-width": SIDEBAR_WIDTH,
 							"--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
 							...style,
@@ -210,7 +210,7 @@ const Sidebar = React.forwardRef<
 			/>
 			<div
 				style={{
-					marginTop: "var(--topbar-height)",
+					marginTop: "var(--nav-height)",
 				}}
 				className={cn(
 					"fixed inset-y-0 z-10 hidden w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex",
@@ -306,7 +306,7 @@ const SidebarInset = React.forwardRef<HTMLDivElement, React.ComponentProps<"main
 	return (
 		<main
 			style={{
-				paddingTop: "var(--topbar-height)",
+				paddingTop: "var(--nav-height)",
 			}}
 			ref={ref}
 			className={cn(

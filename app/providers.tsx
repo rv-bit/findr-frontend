@@ -11,7 +11,7 @@ import { ThemeProvider } from "~/providers/Theme";
 
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import { Toaster } from "~/components/ui/sonner";
-import { Topbar, TopbarInset, TopbarProvider } from "~/components/ui/topbar";
+import { Topbar, TopbarInset } from "~/components/ui/topbar";
 
 import SidebarActions from "~/components/navigation.sidebar.main";
 import TopbarActions from "~/components/navigation.top.main";
@@ -36,20 +36,18 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 		<PersistQueryClientProvider client={queryClient} persistOptions={{ persister: idbPersister }}>
 			<AuthQueryProvider>
 				<ThemeProvider>
-					<TopbarProvider>
-						<SidebarProvider>
-							<Topbar>
-								<TopbarInset>
-									<TopbarActions />
-								</TopbarInset>
-							</Topbar>
-							<SidebarActions />
-							<SidebarInset>
-								{children}
-								<Toaster />
-							</SidebarInset>
-						</SidebarProvider>
-					</TopbarProvider>
+					<SidebarProvider>
+						<Topbar>
+							<TopbarInset>
+								<TopbarActions />
+							</TopbarInset>
+						</Topbar>
+						<SidebarActions />
+						<SidebarInset>
+							{children}
+							<Toaster />
+						</SidebarInset>
+					</SidebarProvider>
 				</ThemeProvider>
 			</AuthQueryProvider>
 		</PersistQueryClientProvider>

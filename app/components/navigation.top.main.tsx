@@ -222,13 +222,7 @@ export default function TopbarActions() {
 									className="h-auto rounded-full p-1 hover:bg-sidebar-foreground/20 hover:text-white dark:hover:bg-sidebar-accent"
 								>
 									<Avatar className="h-8 w-8 rounded-full">
-										{!isPending && (
-											<AvatarImage
-												loading="lazy"
-												src={`${sessionData?.user.image?.startsWith("http") ? sessionData?.user.image : `${import.meta.env.VITE_CLOUD_FRONT_URL}/${sessionData?.user.image}`}`}
-												alt={sessionData?.user.name}
-											/>
-										)}
+										<AvatarImage loading="lazy" src={sessionData?.user.image ?? ""} alt={sessionData?.user.name} />
 										<AvatarFallback className="rounded-lg bg-sidebar-foreground/50">
 											{sessionData?.user.name
 												?.split(" ")
@@ -255,13 +249,7 @@ export default function TopbarActions() {
 										className="flex h-auto w-full items-center justify-center gap-2 px-3 text-left text-sm opacity-80 hover:no-underline hover:opacity-100"
 									>
 										<Avatar className="h-8 w-8 rounded-full">
-											{!isPending && (
-												<AvatarImage
-													loading="lazy"
-													src={`${sessionData?.user.image?.startsWith("http") ? sessionData?.user.image : `${import.meta.env.VITE_CLOUD_FRONT_URL}/${sessionData?.user.image}`}`}
-													alt={sessionData?.user.name}
-												/>
-											)}
+											<AvatarImage loading="lazy" src={sessionData?.user.image ?? ""} alt={sessionData?.user.name} />
 											<AvatarFallback className="rounded-full">
 												{sessionData?.user.name
 													?.split(" ")

@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import React from "react";
 import { Link, useSearchParams } from "react-router";
 
@@ -8,54 +8,47 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import axiosInstance from "~/lib/axios-instance";
+import { useMutateCommentVote } from "~/hooks/useMutateCommentVote";
 
+import axiosInstance from "~/lib/axios-instance";
 import { cn, formatTime } from "~/lib/utils";
 
 import type { Session } from "~/lib/auth";
-import type { User } from "~/lib/types/shared";
 
+import HoverCardUser from "~/components/hover.card.user";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 
-import Loading from "~/icons/loading";
-
+import { ChevronDown, ChevronRight, MessageCircle } from "lucide-react";
 import { BiDownvote, BiSolidDownvote, BiSolidUpvote, BiUpvote } from "react-icons/bi";
 
-import { ChevronDown, ChevronRight, MessageCircle } from "lucide-react";
+import Loading from "~/icons/loading";
 
-import HoverCardUser from "~/components/hover.card.user";
-import { useMutateCommentVote } from "~/hooks/useMutateCommentVote";
+import { sortOptions } from "../shared/constants";
+import { MAX_CONTENT_LENGTH, newCommentSchema } from "../shared/schemas";
+import type { CommentNode } from "../shared/types";
+
+import type { Post, User } from "~/lib/types/shared";
+import { useRepliesVisibilityStore } from "../stores/useRepliesVisibility";
 import CommentBox from "./comment.box";
-import { sortOptions } from "./comments.section";
-
-export type CommentNode = {
-	id: string;
-	text: string;
-	postId: string;
-	parentId: string | null;
-	upvoted: boolean;
-	downvoted: boolean;
-	user: User;
-	createdAt: Date;
-	updatedAt: Date;
-	replyCount: number;
-};
-
-type CommentNodeProps = React.ComponentProps<"section"> & {
-	comment: CommentNode;
-	session: Session | null;
-};
 
 type CommentsProps = React.ComponentProps<"section"> & {
 	postId: string;
 	session: Session | null;
 };
 
-function Comments({ className, postId, session, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentsProps) {
-	const [searchParams, setSearchParams] = useSearchParams();
+const fetchReplies = async ({ commentId, page = 1 }: { commentId: string; page: number }) => {
+	const { data } = await axiosInstance.get(`/api/v0/comments/replies/${commentId}/?page=${page}`);
+	return data;
+};
 
-	const inViewportRef = React.useRef(null);
+const Comments = React.memo(({ className, postId, session, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentsProps) => {
+	const queryClient = useQueryClient();
+	const [searchParams, setSearchParams] = useSearchParams();
+	const currentSortOption = searchParams.get("filter") || sortOptions[0].value;
+
+	const inViewportRef = React.useRef<HTMLDivElement>(null);
+	const containerRef = React.useRef<HTMLDivElement>(null);
 
 	const fetchTopLevelComments = React.useCallback(async ({ page, postId }: { page: number; postId: string }) => {
 		const { data } = await axiosInstance.get(`/api/v0/comments/${postId}/?page=${page}`);
@@ -74,14 +67,18 @@ function Comments({ className, postId, session, ...props }: React.HTMLAttributes
 		getPreviousPageParam: (firstPage, allPages, firstPageParam, allPageParams) => firstPage.prevCursor,
 	});
 
+	const sortingFn = React.useMemo(() => {
+		const sortOption = sortOptions.find((option) => option.value === currentSortOption);
+		return sortOption?.sortingFn;
+	}, [currentSortOption]);
+
 	const sortedData = React.useMemo(() => {
 		if (!data) return [];
-		const currentSortOption = searchParams.get("filter") || sortOptions[0].value;
 
-		const sortFn = sortOptions.find((option) => option.value === currentSortOption)?.sortingFn;
-		if (sortFn) {
-			return data.pages.flatMap((page) => page.data).sort(sortFn);
+		if (sortingFn) {
+			return data.pages.flatMap((page) => page.data).sort(sortingFn);
 		}
+
 		return data.pages.flatMap((page) => page.data);
 	}, [data, searchParams]);
 
@@ -95,7 +92,7 @@ function Comments({ className, postId, session, ...props }: React.HTMLAttributes
 						fetchNextPage();
 					}
 				},
-				{ threshold: 1 },
+				{ threshold: 0.5 }, // Trigger when 50% of the element is in view
 			);
 
 			observer.observe(inViewportRef.current);
@@ -104,6 +101,20 @@ function Comments({ className, postId, session, ...props }: React.HTMLAttributes
 			};
 		}
 	}, [status, fetchNextPage, inViewportRef]);
+
+	// Prefetch replies for comments with reply counts
+	React.useEffect(() => {
+		const commentsWithReplies = sortedData.filter((comment) => comment.replyCount > 0);
+
+		// Prefetch first page of replies for comments with replies
+		commentsWithReplies.forEach((comment) => {
+			queryClient.prefetchInfiniteQuery({
+				queryKey: ["comment-replies", comment.id],
+				queryFn: () => fetchReplies({ commentId: comment.id, page: 1 }),
+				initialPageParam: 1,
+			});
+		});
+	}, [sortedData, queryClient]);
 
 	if (isLoading) {
 		return (
@@ -118,18 +129,10 @@ function Comments({ className, postId, session, ...props }: React.HTMLAttributes
 	}
 
 	return (
-		<div className={cn("comment-tree-content", className)}>
-			{sortedData
-				.sort((a: CommentNode, b: CommentNode) => {
-					const sortFn = sortOptions.find((option) => option.value === searchParams.get("filter"))?.sortingFn;
-					if (sortFn) {
-						return sortFn(a, b);
-					}
-					return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(); // return default sort by createdAt from newest to oldest
-				})
-				.map((comment: CommentNode) => {
-					return <CommentNode key={comment.id} comment={comment} session={session} />;
-				})}
+		<section className={cn("comment-tree-content", className)}>
+			{sortedData.map((comment: CommentNode) => {
+				return <Comment key={comment.id} comment={comment} session={session} />;
+			})}
 
 			{hasNextPage && (
 				<div ref={inViewportRef} className="py-2 text-center">
@@ -147,72 +150,72 @@ function Comments({ className, postId, session, ...props }: React.HTMLAttributes
 					)}
 				</div>
 			)}
-		</div>
+		</section>
 	);
-}
+});
 
-function CommentNode({ className, comment, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentNodeProps) {
+type CommentNodeProps = React.ComponentProps<"section"> & {
+	comment: CommentNode;
+	session: Session | null;
+};
+const Comment = React.memo(({ className, comment, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentNodeProps) => {
 	const containerRef = React.useRef<HTMLDivElement>(null);
-	const [showReplies, setShowReplies] = React.useState(true);
 
-	const fetchReplies = React.useCallback(async ({ page, commentId }: { page: number; commentId: string }) => {
-		const { data } = await axiosInstance.get(`/api/v0/comments/replies/${commentId}/?page=${page}`);
-		return data;
-	}, []);
+	const isVisible = useRepliesVisibilityStore((state) => state.isVisible(comment.id));
+	const setVisibility = useRepliesVisibilityStore((state) => state.setVisibility);
+
+	const hasReplies = comment.replyCount > 0;
 
 	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, refetch } = useInfiniteQuery({
-		staleTime: 1000 * 60 * 5, // 5 minutes
-		enabled: showReplies, // Only fetch replies when showReplies is true
-		queryKey: ["replies", comment.id],
+		staleTime: 1000 * 60 * 2, // 2 minutes
+		enabled: isVisible && hasReplies,
+		queryKey: ["comment-replies", comment.id],
 		initialPageParam: 1,
 		queryFn: async ({ pageParam }) => {
-			return fetchReplies({ page: pageParam, commentId: comment.id });
+			return fetchReplies({ commentId: comment.id, page: pageParam });
 		},
-		getNextPageParam: (lastPage, allPages, lastPageParam, allPageParams) => lastPage.nextCursor,
-		getPreviousPageParam: (firstPage, allPages, firstPageParam, allPageParams) => firstPage.prevCursor,
+		getNextPageParam: (lastPage) => lastPage.nextCursor,
+		getPreviousPageParam: (firstPage) => firstPage.prevCursor,
 	});
-
-	const repliesCount = React.useMemo(() => {
-		if (comment.replyCount) {
-			return comment.replyCount;
-		} else if (data) {
-			return data.pages.reduce((acc, page) => acc + page.data.length, 0);
-		}
-
-		return 0;
-	}, [data, comment]);
 
 	const repliesData = React.useMemo(() => {
 		if (!data) return [];
 		return data.pages.flatMap((page) => page.data) as CommentNode[];
 	}, [data]);
 
-	const hasReplies = repliesCount > 0;
+	const toggleReplies = () => {
+		if (!isVisible && hasReplies) {
+			// If we're showing replies, refetch to get the latest data
+			refetch();
+		}
+
+		setVisibility(comment.id, !isVisible);
+	};
 
 	return (
 		<div ref={containerRef} className={cn("comment-thread-item mb-4", className)}>
 			<CommentContent comment={comment} session={props.session} />
 
-			{hasReplies && !showReplies && (
+			{hasReplies && !isVisible && (
 				<div className="mt-1 ml-12">
 					<Button
-						variant={"link"}
-						onClick={() => setShowReplies(true)}
+						variant="link"
+						onClick={toggleReplies}
 						className="flex items-center gap-1 p-0 text-xs text-neutral-600 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200"
 					>
 						<ChevronRight className="mr-1 size-4" />
-						Show replies ({repliesCount})
+						Show replies ({comment.replyCount})
 					</Button>
 				</div>
 			)}
 
-			{showReplies && (
+			{isVisible && (
 				<div className="mt-1 ml-12">
 					{hasReplies && (
 						<>
 							<Button
-								variant={"link"}
-								onClick={() => setShowReplies(false)}
+								variant="link"
+								onClick={toggleReplies}
 								className="mb-2 flex items-center gap-1 p-0 text-xs text-neutral-600 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200"
 							>
 								<ChevronDown className="mr-1 size-4" />
@@ -226,7 +229,7 @@ function CommentNode({ className, comment, ...props }: React.HTMLAttributes<HTML
 							) : (
 								<>
 									{repliesData.map((reply) => (
-										<CommentNode key={reply.id} comment={reply} session={props.session} className="ml-0" />
+										<Comment key={reply.id} comment={reply} session={props.session} className="ml-0" />
 									))}
 
 									{hasNextPage && (
@@ -240,7 +243,7 @@ function CommentNode({ className, comment, ...props }: React.HTMLAttributes<HTML
 													<div className="size-5 animate-spin rounded-full border-2 border-neutral-400 border-t-transparent" />
 												</>
 											) : (
-												<>Show more replies ({repliesCount - repliesData.length})</>
+												<>Show more replies ({comment.replyCount - repliesData.length})</>
 											)}
 										</button>
 									)}
@@ -252,13 +255,11 @@ function CommentNode({ className, comment, ...props }: React.HTMLAttributes<HTML
 			)}
 		</div>
 	);
-}
-
-const newCommentSchema = z.object({
-	content: z.string().min(1, { message: "Comment is required" }),
 });
 
-function CommentContent({ className, comment, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentNodeProps) {
+const CommentContent = React.memo(({ className, comment, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentNodeProps) => {
+	const queryClient = useQueryClient();
+
 	const commentTextAreaRef = React.useRef<HTMLTextAreaElement>(null);
 
 	const [replyCommentBoxOpen, setReplyCommentBoxOpen] = React.useState(false);
@@ -266,7 +267,7 @@ function CommentContent({ className, comment, ...props }: React.HTMLAttributes<H
 
 	const queryKey = React.useMemo(() => {
 		if (comment.parentId) {
-			return ["replies", comment.parentId];
+			return ["comment-replies", comment.parentId];
 		}
 		return ["comments", comment.postId];
 	}, [comment.postId, comment.parentId]);
@@ -314,7 +315,6 @@ function CommentContent({ className, comment, ...props }: React.HTMLAttributes<H
 		setReplyCommentBoxOpen(false);
 		newCommentForm.reset(); // Reset the form values
 	};
-
 	const handleSubmit = (values: z.infer<typeof newCommentSchema>) => {
 		if (!props.session || !props.session.user) {
 			toast.error("You need to be logged in");
@@ -343,10 +343,71 @@ function CommentContent({ className, comment, ...props }: React.HTMLAttributes<H
 				setLoading(false);
 
 				if (response.status === 200) {
-					toast.success("Comment added successfully");
+					toast.success("Reply added successfully");
 					newCommentForm.reset(); // Reset the form values
-
 					setReplyCommentBoxOpen(false);
+
+					queryClient.setQueryData(queryKey, (oldData: any) => {
+						if (!oldData) return oldData;
+
+						// Function to update a comment in an array
+						const updateComment = (comments: any[]) => {
+							return comments.map((c) => {
+								if (c.id === comment.id) {
+									return {
+										...c,
+										replyCount: (c.replyCount || 0) + 1,
+									};
+								}
+								return c;
+							});
+						};
+
+						// Update different data structures based on query type
+						if (Array.isArray(oldData)) {
+							return updateComment(oldData);
+						} else if (oldData.pages) {
+							return {
+								...oldData,
+								pages: oldData.pages.map((page: any) => ({
+									...page,
+									data: updateComment(page.data),
+								})),
+							};
+						}
+
+						return oldData;
+					});
+
+					// Force refresh the replies query
+					queryClient.invalidateQueries({
+						queryKey: ["comment-replies", comment.id],
+						exact: true,
+					});
+
+					// Invalidate any parent comment queries
+					if (comment.parentId) {
+						queryClient.invalidateQueries({
+							queryKey: ["comment-replies", comment.parentId],
+							exact: true,
+						});
+					}
+
+					// Also ensure we see the updated counts in the main comments list
+					queryClient.invalidateQueries({
+						queryKey: ["comments", comment.postId],
+						exact: true,
+					});
+
+					// Update the post comment count
+					queryClient.setQueryData(["post", comment.postId], (oldData: Post & { user: User }) => {
+						if (!oldData) return oldData;
+
+						return {
+							...oldData,
+							commentsCount: (oldData.commentsCount || 0) + 1,
+						};
+					});
 				}
 			})
 			.catch((error) => {
@@ -366,11 +427,7 @@ function CommentContent({ className, comment, ...props }: React.HTMLAttributes<H
 		<summary className={cn("comment-content contents", className)} {...props}>
 			<span className="flex items-start justify-start gap-2">
 				<Avatar className="size-9 rounded-full">
-					<AvatarImage
-						loading="lazy"
-						src={`${comment.user.image?.startsWith("http") ? comment.user.image : `${import.meta.env.VITE_CLOUD_FRONT_URL}/${comment.user.image}`}`}
-						alt={comment.user.username}
-					/>
+					<AvatarImage loading="lazy" src={comment.user.image ?? ""} alt={comment.user.username} />
 					<AvatarFallback className="rounded-lg bg-sidebar-foreground/50 text-[0.75rem]">
 						{comment.user.username
 							?.split(" ")
@@ -383,18 +440,18 @@ function CommentContent({ className, comment, ...props }: React.HTMLAttributes<H
 					<span className="flex items-center justify-start gap-1">
 						<HoverCardUser username={comment.user.username}>
 							<Link to={`/users/${comment.user.username}`} className="group flex w-fit cursor-pointer items-center justify-start gap-1">
-								<h2 className="text-sm break-all text-black group-hover:text-primary-300 dark:text-white group-hover:dark:text-primary-300">
+								<h1 className="text-sm break-all text-black group-hover:text-primary-300 dark:text-white group-hover:dark:text-primary-300">
 									{comment.user.username}
-								</h2>
+								</h1>
 							</Link>
 						</HoverCardUser>
 						<span className="my-0 inline-block text-[#333a3e] dark:text-[#333a3e]">•</span>
-						<h2 className="text-xs text-black dark:text-white">{formatTime(comment.createdAt)}</h2>
+						<p className="text-xs text-black dark:text-white">{formatTime(comment.createdAt)}</p>
 						{isEdited && <span className="text-xs text-black/50 dark:text-white/50">(edited) at {formatTime(comment.updatedAt)}</span>}
 					</span>
 
 					<span className="flex flex-col justify-start gap-0">
-						<p className="text-sm text-black/50 dark:text-white/50">{comment.text}</p>
+						<p className="text-sm break-all text-black/50 dark:text-white/50">{comment.text}</p>
 
 						<span className="mt-1 flex items-center justify-start gap-1">
 							<span className={cn("flex w-fit items-center justify-between")}>
@@ -459,6 +516,7 @@ function CommentContent({ className, comment, ...props }: React.HTMLAttributes<H
 							open={replyCommentBoxOpen}
 							placeholder="Write a reply..."
 							disabled={loading}
+							maxLength={MAX_CONTENT_LENGTH}
 							form={newCommentForm}
 							onHandleSubmit={handleSubmit}
 							onCancelComment={handleCloseCommentButton}
@@ -468,6 +526,6 @@ function CommentContent({ className, comment, ...props }: React.HTMLAttributes<H
 			</span>
 		</summary>
 	);
-}
+});
 
 export default Comments;

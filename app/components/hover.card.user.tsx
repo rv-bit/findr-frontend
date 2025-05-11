@@ -64,11 +64,7 @@ export default function HoverCardUser({ username, ...props }: React.ComponentPro
 					<>
 						<div className="flex w-full items-center justify-start gap-2">
 							<Avatar className="size-12 rounded-full">
-								<AvatarImage
-									loading="lazy"
-									src={`${data.image?.startsWith("http") ? data.image : `${import.meta.env.VITE_CLOUD_FRONT_URL}/${data.image}`}`}
-									alt={username}
-								/>
+								<AvatarImage loading="lazy" src={data.image ?? ""} alt={username} />
 								<AvatarFallback className="rounded-lg bg-sidebar-foreground/50 text-[0.75rem]">
 									{username
 										?.split(" ")

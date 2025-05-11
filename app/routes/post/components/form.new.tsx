@@ -42,7 +42,7 @@ const newPostSchema = z.object({
 	content: z.string().nonempty("Content is required"),
 });
 
-export default function ActionForm({ ...props }: React.ComponentProps<typeof Form>) {
+export default function ActionForm({ ...props }: React.ComponentPropsWithoutRef<"section">) {
 	const navigate = useNavigate();
 	const contentRef = React.useRef<MDXEditorMethods>(null);
 

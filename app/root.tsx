@@ -105,10 +105,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<LoadingBar ref={loadingBarRef} color="#5060dd" shadow={false} transitionTime={100} waitingTime={300} />
 				<main
 					style={{
+						minHeight: "100svh",
 						height: "100%",
 						width: "100%",
-						flex: "1 1 0%",
-						overflowY: "auto",
 					}}
 				>
 					{children}

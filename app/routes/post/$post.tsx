@@ -19,12 +19,12 @@ export const links: Route.LinksFunction = () => [
 	{ rel: "stylesheet", href: editor_stylesheet }, // override styles
 ];
 
-export function meta({ data }: Route.MetaArgs) {
-	const slug = data.slug || "post";
+export function meta({ data, params }: Route.MetaArgs) {
+	const slug = data ? data.slug : params.postId;
 	return [{ title: `f/${slug}` }, { name: "description", content: "Findr Post" }];
 }
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
 	const { postId } = params;
 
 	if (!postId) {
@@ -45,12 +45,12 @@ export async function loader({ params }: Route.LoaderArgs) {
 			throw new Response("Post not found", { status: 404 });
 		}
 
-		const metaData = metaResponse.data.data;
-		queryClient.setQueryData(["post", postId], metaData);
+		const data = metaResponse.data.data;
+		queryClient.setQueryData(["post", postId], data);
 
 		return {
-			data: metaData as Post & { user: User },
-			slug: metaData.slug as string,
+			data: data as Post & { user: User },
+			slug: data.slug as string,
 		};
 	} catch (error) {
 		console.error("Error loading post data:", error);
@@ -58,53 +58,13 @@ export async function loader({ params }: Route.LoaderArgs) {
 	}
 }
 
-export async function clientLoader({ serverLoader, params }: Route.ClientLoaderArgs) {
-	const { data: cachedData, slug } = await serverLoader();
-
-	if (cachedData) {
-		if (cachedData.upvoted === undefined || cachedData.downvoted === undefined) {
-			const mutateCurrentData = async () => {
-				const metaResponse = await axiosInstance.get(`/api/v0/post/voted/${params.postId}`);
-				if (!metaResponse || !metaResponse.data) {
-					throw new Response("", { status: 302, headers: { Location: "/" } });
-				}
-
-				const metaData = metaResponse.data.data as {
-					upvoted: boolean;
-					downvoted: boolean;
-				};
-
-				queryClient.setQueryData(["post", params.postId], (oldData: Post & { user: User }) => {
-					if (!oldData) return oldData;
-
-					return {
-						...oldData,
-						upvoted: metaData.upvoted,
-						downvoted: metaData.downvoted,
-					};
-				});
-
-				cachedData.upvoted = metaData.upvoted;
-				cachedData.downvoted = metaData.downvoted;
-			};
-
-			await mutateCurrentData();
-		}
-	}
-
-	return {
-		data: cachedData,
-		slug,
-	};
-}
-
-clientLoader.hydrate = true;
-
 export default function Index({ loaderData, params }: Route.ComponentProps) {
 	const { data: session } = authClient.useSession();
 
 	const navigate = useNavigate();
 	const location = useLocation();
+
+	const commentTextAreaRef = React.useRef<HTMLTextAreaElement>(null);
 
 	const { data, isLoading } = useQuery<Post & { user: User }>({
 		// this is just to create a cache for the post inside the indexdb perister
@@ -113,8 +73,6 @@ export default function Index({ loaderData, params }: Route.ComponentProps) {
 		queryFn: () => axiosInstance.get(`/api/v0/post/${params.postId}`).then((res) => res.data.data),
 		initialData: loaderData.data,
 	});
-
-	const commentTextAreaRef = React.useRef<HTMLTextAreaElement>(null);
 
 	const handleOnCommentIconClick = () => {
 		if (commentTextAreaRef && "current" in commentTextAreaRef && commentTextAreaRef.current) {
@@ -134,7 +92,7 @@ export default function Index({ loaderData, params }: Route.ComponentProps) {
 			if (currentPath.startsWith(`/post/${params.postId}`)) {
 				queryClient.removeQueries({ queryKey: ["post", params.postId], exact: true });
 				queryClient.removeQueries({ queryKey: ["comments", params.postId], exact: true });
-				queryClient.removeQueries({ queryKey: ["replies"], exact: false });
+				queryClient.removeQueries({ queryKey: ["comment-replies"], exact: false });
 			}
 		};
 	}, [location.pathname, params.postId]);
