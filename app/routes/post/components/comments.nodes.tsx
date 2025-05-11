@@ -14,6 +14,7 @@ import axiosInstance from "~/lib/axios.instance";
 import { cn, formatTime } from "~/lib/utils";
 
 import type { Session } from "~/lib/auth-client";
+import type { Post, User } from "~/lib/types/shared";
 
 import HoverCardUser from "~/components/hover.card.user";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -28,8 +29,8 @@ import { sortOptions } from "../shared/constants";
 import { MAX_CONTENT_LENGTH, newCommentSchema } from "../shared/schemas";
 import type { CommentNode } from "../shared/types";
 
-import type { Post, User } from "~/lib/types/shared";
 import { useRepliesVisibilityStore } from "../stores/useRepliesVisibility";
+
 import CommentBox from "./comment.box";
 
 type CommentsProps = React.ComponentProps<"section"> & {
@@ -48,7 +49,6 @@ const Comments = React.memo(({ className, postId, session, ...props }: React.HTM
 	const currentSortOption = searchParams.get("filter") || sortOptions[0].value;
 
 	const inViewportRef = React.useRef<HTMLDivElement>(null);
-	const containerRef = React.useRef<HTMLDivElement>(null);
 
 	const fetchTopLevelComments = React.useCallback(async ({ page, postId }: { page: number; postId: string }) => {
 		const { data } = await axiosInstance.get(`/api/v0/comments/${postId}/?page=${page}`);
@@ -159,8 +159,6 @@ type CommentNodeProps = React.ComponentProps<"section"> & {
 	session: Session | null;
 };
 const Comment = React.memo(({ className, comment, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentNodeProps) => {
-	const containerRef = React.useRef<HTMLDivElement>(null);
-
 	const isVisible = useRepliesVisibilityStore((state) => state.isVisible(comment.id));
 	const setVisibility = useRepliesVisibilityStore((state) => state.setVisibility);
 
@@ -193,7 +191,7 @@ const Comment = React.memo(({ className, comment, ...props }: React.HTMLAttribut
 	};
 
 	return (
-		<div ref={containerRef} className={cn("comment-thread-item mb-4", className)}>
+		<div className={cn("comment-thread-item mb-4", className)}>
 			<CommentContent comment={comment} session={props.session} />
 
 			{hasReplies && !isVisible && (
