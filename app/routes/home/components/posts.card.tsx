@@ -14,11 +14,11 @@ import {
 } from "@mdxeditor/editor";
 import { ClientOnly } from "remix-utils/client-only";
 
-import { authClient } from "~/lib/auth.client";
+import { authClient } from "~/lib/auth-client";
 import { cn, formatTime } from "~/lib/utils";
 
 import axiosInstance from "~/lib/axios.instance";
-import queryClient from "~/lib/query.client";
+import queryClient from "~/lib/query-client";
 
 import type { Post, User } from "~/lib/types/shared";
 

@@ -3,7 +3,7 @@ import type { Route } from "./+types/page.verify-email";
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router";
 
-import { authClient } from "~/lib/auth.client";
+import { authClient } from "~/lib/auth-client";
 
 export async function clientLoader({ serverLoader, params }: Route.ClientLoaderArgs) {
 	const { data: sessionData } = await authClient.getSession();

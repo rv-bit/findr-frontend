@@ -13,7 +13,7 @@ import { useMutateCommentVote } from "~/hooks/useMutateCommentVote";
 import axiosInstance from "~/lib/axios.instance";
 import { cn, formatTime } from "~/lib/utils";
 
-import type { Session } from "~/lib/auth.client";
+import type { Session } from "~/lib/auth-client";
 
 import HoverCardUser from "~/components/hover.card.user";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";

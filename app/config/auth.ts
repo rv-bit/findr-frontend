@@ -1,4 +1,4 @@
-import { authClient } from "~/lib/auth.client";
+import { authClient } from "~/lib/auth-client";
 
 export const authErrorCodes = {
 	[authClient.$ERROR_CODES.USER_ALREADY_EXISTS]: {

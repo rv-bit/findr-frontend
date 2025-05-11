@@ -8,7 +8,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { authClient } from "~/lib/auth.client";
+import { authClient } from "~/lib/auth-client";
 
 import setCanvasPreview from "~/lib/canvas";
 import type { ModalProps } from "~/lib/types/ui/modal";

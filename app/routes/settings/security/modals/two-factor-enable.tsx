@@ -6,7 +6,7 @@ import { z } from "zod";
 
 import { QRCodeCanvas } from "qrcode.react";
 
-import { authClient } from "~/lib/auth.client";
+import { authClient } from "~/lib/auth-client";
 import type { ModalProps } from "~/lib/types/ui/modal";
 
 import {

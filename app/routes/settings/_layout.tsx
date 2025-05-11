@@ -3,7 +3,7 @@ import type { Route } from "./+types/_layout";
 import React from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 
-import { authClient } from "~/lib/auth.client";
+import { authClient } from "~/lib/auth-client";
 
 import { cn } from "~/lib/utils";
 

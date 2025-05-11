@@ -1,4 +1,4 @@
 import { createAuthPrefetches } from "@daveyplate/better-auth-tanstack";
-import { authClient } from "./auth.client";
+import { authClient } from "./auth-client";
 
 export const { prefetchSession } = createAuthPrefetches(authClient);
