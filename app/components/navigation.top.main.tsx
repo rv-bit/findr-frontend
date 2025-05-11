@@ -6,7 +6,7 @@ import queryClient from "~/lib/query-client";
 
 import { cn } from "~/lib/utils";
 
-import { useIsTablet } from "~/hooks/use-tablet";
+import { useIsTablet } from "~/hooks/useIsTablet";
 import { useTheme } from "~/providers/Theme";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";

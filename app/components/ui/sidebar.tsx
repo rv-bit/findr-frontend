@@ -4,7 +4,7 @@ import { Slot } from "@radix-ui/react-slot";
 import { type VariantProps, cva } from "class-variance-authority";
 import { ChevronLeft, Menu } from "lucide-react";
 
-import { useIsTablet } from "~/hooks/use-tablet";
+import { useIsTablet } from "~/hooks/useIsTablet";
 import { cn } from "~/lib/utils";
 
 import { useMatches } from "react-router";
