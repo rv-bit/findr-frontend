@@ -26,10 +26,11 @@ export default [
 	]),
 
 	...prefix("users", [route(":username", "./routes/users/page.$user.tsx")]),
+	...prefix("comments", [route(":commentId", "./routes/comments/page.$comment.tsx")]),
 	...prefix("post", [
 		route(":postId", "./routes/post/page.$post.tsx"),
 		route(":postId/edit", "./routes/post/page.$post.edit.tsx"),
-		route("new", "./routes/post/page.create.tsx"),
+		route("create", "./routes/post/page.create.tsx"),
 	]),
 
 	// Static routes
