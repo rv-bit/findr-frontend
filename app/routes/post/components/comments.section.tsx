@@ -18,10 +18,10 @@ import type { Post, User } from "~/lib/types/shared";
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 
-const CommentBox = React.lazy(() => import("./comment.box")); // client-side only
-
 import { sortOptions } from "../shared/constants";
 import { MAX_CONTENT_LENGTH, newCommentSchema } from "../shared/schemas";
+
+const CommentBox = React.lazy(() => import("./comment.box")); // client-side only
 
 import Comments from "./comments.nodes";
 
@@ -36,7 +36,6 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	const [currentSortOption, setCurrentSortOption] = React.useState(sortOptions[0].value);
-
 	const [loading, setLoading] = React.useState(false);
 	const [error, setError] = React.useState<string | null>(null);
 
@@ -111,7 +110,7 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 		newCommentForm.reset();
 	};
 
-	const placeholderText = React.useMemo(() => {
+	const placeholder = React.useMemo(() => {
 		if (!session || !session.user) {
 			return "Login to join the conversation";
 		}
@@ -120,13 +119,13 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 	}, [session]);
 
 	return (
-		<section className={cn("flex flex-col gap-5", className)}>
+		<section className={cn("flex flex-col gap-5 overflow-hidden", className)}>
 			<React.Suspense fallback={<div className="h-10 w-full animate-pulse rounded-md bg-black/10 dark:bg-white/10" />}>
 				<CommentBox
 					className="w-full"
 					ref={commentTextAreaRef}
 					readOnly={!session || !session.user}
-					placeholder={placeholderText}
+					placeholder={placeholder}
 					disabled={loading}
 					maxLength={MAX_CONTENT_LENGTH}
 					form={newCommentForm}
@@ -136,7 +135,7 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 				/>
 			</React.Suspense>
 
-			<div className="flex w-full flex-col gap-5">
+			<span className="flex w-full flex-col gap-5">
 				<section className="flex w-full items-center gap-1">
 					<p className="text-sm font-semibold text-black/50 dark:text-white/50">Sort by:</p>
 					<Select
@@ -168,8 +167,8 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 					</Select>
 				</section>
 
-				<Comments session={session} postId={data.id} />
-			</div>
+				<Comments postId={data.id} session={session} />
+			</span>
 		</section>
 	);
 });
