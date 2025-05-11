@@ -4,22 +4,18 @@ import type { Route } from "./+types/profile";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import React from "react";
-import { useLoaderData, useLocation, useNavigate, useSearchParams } from "react-router";
+import { useLoaderData, useSearchParams } from "react-router";
 
 import axiosInstance from "~/lib/axios-instance";
-import { cn } from "~/lib/utils";
 
 import type { Comments, Post, User } from "~/lib/types/shared";
 
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
-
-import { ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
-
 import Loading from "~/icons/loading";
 
+import { sortOptions, types } from "./shared/constants";
+
 import CommentsCard from "./components/comments.card";
+import HeaderCard from "./components/header.card";
 import PostsCard from "./components/posts.card";
 
 export const links: Route.LinksFunction = () => [
@@ -70,92 +66,26 @@ export function HydrateFallback() {
 	);
 }
 
-const types: {
-	title: string;
-	url: string;
-	queryKey: string;
-	query: string;
-	icon?: LucideIcon;
-	disabled?: boolean;
-}[] = [
-	{
-		title: "Overview",
-		url: "/users",
-		queryKey: "type",
-		query: "overview",
-	},
-	{
-		title: "Posts",
-		url: "/users",
-		queryKey: "type",
-		query: "posts",
-	},
-	{
-		title: "Comments",
-		url: "/users",
-		queryKey: "type",
-		query: "comments",
-	},
-];
-
-const sortOptions: {
-	title: string;
-	value: string;
-	sortingFn: (a: Post | Comments, b: Post | Comments) => number;
-}[] = [
-	{
-		title: "Newest",
-		value: "newest",
-		sortingFn: (a: Post | Comments, b: Post | Comments) => {
-			return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-		},
-	},
-	{
-		title: "Oldest",
-		value: "oldest",
-		sortingFn: (a: Post | Comments, b: Post | Comments) => {
-			return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-		},
-	},
-	{
-		title: "Top",
-		value: "top",
-		sortingFn: (a: Post | Comments, b: Post | Comments) => {
-			if ("likesCount" in a && "likesCount" in b) {
-				return b.likesCount - a.likesCount;
-			}
-			return 0;
-		},
-	},
-];
-
 export default function Index() {
 	const { user } = useLoaderData<typeof loader>();
-
-	const location = useLocation();
-	const navigate = useNavigate();
-
 	const [searchParams, setSearchParams] = useSearchParams();
 
-	const [currentSortOption, setCurrentSortOption] = React.useState("newest");
+	const currentType = searchParams.get("type");
+	const currentSortOption = searchParams.get("sort") || sortOptions[0].value;
 
 	const inViewportRef = React.useRef<HTMLDivElement | null>(null);
 
-	const navRef = React.useRef<HTMLDivElement | null>(null);
-	const navGoRightRef = React.useRef<HTMLDivElement | null>(null);
-	const navGoLeftRef = React.useRef<HTMLDivElement | null>(null);
-
 	const fetchData = React.useCallback(
 		async (page: number) => {
-			const { data } = await axiosInstance.get(`/api/v0/users/getData/${user.username}?page=${page}&type=${searchParams.get("type")}`);
+			const { data } = await axiosInstance.get(`/api/v0/users/getData/${user.username}?page=${page}&type=${currentType}`);
 			return data;
 		},
 		[user],
 	);
 
 	const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
-		staleTime: 0,
-		queryKey: ["userData", user.username, searchParams.get("type")],
+		staleTime: 1000 * 60 * 2, // 2 minutes
+		queryKey: ["user", user.username, currentType],
 		initialPageParam: 1,
 		queryFn: async ({ pageParam }) => {
 			return fetchData(pageParam);
@@ -164,7 +94,6 @@ export default function Index() {
 		getPreviousPageParam: (firstPage, allPages, firstPageParam, allPageParams) => firstPage.prevCursor,
 	});
 
-	// Check if we have any data to display
 	const dataLength = React.useMemo(() => {
 		if (!data || data.pages.length === 0) {
 			return false;
@@ -175,15 +104,14 @@ export default function Index() {
 				return false;
 			}
 
-			const type = searchParams.get("type") || "overview";
-			if (type === "overview") {
+			if (currentType === "overview") {
 				return (group.data.posts && group.data.posts.length > 0) || (group.data.comments && group.data.comments.length > 0);
-			} else if (type === "posts" || type === "comments") {
+			} else if (currentType === "posts" || currentType === "comments") {
 				return Array.isArray(group.data) && group.data.length > 0;
 			}
 			return false;
 		});
-	}, [data, searchParams]);
+	}, [data, currentSortOption]);
 
 	const sortingFn = React.useMemo(() => {
 		const sortOption = sortOptions.find((option) => option.value === currentSortOption);
@@ -195,9 +123,7 @@ export default function Index() {
 			return [];
 		}
 
-		const type = searchParams.get("type") || "overview";
-
-		if (type !== "overview") {
+		if (currentType !== "overview") {
 			// For posts and comments, directly flatten and sort
 			return data.pages
 				.reduce((acc, group) => {
@@ -222,7 +148,7 @@ export default function Index() {
 		});
 
 		return combinedItems.sort((a, b) => sortingFn!(a.item, b.item));
-	}, [data, searchParams, sortingFn]);
+	}, [data, sortingFn, currentSortOption]);
 
 	const virtualizer = useWindowVirtualizer({
 		count: flattenedItems.length,
@@ -232,72 +158,25 @@ export default function Index() {
 	});
 	const virtualItems = virtualizer.getVirtualItems();
 
-	const handleScrollAndResize = React.useCallback(() => {
-		if (!navRef.current || !navGoRightRef.current || !navGoLeftRef.current) return;
-
-		const scrollLeft = navRef.current.scrollLeft;
-		const scrollWidth = navRef.current.scrollWidth;
-		const clientWidth = navRef.current.clientWidth;
-
-		if (scrollLeft > 0) {
-			navGoLeftRef.current.classList.remove("hidden");
-		} else {
-			navGoLeftRef.current.classList.add("hidden");
-		}
-
-		if (scrollLeft + clientWidth < scrollWidth) {
-			navGoRightRef.current.classList.remove("hidden");
-		} else {
-			navGoRightRef.current.classList.add("hidden");
-		}
-	}, [navRef, navGoRightRef, navGoLeftRef]);
-
-	const isActive = React.useMemo(
-		() => (url: string, queryKey: string, query: string) => {
-			const pathname = location.pathname.substring(0, location.pathname.lastIndexOf("/"));
-			const params = searchParams.get(queryKey);
-
-			const isQueryMatch = params === query;
-			return pathname === url && isQueryMatch;
-		},
-		[location, searchParams],
-	);
-
 	React.useEffect(() => {
-		if (!navRef.current) return;
-		handleScrollAndResize();
+		const paramExists = types.some((type) => type.query === currentType);
 
-		navRef.current.addEventListener("scroll", handleScrollAndResize);
-		window.addEventListener("resize", handleScrollAndResize);
-
-		return () => {
-			navRef.current?.removeEventListener("scroll", handleScrollAndResize);
-			window.removeEventListener("resize", handleScrollAndResize);
-		};
-	}, [navRef]);
-
-	React.useEffect(() => {
-		const params = searchParams.get("type");
-		const paramExists = types.some((type) => type.query === params);
-
-		if (!params) {
-			setSearchParams({
-				type: "overview",
+		if (!currentType) {
+			setSearchParams((prev) => {
+				prev.set("type", types[0].query);
+				return prev;
 			});
 		}
 
 		if (!paramExists) {
-			setSearchParams({
-				type: "overview",
+			setSearchParams((prev) => {
+				prev.set("type", types[0].query);
+				return prev;
 			});
 		}
 
-		return () => {
-			if (navRef.current) {
-				navRef.current.scrollLeft = 0;
-			}
-		};
-	}, [searchParams]);
+		return () => {};
+	}, [currentType]);
 
 	React.useEffect(() => {
 		const currentRef = inViewportRef.current;
@@ -324,124 +203,7 @@ export default function Index() {
 	return (
 		<main className="mx-auto flex w-full flex-col items-center justify-start overflow-hidden max-md:w-screen">
 			<div className="flex w-full max-w-[85rem] flex-col px-10 pt-5 max-sm:px-4">
-				<section id="top-information" className="flex flex-col items-start gap-4">
-					<section className="flex items-center justify-between gap-4">
-						<span className="size-fit rounded-full bg-sidebar-foreground/20 p-1 dark:bg-sidebar-accent">
-							<Avatar className="size-18 rounded-full">
-								<AvatarImage loading="lazy" src={user.image ?? ""} alt={user.username} />
-								<AvatarFallback className="rounded-lg bg-sidebar-foreground/50">
-									{user.username
-										?.split(" ")
-										.map((name) => name[0])
-										.join("")}
-								</AvatarFallback>
-							</Avatar>
-						</span>
-
-						<div className="flex w-full flex-col gap-1">
-							<span className="flex flex-col -space-y-1 leading-tight">
-								<p className="text-lg leading-tight font-semibold break-all text-black dark:text-white">{user.username}</p>
-								<p className="text-sm leading-tight font-light break-all text-black dark:text-white">u/{user.username}</p>
-							</span>
-							<p className="text-sm break-all text-neutral-500 dark:text-neutral-400">{user.about_description}</p>
-						</div>
-					</section>
-
-					<section className="flex w-full flex-col gap-2 border-b border-sidebar-border pb-5">
-						<div className="relative w-full">
-							<nav
-								ref={navRef}
-								className="no-scrollbar flex h-full w-full flex-nowrap items-start justify-start gap-2 overflow-x-auto overflow-y-visible"
-							>
-								{types.map((action, index) => (
-									<Button
-										key={index}
-										variant={"link"}
-										disabled={action.disabled}
-										onClick={(e) => {
-											e.preventDefault();
-
-											navigate(action.url, {
-												replace: true,
-											});
-											setSearchParams({
-												[action.queryKey!]: action.query!,
-											});
-										}}
-										className={cn(
-											"group relative h-auto min-w-fit shrink-0 items-center justify-center rounded-full px-4 py-3 hover:no-underline",
-											isActive(action.url, action?.queryKey, action?.query)
-												? "bg-sidebar-foreground/50 dark:bg-sidebar-accent"
-												: "hover:bg-sidebar-accent-foreground/20 dark:hover:bg-sidebar-accent/50",
-										)}
-									>
-										{action.icon && <action.icon />}
-										<h1
-											className={cn(
-												"inline-flex text-black",
-												isActive(action.url, action?.queryKey, action?.query)
-													? "text-black dark:text-white"
-													: "group-hover:text-black/50 dark:text-[#8BA2AE] dark:group-hover:text-white/80",
-											)}
-										>
-											{action.title}
-										</h1>
-									</Button>
-								))}
-							</nav>
-
-							<div
-								ref={navGoLeftRef}
-								className="absolute top-0 left-0 hidden bg-linear-to-l from-transparent from-0% to-sidebar to-30% pr-3"
-							>
-								<button
-									onClick={() => {
-										if (navRef.current) {
-											navRef.current.scrollBy({ left: -100, behavior: "smooth" });
-										}
-									}}
-									className="flex size-11 items-center justify-center rounded-full bg-transparent hover:bg-gray-600/60 dark:hover:bg-gray-500/40"
-								>
-									<ChevronLeft className="h-6 w-6 text-black dark:text-white" />
-								</button>
-							</div>
-
-							<div
-								ref={navGoRightRef}
-								className="absolute top-0 right-0 hidden bg-linear-to-r from-transparent from-0% to-sidebar to-30% pl-3"
-							>
-								<button
-									onClick={() => {
-										if (navRef.current) {
-											navRef.current.scrollBy({ left: 100, behavior: "smooth" });
-										}
-									}}
-									className="flex size-11 items-center justify-center rounded-full bg-transparent hover:bg-gray-600/60 dark:hover:bg-gray-500/40"
-								>
-									<ChevronRight className="h-6 w-6 text-black dark:text-white" />
-								</button>
-							</div>
-						</div>
-
-						<Select defaultValue={currentSortOption} onValueChange={setCurrentSortOption}>
-							<SelectTrigger className="min-h-5 w-fit min-w-6 gap-1 rounded-full border-0 pl-4 text-black shadow-none focus-visible:border-0 focus-visible:ring-0 data-[placeholder]:text-black dark:dark:bg-transparent dark:text-white dark:dark:hover:bg-sidebar-accent/60 dark:focus-visible:border-0 dark:focus-visible:ring-0 dark:data-[placeholder]:text-white">
-								<SelectValue placeholder="Sort by" />
-							</SelectTrigger>
-							<SelectContent className="w-20 rounded-sm border-0 p-0 shadow-none dark:bg-modal">
-								<h1 className="px-2 pt-2 pb-3 text-sm font-semibold text-black dark:text-white">Sort by</h1>
-								{sortOptions.map((option) => (
-									<SelectItem
-										key={option.value}
-										value={option.value}
-										className="cursor-pointer py-2 text-left hover:bg-sidebar-accent/50 dark:hover:bg-sidebar-accent"
-									>
-										{option.title}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</section>
-				</section>
+				<HeaderCard user={user} />
 
 				<section id="content" className="flex h-full w-full flex-col gap-2">
 					{status === "pending" ? (
@@ -452,7 +214,7 @@ export default function Index() {
 						<div className="flex w-full flex-col">
 							{!dataLength ? (
 								<p className="my-20 text-center text-xl font-semibold text-black dark:text-white">
-									No results found for <span className="text-red-500">{searchParams.get("type")}</span>
+									No results found for <span className="text-red-500">{currentType}</span>
 								</p>
 							) : (
 								<>
@@ -470,8 +232,7 @@ export default function Index() {
 												const item = flattenedItems[virtualRow.index];
 												if (!item) return null;
 
-												const params = searchParams.get("type");
-												if (params === "overview") {
+												if (currentType === "overview") {
 													return (
 														<div
 															key={`${item.type}-${item.item.id}`}
@@ -489,7 +250,7 @@ export default function Index() {
 												} else {
 													return (
 														<div key={item.id} data-index={virtualRow.index} ref={virtualizer.measureElement}>
-															{params === "posts" ? (
+															{currentType === "posts" ? (
 																<PostsCard className="my-1" data={item} user={user} />
 															) : (
 																<CommentsCard data={item} user={user} />
