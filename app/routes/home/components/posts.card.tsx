@@ -176,11 +176,7 @@ const PostsCard = React.memo(
 						<section className="flex items-center justify-start gap-1">
 							<span className="flex items-center justify-center gap-2">
 								<Avatar className="size-6 rounded-full">
-									<AvatarImage
-										loading="lazy"
-										src={`${data.user.image?.startsWith("http") ? data.user.image : `${import.meta.env.VITE_CLOUD_FRONT_URL}/${data.user.image}`}`}
-										alt={data.user.username}
-									/>
+									<AvatarImage loading="lazy" src={data.user.image ?? ""} alt={data.user.username} />
 									<AvatarFallback className="rounded-lg bg-sidebar-foreground/50">
 										{data.user.username
 											?.split(" ")
