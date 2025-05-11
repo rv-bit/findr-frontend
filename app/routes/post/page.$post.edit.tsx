@@ -1,6 +1,6 @@
 import default_editor_stylesheet from "@mdxeditor/editor/style.css?url";
 import editor_stylesheet from "~/styles/form.default.mdx.css?url";
-import type { Route } from "./+types/new";
+import type { Route } from "./+types/page.$post.edit";
 
 import type { AxiosError } from "axios";
 

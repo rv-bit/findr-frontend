@@ -11,9 +11,9 @@ import { z } from "zod";
 import { cn } from "~/lib/utils";
 
 import axiosInstance from "~/lib/axios.instance";
-import queryClient from "~/lib/query/query-client";
+import queryClient from "~/lib/query/query.client";
 
-import type { Session } from "~/lib/auth";
+import type { Session } from "~/lib/auth.client";
 import type { Post, User } from "~/lib/types/shared";
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";

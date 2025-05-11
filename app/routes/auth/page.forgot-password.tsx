@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { toast } from "sonner";
-import { authClient } from "~/lib/auth";
+import { authClient } from "~/lib/auth.client";
 import { cn } from "~/lib/utils";
 
 import { Button } from "~/components/ui/button";

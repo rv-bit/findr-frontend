@@ -8,13 +8,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { authClient } from "~/lib/auth";
+import { authClient } from "~/lib/auth.client";
 import type { ModalProps } from "~/lib/types/ui/modal";
 import { cn } from "~/lib/utils";
 
 import { Eye, EyeOff } from "lucide-react";
 
-import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "~/components/ui/alert-dialog";
+import {
+	AlertDialog,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
@@ -144,7 +151,9 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 														animate={{ opacity: 1, y: 0, scale: 1 }}
 														exit={{ opacity: 0, y: -10, scale: 0.9 }}
 														transition={{ type: "spring", stiffness: 500, damping: 30 }}
-														className={cn(`text-muted-foreground mb-1.5 h-4 text-right text-xs ${newPasswordForm.watch("newPassword").length > 0 ? "block" : "hidden"}`)}
+														className={cn(
+															`text-muted-foreground mb-1.5 h-4 text-right text-xs ${newPasswordForm.watch("newPassword").length > 0 ? "block" : "hidden"}`,
+														)}
 													>
 														{passwordStrength.verdict}
 													</motion.div>
@@ -167,7 +176,11 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 															type="button"
 															size="icon"
 														>
-															{isPasswordVisible ? <EyeOff className="size-4" strokeWidth={2} /> : <Eye className="size-4" strokeWidth={2} />}
+															{isPasswordVisible ? (
+																<EyeOff className="size-4" strokeWidth={2} />
+															) : (
+																<Eye className="size-4" strokeWidth={2} />
+															)}
 														</Button>
 													</div>
 												</FormControl>
@@ -200,7 +213,10 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 															type={isPasswordVisible ? "text" : "password"}
 															placeholder="confirm new password"
 															required
-															className={cn("pe-9 text-black duration-350 dark:text-white", passwordConfirmStrength.styles)}
+															className={cn(
+																"pe-9 text-black duration-350 dark:text-white",
+																passwordConfirmStrength.styles,
+															)}
 															{...field}
 														/>
 														<Button
@@ -212,7 +228,11 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 															type="button"
 															size="icon"
 														>
-															{isPasswordVisible ? <EyeOff className="size-4" strokeWidth={2} /> : <Eye className="size-4" strokeWidth={2} />}
+															{isPasswordVisible ? (
+																<EyeOff className="size-4" strokeWidth={2} />
+															) : (
+																<Eye className="size-4" strokeWidth={2} />
+															)}
 														</Button>
 													</div>
 												</FormControl>

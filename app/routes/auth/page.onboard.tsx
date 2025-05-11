@@ -10,7 +10,7 @@ import { z } from "zod";
 
 import * as config from "~/config/app";
 
-import { authClient } from "~/lib/auth";
+import { authClient } from "~/lib/auth.client";
 
 import { cn } from "~/lib/utils";
 

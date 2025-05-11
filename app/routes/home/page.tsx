@@ -1,5 +1,5 @@
 import editor_stylesheet from "~/styles/card.posts.unfiltered.mdx.css?url";
-import type { Route } from "./+types/index";
+import type { Route } from "./+types/page";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";

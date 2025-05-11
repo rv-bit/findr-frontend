@@ -1,9 +1,9 @@
-import type { Route } from "../verifications/+types/verify-email";
+import type { Route } from "./+types/page.verify-email";
 
 import React from "react";
 import { useNavigate, useSearchParams } from "react-router";
 
-import { authClient } from "~/lib/auth";
+import { authClient } from "~/lib/auth.client";
 
 export async function clientLoader({ serverLoader, params }: Route.ClientLoaderArgs) {
 	const { data: sessionData } = await authClient.getSession();
@@ -64,7 +64,9 @@ export default function Index() {
 		<div className="flex h-full w-full flex-col items-center justify-center gap-6 px-2">
 			<div className="flex w-full max-w-lg flex-col gap-6">
 				{verified ? (
-					<h1 className="text-center text-xl font-semibold text-neutral-500 dark:text-neutral-400">Account has been deleted, you can now close this page</h1>
+					<h1 className="text-center text-xl font-semibold text-neutral-500 dark:text-neutral-400">
+						Account has been deleted, you can now close this page
+					</h1>
 				) : (
 					<h1 className="text-center text-xl font-semibold text-neutral-500 dark:text-neutral-400">Failed to delete account</h1>
 				)}

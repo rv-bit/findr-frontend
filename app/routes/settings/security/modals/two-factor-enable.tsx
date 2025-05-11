@@ -6,10 +6,17 @@ import { z } from "zod";
 
 import { QRCodeCanvas } from "qrcode.react";
 
-import { authClient } from "~/lib/auth";
+import { authClient } from "~/lib/auth.client";
 import type { ModalProps } from "~/lib/types/ui/modal";
 
-import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "~/components/ui/alert-dialog";
+import {
+	AlertDialog,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
@@ -233,7 +240,8 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 										/>
 
 										<span className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
-											By continuing with this, you are going to be logged out and you will need to login again with the new two-factor authentication enabled.
+											By continuing with this, you are going to be logged out and you will need to login again with the new
+											two-factor authentication enabled.
 										</span>
 									</div>
 
@@ -258,7 +266,8 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 						<div className="flex flex-col gap-2">
 							<h1 className="text-lg font-semibold">Backup Codes</h1>
 							<p className="text-sm text-gray-500 dark:text-gray-400">
-								These backup codes can be used to access your account in case you lose your device or cannot receive two-factor authentication codes.
+								These backup codes can be used to access your account in case you lose your device or cannot receive two-factor
+								authentication codes.
 							</p>
 							<ul className="flex flex-col gap-2">
 								{currentState.qr.backupCodes.map((code, index) => (

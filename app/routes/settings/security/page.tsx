@@ -1,12 +1,12 @@
-import type { Route } from "../profile/+types/index"; // Import the Route type from the _layout file just cause its basically the index of the routes folder
+import type { Route } from "../profile/+types/page";
 
 import React from "react";
 import { useNavigate } from "react-router";
 
 import { toast } from "sonner";
 
-import { authClient, type Sessions } from "~/lib/auth";
-import queryClient from "~/lib/query/query-client";
+import { authClient, type Sessions } from "~/lib/auth.client";
+import queryClient from "~/lib/query/query.client";
 
 import type { ModalProps } from "~/lib/types/ui/modal";
 

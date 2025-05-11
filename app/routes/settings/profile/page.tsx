@@ -1,4 +1,4 @@
-import type { Route } from "../profile/+types/index"; // Import the Route type from the _layout file just cause its basically the index of the routes folder
+import type { Route } from "./+types/page";
 
 import React from "react";
 import { useNavigate } from "react-router";

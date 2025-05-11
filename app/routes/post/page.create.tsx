@@ -1,6 +1,6 @@
 import default_editor_stylesheet from "@mdxeditor/editor/style.css?url";
 import editor_stylesheet from "~/styles/form.default.mdx.css?url";
-import type { Route } from "./+types/new";
+import type { Route } from "./+types/page.create";
 
 import React, { Suspense } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router";

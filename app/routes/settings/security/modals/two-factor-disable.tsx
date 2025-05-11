@@ -4,10 +4,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { authClient } from "~/lib/auth";
+import { authClient } from "~/lib/auth.client";
 import type { ModalProps } from "~/lib/types/ui/modal";
 
-import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "~/components/ui/alert-dialog";
+import {
+	AlertDialog,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
@@ -58,7 +65,9 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 			<AlertDialogContent className="w-[calc(95vw-20px)]">
 				<AlertDialogHeader className="space-y-0">
 					<AlertDialogTitle>Deactivate Two-Factor Authentication</AlertDialogTitle>
-					<AlertDialogDescription>Please enter your password to disable two-factor authentication, you can re-enable it at any time.</AlertDialogDescription>
+					<AlertDialogDescription>
+						Please enter your password to disable two-factor authentication, you can re-enable it at any time.
+					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<section className="flex flex-col gap-2">
 					<Form {...twoFactorForm}>

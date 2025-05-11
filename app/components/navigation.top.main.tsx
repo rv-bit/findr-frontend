@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 
-import { authClient } from "~/lib/auth";
-import queryClient from "~/lib/query/query-client";
+import { authClient } from "~/lib/auth.client";
+import queryClient from "~/lib/query/query.client";
 
 import { cn } from "~/lib/utils";
 
