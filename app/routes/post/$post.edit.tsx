@@ -34,7 +34,7 @@ import {
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import axiosInstance from "~/lib/axios-instance";
+import axiosInstance from "~/lib/axios.instance";
 
 import type { Post, User } from "~/lib/types/shared";
 

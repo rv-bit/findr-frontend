@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axiosInstance from "~/lib/axios-instance";
+import axiosInstance from "~/lib/axios.instance";
 
 type VoteVariables = {
 	commentId: string;

@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import { Link } from "react-router";
 
-import axiosInstance from "~/lib/axios-instance";
+import axiosInstance from "~/lib/axios.instance";
 
 import * as HoverCardPrimitive from "@radix-ui/react-hover-card";
 

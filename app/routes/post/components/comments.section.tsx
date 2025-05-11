@@ -10,7 +10,7 @@ import { z } from "zod";
 
 import { cn } from "~/lib/utils";
 
-import axiosInstance from "~/lib/axios-instance";
+import axiosInstance from "~/lib/axios.instance";
 import queryClient from "~/lib/query/query-client";
 
 import type { Session } from "~/lib/auth";

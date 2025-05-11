@@ -10,7 +10,7 @@ import { z } from "zod";
 
 import { useMutateCommentVote } from "~/hooks/useMutateCommentVote";
 
-import axiosInstance from "~/lib/axios-instance";
+import axiosInstance from "~/lib/axios.instance";
 import { cn, formatTime } from "~/lib/utils";
 
 import type { Session } from "~/lib/auth";

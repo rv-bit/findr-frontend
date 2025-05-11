@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import { useLocation, useNavigate } from "react-router";
 
-import axiosInstance from "~/lib/axios-instance";
+import axiosInstance from "~/lib/axios.instance";
 import queryClient from "~/lib/query/query-client";
 
 import { authClient } from "~/lib/auth";

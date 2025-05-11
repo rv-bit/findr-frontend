@@ -6,7 +6,7 @@ import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import React from "react";
 import { useLoaderData, useSearchParams } from "react-router";
 
-import axiosInstance from "~/lib/axios-instance";
+import axiosInstance from "~/lib/axios.instance";
 
 import type { Comments, Post, User } from "~/lib/types/shared";
 

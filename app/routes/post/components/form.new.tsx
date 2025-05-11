@@ -27,7 +27,7 @@ import {
 	type MDXEditorMethods,
 } from "@mdxeditor/editor";
 
-import axiosInstance from "~/lib/axios-instance";
+import axiosInstance from "~/lib/axios.instance";
 
 import type { AxiosError } from "axios";
 
