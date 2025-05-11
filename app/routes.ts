@@ -29,7 +29,7 @@ export default [
 	...prefix("post", [
 		route(":postId", "./routes/post/$post.tsx"),
 		route(":postId/edit", "./routes/post/$post.edit.tsx"),
-		route("new", "./routes/post/new.tsx"),
+		route("new", "./routes/post/create.tsx"),
 	]),
 
 	// Static routes
