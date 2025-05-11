@@ -1,7 +1,7 @@
 import editor_stylesheet from "~/styles/card.post.mdx.css?url";
 import type { Route } from "./+types/page.$comment";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import React from "react";
 import { useLocation, useNavigate } from "react-router";
 
@@ -63,6 +63,7 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
 }
 
 export default function Index({ loaderData, params }: Route.ComponentProps) {
+	const queryClient = useQueryClient();
 	const { data: session } = authClient.useSession();
 
 	const navigate = useNavigate();
@@ -73,18 +74,31 @@ export default function Index({ loaderData, params }: Route.ComponentProps) {
 		postData: Post & { user: User };
 		commentData: CommentNode;
 	}>({
-		staleTime: 1000 * 60 * 1, // 1 minutes
+		staleTime: 1000 * 60 * 5, // 5 minutes
 		queryKey: ["individual-comment", params.commentId],
 		queryFn: () => axiosInstance.get(`/api/v0/comments/comment/${params.commentId}`).then((res) => res.data),
 		initialData: loaderData,
 	});
 
+	// Prefetch replies for comments with reply counts
+	React.useEffect(() => {
+		queryClient.prefetchInfiniteQuery({
+			staleTime: 1000 * 60 * 5, // 5 minutes
+			queryKey: ["individual-comment-replies", params.commentId],
+			queryFn: async ({ pageParam }) => {
+				const { data } = await axiosInstance.get(`/api/v0/comments/replies/${params.commentId}/?page=${pageParam}`);
+				return data;
+			},
+			initialPageParam: 1,
+		});
+	}, [queryClient]);
+
 	React.useEffect(() => {
 		const currentPath = location.pathname;
 
 		return () => {
-			if (currentPath.startsWith(`/post/${params.postId}`)) {
-				queryClient.removeQueries({ queryKey: ["individual-comment", params.commentId], exact: true });
+			if (currentPath.startsWith(`/comments/${params.commentId}`)) {
+				queryClient.removeQueries({ queryKey: ["individual-comment"], exact: false });
 				queryClient.removeQueries({ queryKey: ["individual-comment-replies"], exact: false });
 			}
 		};
