@@ -8,7 +8,14 @@ import { authClient } from "~/lib/auth";
 
 import type { ModalProps } from "~/lib/types/ui/modal";
 
-import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "~/components/ui/alert-dialog";
+import {
+	AlertDialog,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
@@ -95,10 +102,6 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 											</FormItem>
 										)}
 									/>
-
-									<span className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
-										By continuing with this, you are going to be logged out and you will need to login again with the new username.
-									</span>
 								</div>
 
 								<AlertDialogFooter>

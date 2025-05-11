@@ -11,7 +11,14 @@ import { z } from "zod";
 import setCanvasPreview from "~/lib/canvas";
 import type { ModalProps } from "~/lib/types/ui/modal";
 
-import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "~/components/ui/alert-dialog";
+import {
+	AlertDialog,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
@@ -26,8 +33,14 @@ const newAvatarSchema = z.object({
 	image: z
 		.any()
 		.refine((file) => file instanceof FileList && file.length === 1, "File is required.")
-		.refine((file) => file instanceof FileList && ACCEPTED_IMAGE_TYPES.includes(file[0]?.type), "Only .jpg, .jpeg, .png and .webp formats are supported.")
-		.refine((file) => file instanceof FileList && file[0]?.size <= MAX_FILE_SIZE_BYTES, `Max image size is ${MAX_FILE_SIZE_BYTES / 1024 / 1024}MB`),
+		.refine(
+			(file) => file instanceof FileList && ACCEPTED_IMAGE_TYPES.includes(file[0]?.type),
+			"Only .jpg, .jpeg, .png and .webp formats are supported.",
+		)
+		.refine(
+			(file) => file instanceof FileList && file[0]?.size <= MAX_FILE_SIZE_BYTES,
+			`Max image size is ${MAX_FILE_SIZE_BYTES / 1024 / 1024}MB`,
+		),
 	croppedImage: z.string(),
 });
 
@@ -204,10 +217,6 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 											<div className="flex flex-col gap-2">
 												<img src={newAvatarForm.watch("croppedImage")} alt="Cropped Image" />
 											</div>
-
-											<span className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
-												By continuing with this, you are going to be logged out and you will need to login again with the new username.
-											</span>
 										</React.Fragment>
 									)}
 								</div>
