@@ -23,9 +23,9 @@ import WarningComponent from "~/components/ui/warning-dialog";
 
 import { ChevronRight, TriangleAlert, type LucideIcon } from "lucide-react";
 
-import DeleteModal from "./modals/delete-account";
-import EmailModal from "./modals/email-change";
-import PasswordChangeModal from "./modals/password-change";
+import DeleteModal from "./components/modal.delete-account";
+import EmailModal from "./components/modal.email-change";
+import PasswordChangeModal from "./components/modal.password-change";
 
 export function meta({ params }: Route.MetaArgs) {
 	return [{ title: "Account Settings" }, { name: "description", content: "Account Settings" }];

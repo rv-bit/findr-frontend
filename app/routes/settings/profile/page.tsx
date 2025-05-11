@@ -10,9 +10,9 @@ import type { ModalProps } from "~/lib/types/ui/modal";
 import { ChevronRight, type LucideIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 
-import AvatarChangeModal from "./modals/change-avatar";
-import DescriptionChangeModal from "./modals/change-description";
-import UsernameChangeModal from "./modals/change-username";
+import AvatarChangeModal from "./components/modal.change-avatar";
+import DescriptionChangeModal from "./components/modal.change-description";
+import UsernameChangeModal from "./components/modal.change-username";
 
 export function meta({ params }: Route.MetaArgs) {
 	return [{ title: "Profile Settings" }, { name: "description", content: "Profile Settings" }];

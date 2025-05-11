@@ -19,8 +19,8 @@ import { type IconType } from "react-icons";
 import { CiMobile3 } from "react-icons/ci";
 
 import { parseUserAgent } from "~/lib/utils";
-import TwoFactorDisableModal from "./modals/two-factor-disable";
-import TwoFactorEnableModal from "./modals/two-factor-enable";
+import TwoFactorDisableModal from "./components/modal.two-factor-disable";
+import TwoFactorEnableModal from "./components/modal.two-factor-enable";
 
 export function meta({ params }: Route.MetaArgs) {
 	return [{ title: "Security Settings" }, { name: "description", content: "Security Settings" }];
