@@ -6,9 +6,9 @@ type VoteVariables = {
 	type: "upvote" | "downvote";
 };
 
-const mutateComment = (post: any, type: "upvote" | "downvote") => {
-	let hasUpvoted = post.hasUpvoted || false;
-	let hasDownvoted = post.hasDownvoted || false;
+const mutateComment = (comment: any, type: "upvote" | "downvote") => {
+	let hasUpvoted = comment.hasUpvoted || false;
+	let hasDownvoted = comment.hasDownvoted || false;
 
 	if (type === "upvote") {
 		if (hasUpvoted) {
@@ -29,7 +29,7 @@ const mutateComment = (post: any, type: "upvote" | "downvote") => {
 	}
 
 	return {
-		...post,
+		...comment,
 		hasUpvoted,
 		hasDownvoted,
 	};
@@ -54,6 +54,7 @@ export const useMutateCommentVote = ({ queryKey }: { queryKey: (string | undefin
 			queryClient.setQueryData(queryKey, (oldData: any) => {
 				if (!oldData) return oldData;
 
+				// Logic for handling paginated comments
 				if (oldData.pages) {
 					return {
 						...oldData,
@@ -71,7 +72,7 @@ export const useMutateCommentVote = ({ queryKey }: { queryKey: (string | undefin
 					};
 				}
 
-				// Single post logic
+				// Single comment data
 				if (oldData.id === commentId) {
 					return mutateComment(oldData, type);
 				}
