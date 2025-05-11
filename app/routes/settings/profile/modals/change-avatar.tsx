@@ -8,6 +8,8 @@ import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { authClient } from "~/lib/auth";
+
 import setCanvasPreview from "~/lib/canvas";
 import type { ModalProps } from "~/lib/types/ui/modal";
 
@@ -20,9 +22,9 @@ import {
 	AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
+import { Form, FormControl, FormField, FormItem } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { authClient } from "~/lib/auth";
+import { Label } from "~/components/ui/label";
 
 const MAX_FILE_SIZE_BYTES = 1 * 1024 * 1024; // 1MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -32,7 +34,7 @@ const MIN_DIMENSION = 150;
 const newAvatarSchema = z.object({
 	image: z
 		.any()
-		.refine((file) => file instanceof FileList && file.length === 1, "File is required.")
+		.refine((file) => file instanceof FileList && file.length === 1, "You must select exactly one file.")
 		.refine(
 			(file) => file instanceof FileList && ACCEPTED_IMAGE_TYPES.includes(file[0]?.type),
 			"Only .jpg, .jpeg, .png and .webp formats are supported.",
@@ -41,6 +43,7 @@ const newAvatarSchema = z.object({
 			(file) => file instanceof FileList && file[0]?.size <= MAX_FILE_SIZE_BYTES,
 			`Max image size is ${MAX_FILE_SIZE_BYTES / 1024 / 1024}MB`,
 		),
+
 	croppedImage: z.string(),
 });
 
@@ -69,7 +72,6 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 		control: control,
 		name: "image",
 	});
-
 	const isFormIsValid = formState.isValid;
 
 	function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
@@ -167,30 +169,77 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 										<FormField
 											control={newAvatarForm.control}
 											name="image"
-											render={({ field: { onChange, ref, value, ...fieldProps } }) => (
+											render={({ field: { onChange, ref, value, ...fieldProps }, fieldState }) => (
 												<FormItem>
 													<FormControl>
-														<Input
-															type="file"
-															accept=".jpg,.jpeg,.png,.webp"
-															ref={ref}
-															onChange={(e) => {
-																const files = e.target.files;
-																if (files && files.length > 0) {
-																	newAvatarForm.setValue("image", files, { shouldValidate: true });
-																}
-															}}
-															{...fieldProps}
-														/>
+														<div className="flex w-full items-center justify-center">
+															<Label
+																htmlFor="dropzone-file"
+																onDragOver={(e) => {
+																	e.preventDefault();
+																}}
+																onDrop={(e) => {
+																	e.preventDefault();
+																	const files = e.dataTransfer.files;
+																	if (files && files.length > 0) {
+																		newAvatarForm.setValue("image", files, { shouldValidate: true });
+																	}
+																}}
+																className="flex h-50 w-full items-center justify-center overflow-hidden rounded-3xl border-2 border-dashed border-sidebar-foreground/20 bg-sidebar-foreground/10 transition-colors duration-200 ease-in-out hover:bg-sidebar-foreground/30 dark:bg-[#2B3236] dark:hover:bg-[#2B3236]/40"
+															>
+																<div className="flex flex-col items-center justify-center pt-5 pb-6">
+																	<svg
+																		className="mb-4 h-8 w-8 text-gray-500 dark:text-gray-400"
+																		aria-hidden="true"
+																		xmlns="http://www.w3.org/2000/svg"
+																		fill="none"
+																		viewBox="0 0 20 16"
+																	>
+																		<path
+																			stroke="currentColor"
+																			strokeLinecap="round"
+																			strokeLinejoin="round"
+																			strokeWidth="2"
+																			d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+																		/>
+																	</svg>
+																	<p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+																		<span className="font-semibold">Click to upload</span> or drag and drop
+																	</p>
+																	<p className="text-xs text-gray-500 dark:text-gray-400">
+																		PNG, JPG, WEBP, JPEG (1MB max)
+																	</p>
+																</div>
+																<Input
+																	id="dropzone-file"
+																	ref={ref}
+																	type="file"
+																	accept={ACCEPTED_IMAGE_TYPES.join(",")}
+																	onChange={(e) => {
+																		const files = e.target.files;
+																		if (files) {
+																			onChange(files); // will trigger validation properly
+																			newAvatarForm.trigger("image");
+																		}
+																	}}
+																	{...fieldProps}
+																	style={{ display: "none" }}
+																/>
+															</Label>
+														</div>
 													</FormControl>
-													<FormMessage />
+													{fieldState.error && (
+														<p className="text-[0.8rem] font-medium text-red-500 dark:text-red-600">
+															{fieldState.error.message}
+														</p>
+													)}
 												</FormItem>
 											)}
 										/>
 									)}
 
 									{step === 1 && (
-										<div className="flex items-center justify-center">
+										<div className="flex h-auto min-h-95 w-full items-center justify-center overflow-hidden rounded-3xl border-2 border-dashed border-sidebar-foreground/20 bg-sidebar-foreground/10 dark:bg-[#2B3236]">
 											<ReactCrop
 												circularCrop
 												keepSelection
@@ -198,13 +247,6 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 												minWidth={MIN_DIMENSION}
 												crop={crop}
 												onChange={setCrop}
-												style={{
-													width: "100%",
-													maxHeight: "500px",
-													display: "flex",
-													justifyContent: "center",
-													alignItems: "center",
-												}}
 											>
 												<img ref={imageRef} src={imageSource} onLoad={onImageLoad} alt="Crop" />
 											</ReactCrop>
