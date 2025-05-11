@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import React from "react";
 import { Link, useSearchParams } from "react-router";
 
@@ -28,6 +28,8 @@ import { sortOptions } from "../shared/constants";
 import { MAX_CONTENT_LENGTH, newCommentSchema } from "../shared/schemas";
 import type { CommentNode } from "../shared/types";
 
+import type { Post, User } from "~/lib/types/shared";
+import { useRepliesVisibilityStore } from "../stores/useRepliesVisibility";
 import CommentBox from "./comment.box";
 
 type CommentsProps = React.ComponentProps<"section"> & {
@@ -35,7 +37,13 @@ type CommentsProps = React.ComponentProps<"section"> & {
 	session: Session | null;
 };
 
+const fetchReplies = async ({ commentId, page = 1 }: { commentId: string; page: number }) => {
+	const { data } = await axiosInstance.get(`/api/v0/comments/replies/${commentId}/?page=${page}`);
+	return data;
+};
+
 const Comments = React.memo(({ className, postId, session, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentsProps) => {
+	const queryClient = useQueryClient();
 	const [searchParams, setSearchParams] = useSearchParams();
 	const currentSortOption = searchParams.get("filter") || sortOptions[0].value;
 
@@ -84,7 +92,7 @@ const Comments = React.memo(({ className, postId, session, ...props }: React.HTM
 						fetchNextPage();
 					}
 				},
-				{ threshold: 1 },
+				{ threshold: 0.5 }, // Trigger when 50% of the element is in view
 			);
 
 			observer.observe(inViewportRef.current);
@@ -93,6 +101,20 @@ const Comments = React.memo(({ className, postId, session, ...props }: React.HTM
 			};
 		}
 	}, [status, fetchNextPage, inViewportRef]);
+
+	// Prefetch replies for comments with reply counts
+	React.useEffect(() => {
+		const commentsWithReplies = sortedData.filter((comment) => comment.replyCount > 0);
+
+		// Prefetch first page of replies for comments with replies
+		commentsWithReplies.forEach((comment) => {
+			queryClient.prefetchInfiniteQuery({
+				queryKey: ["comment-replies", comment.id],
+				queryFn: () => fetchReplies({ commentId: comment.id, page: 1 }),
+				initialPageParam: 1,
+			});
+		});
+	}, [sortedData, queryClient]);
 
 	if (isLoading) {
 		return (
@@ -138,66 +160,62 @@ type CommentNodeProps = React.ComponentProps<"section"> & {
 };
 const Comment = React.memo(({ className, comment, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentNodeProps) => {
 	const containerRef = React.useRef<HTMLDivElement>(null);
-	const [showReplies, setShowReplies] = React.useState(true);
 
-	const fetchReplies = React.useCallback(async ({ page, commentId }: { page: number; commentId: string }) => {
-		const { data } = await axiosInstance.get(`/api/v0/comments/replies/${commentId}/?page=${page}`);
-		return data;
-	}, []);
+	const isVisible = useRepliesVisibilityStore((state) => state.isVisible(comment.id));
+	const setVisibility = useRepliesVisibilityStore((state) => state.setVisibility);
+
+	const hasReplies = comment.replyCount > 0;
 
 	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, refetch } = useInfiniteQuery({
-		staleTime: 1000 * 60 * 5, // 5 minutes
-		enabled: showReplies, // Only fetch replies when showReplies is true
-		queryKey: ["replies", comment.id],
+		staleTime: 1000 * 60 * 2, // 2 minutes
+		enabled: isVisible && hasReplies,
+		queryKey: ["comment-replies", comment.id],
 		initialPageParam: 1,
 		queryFn: async ({ pageParam }) => {
-			return fetchReplies({ page: pageParam, commentId: comment.id });
+			return fetchReplies({ commentId: comment.id, page: pageParam });
 		},
-		getNextPageParam: (lastPage, allPages, lastPageParam, allPageParams) => lastPage.nextCursor,
-		getPreviousPageParam: (firstPage, allPages, firstPageParam, allPageParams) => firstPage.prevCursor,
+		getNextPageParam: (lastPage) => lastPage.nextCursor,
+		getPreviousPageParam: (firstPage) => firstPage.prevCursor,
 	});
-
-	const repliesCount = React.useMemo(() => {
-		if (comment.replyCount) {
-			return comment.replyCount;
-		} else if (data) {
-			return data.pages.reduce((acc, page) => acc + page.data.length, 0);
-		}
-
-		return 0;
-	}, [data, comment]);
 
 	const repliesData = React.useMemo(() => {
 		if (!data) return [];
 		return data.pages.flatMap((page) => page.data) as CommentNode[];
 	}, [data]);
 
-	const hasReplies = repliesCount > 0;
+	const toggleReplies = () => {
+		if (!isVisible && hasReplies) {
+			// If we're showing replies, refetch to get the latest data
+			refetch();
+		}
+
+		setVisibility(comment.id, !isVisible);
+	};
 
 	return (
 		<div ref={containerRef} className={cn("comment-thread-item mb-4", className)}>
 			<CommentContent comment={comment} session={props.session} />
 
-			{hasReplies && !showReplies && (
+			{hasReplies && !isVisible && (
 				<div className="mt-1 ml-12">
 					<Button
-						variant={"link"}
-						onClick={() => setShowReplies(true)}
+						variant="link"
+						onClick={toggleReplies}
 						className="flex items-center gap-1 p-0 text-xs text-neutral-600 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200"
 					>
 						<ChevronRight className="mr-1 size-4" />
-						Show replies ({repliesCount})
+						Show replies ({comment.replyCount})
 					</Button>
 				</div>
 			)}
 
-			{showReplies && (
+			{isVisible && (
 				<div className="mt-1 ml-12">
 					{hasReplies && (
 						<>
 							<Button
-								variant={"link"}
-								onClick={() => setShowReplies(false)}
+								variant="link"
+								onClick={toggleReplies}
 								className="mb-2 flex items-center gap-1 p-0 text-xs text-neutral-600 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200"
 							>
 								<ChevronDown className="mr-1 size-4" />
@@ -225,7 +243,7 @@ const Comment = React.memo(({ className, comment, ...props }: React.HTMLAttribut
 													<div className="size-5 animate-spin rounded-full border-2 border-neutral-400 border-t-transparent" />
 												</>
 											) : (
-												<>Show more replies ({repliesCount - repliesData.length})</>
+												<>Show more replies ({comment.replyCount - repliesData.length})</>
 											)}
 										</button>
 									)}
@@ -240,6 +258,8 @@ const Comment = React.memo(({ className, comment, ...props }: React.HTMLAttribut
 });
 
 const CommentContent = React.memo(({ className, comment, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentNodeProps) => {
+	const queryClient = useQueryClient();
+
 	const commentTextAreaRef = React.useRef<HTMLTextAreaElement>(null);
 
 	const [replyCommentBoxOpen, setReplyCommentBoxOpen] = React.useState(false);
@@ -247,7 +267,7 @@ const CommentContent = React.memo(({ className, comment, ...props }: React.HTMLA
 
 	const queryKey = React.useMemo(() => {
 		if (comment.parentId) {
-			return ["replies", comment.parentId];
+			return ["comment-replies", comment.parentId];
 		}
 		return ["comments", comment.postId];
 	}, [comment.postId, comment.parentId]);
@@ -295,7 +315,6 @@ const CommentContent = React.memo(({ className, comment, ...props }: React.HTMLA
 		setReplyCommentBoxOpen(false);
 		newCommentForm.reset(); // Reset the form values
 	};
-
 	const handleSubmit = (values: z.infer<typeof newCommentSchema>) => {
 		if (!props.session || !props.session.user) {
 			toast.error("You need to be logged in");
@@ -324,10 +343,71 @@ const CommentContent = React.memo(({ className, comment, ...props }: React.HTMLA
 				setLoading(false);
 
 				if (response.status === 200) {
-					toast.success("Comment added successfully");
+					toast.success("Reply added successfully");
 					newCommentForm.reset(); // Reset the form values
-
 					setReplyCommentBoxOpen(false);
+
+					queryClient.setQueryData(queryKey, (oldData: any) => {
+						if (!oldData) return oldData;
+
+						// Function to update a comment in an array
+						const updateComment = (comments: any[]) => {
+							return comments.map((c) => {
+								if (c.id === comment.id) {
+									return {
+										...c,
+										replyCount: (c.replyCount || 0) + 1,
+									};
+								}
+								return c;
+							});
+						};
+
+						// Update different data structures based on query type
+						if (Array.isArray(oldData)) {
+							return updateComment(oldData);
+						} else if (oldData.pages) {
+							return {
+								...oldData,
+								pages: oldData.pages.map((page: any) => ({
+									...page,
+									data: updateComment(page.data),
+								})),
+							};
+						}
+
+						return oldData;
+					});
+
+					// Force refresh the replies query
+					queryClient.invalidateQueries({
+						queryKey: ["comment-replies", comment.id],
+						exact: true,
+					});
+
+					// Invalidate any parent comment queries
+					if (comment.parentId) {
+						queryClient.invalidateQueries({
+							queryKey: ["comment-replies", comment.parentId],
+							exact: true,
+						});
+					}
+
+					// Also ensure we see the updated counts in the main comments list
+					queryClient.invalidateQueries({
+						queryKey: ["comments", comment.postId],
+						exact: true,
+					});
+
+					// Update the post comment count
+					queryClient.setQueryData(["post", comment.postId], (oldData: Post & { user: User }) => {
+						if (!oldData) return oldData;
+
+						return {
+							...oldData,
+							commentsCount: (oldData.commentsCount || 0) + 1,
+						};
+					});
 				}
 			})
 			.catch((error) => {
@@ -347,11 +427,7 @@ const CommentContent = React.memo(({ className, comment, ...props }: React.HTMLA
 		<summary className={cn("comment-content contents", className)} {...props}>
 			<span className="flex items-start justify-start gap-2">
 				<Avatar className="size-9 rounded-full">
-					<AvatarImage
-						loading="lazy"
-						src={`${comment.user.image?.startsWith("http") ? comment.user.image : `${import.meta.env.VITE_CLOUD_FRONT_URL}/${comment.user.image}`}`}
-						alt={comment.user.username}
-					/>
+					<AvatarImage loading="lazy" src={comment.user.image ?? ""} alt={comment.user.username} />
 					<AvatarFallback className="rounded-lg bg-sidebar-foreground/50 text-[0.75rem]">
 						{comment.user.username
 							?.split(" ")
