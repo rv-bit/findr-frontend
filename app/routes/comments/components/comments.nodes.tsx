@@ -284,22 +284,6 @@ const CommentContent = React.memo(({ className, mainCommentId, comment, ...props
 						queryKey: ["individual-comment"],
 						exact: false,
 					});
-
-					// queryClient.setQueryData(queryKey, (oldData: { postData: Post & { user: User }; commentData: CommentNode }) => {
-					// 	if (!oldData) return oldData;
-
-					// 	if ("postData" in oldData) {
-					// 		return {
-					// 			...oldData,
-					// 			postData: {
-					// 				...oldData.postData,
-					// 				commentsCount: oldData.postData.commentsCount + 1,
-					// 			},
-					// 		};
-					// 	}
-
-					// 	return oldData;
-					// });
 				}
 			})
 			.catch((error) => {
