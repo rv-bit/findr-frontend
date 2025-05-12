@@ -10,13 +10,18 @@ export type User = {
 };
 
 export type Comments = {
-	id: number;
+	id: string;
 	postId: string | null;
 	text: string | null;
+
+	upvoted: boolean;
+	downvoted: boolean;
+
 	createdAt: Date;
 	updatedAt: Date;
 
 	postTitle?: string | null;
+	repliedTo?: string | null;
 };
 
 export type Post = {
