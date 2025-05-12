@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import type { Comments, Post } from "~/lib/types/shared";
+import type { Comment, Post } from "~/lib/types/shared";
 
 export const types: {
 	title: string;
@@ -32,26 +32,26 @@ export const types: {
 export const sortOptions: {
 	title: string;
 	value: string;
-	sortingFn: (a: Post | Comments, b: Post | Comments) => number;
+	sortingFn: (a: Post | Comment, b: Post | Comment) => number;
 }[] = [
 	{
 		title: "Newest",
 		value: "newest",
-		sortingFn: (a: Post | Comments, b: Post | Comments) => {
+		sortingFn: (a: Post | Comment, b: Post | Comment) => {
 			return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
 		},
 	},
 	{
 		title: "Oldest",
 		value: "oldest",
-		sortingFn: (a: Post | Comments, b: Post | Comments) => {
+		sortingFn: (a: Post | Comment, b: Post | Comment) => {
 			return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
 		},
 	},
 	{
 		title: "Top",
 		value: "top",
-		sortingFn: (a: Post | Comments, b: Post | Comments) => {
+		sortingFn: (a: Post | Comment, b: Post | Comment) => {
 			if ("likesCount" in a && "likesCount" in b) {
 				return b.likesCount - a.likesCount;
 			}
