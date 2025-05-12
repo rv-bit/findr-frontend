@@ -124,7 +124,7 @@ export default function Index({ loaderData, params }: Route.ComponentProps) {
 						/>
 
 						<section className="flex flex-col gap-5 overflow-hidden py-2">
-							<Comment comment={data.commentData} session={session} />
+							<Comment mainCommentId={params.commentId} comment={data.commentData} session={session} />
 						</section>
 					</>
 				)}

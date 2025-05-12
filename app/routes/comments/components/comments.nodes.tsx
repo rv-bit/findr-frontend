@@ -30,6 +30,7 @@ import { useRepliesVisibilityStore } from "~/routes/post/stores/useRepliesVisibi
 import CommentBox from "~/routes/post/components/comment.box";
 
 type CommentNodeProps = React.ComponentProps<"section"> & {
+	mainCommentId?: string;
 	comment: CommentNode;
 	session: Session | null;
 };
@@ -39,7 +40,7 @@ const fetchReplies = async ({ commentId, page = 1 }: { commentId: string; page: 
 	return data;
 };
 
-const Comment = React.memo(({ className, comment, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentNodeProps) => {
+const Comment = React.memo(({ className, mainCommentId, comment, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentNodeProps) => {
 	const containerRef = React.useRef<HTMLDivElement>(null);
 
 	const isVisible = useRepliesVisibilityStore((state) => state.isVisible(comment.id));
@@ -48,7 +49,7 @@ const Comment = React.memo(({ className, comment, ...props }: React.HTMLAttribut
 	const hasReplies = comment.replyCount > 0;
 
 	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, refetch } = useInfiniteQuery({
-		staleTime: 1000 * 60 * 2, // 2 minutes
+		staleTime: 1000 * 60 * 5, // 5 minutes
 		enabled: isVisible && hasReplies,
 		queryKey: ["individual-comment-replies", comment.id],
 		initialPageParam: 1,
@@ -75,7 +76,7 @@ const Comment = React.memo(({ className, comment, ...props }: React.HTMLAttribut
 
 	return (
 		<div ref={containerRef} className={cn("comment-thread-item mb-4", className)}>
-			<CommentContent comment={comment} session={props.session} />
+			<CommentContent mainCommentId={mainCommentId} comment={comment} session={props.session} />
 
 			{hasReplies && !isVisible && (
 				<div className="mt-1 ml-12">
@@ -138,7 +139,7 @@ const Comment = React.memo(({ className, comment, ...props }: React.HTMLAttribut
 	);
 });
 
-const CommentContent = React.memo(({ className, comment, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentNodeProps) => {
+const CommentContent = React.memo(({ className, mainCommentId, comment, ...props }: React.HTMLAttributes<HTMLDivElement> & CommentNodeProps) => {
 	const queryClient = useQueryClient();
 
 	const commentTextAreaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -147,10 +148,15 @@ const CommentContent = React.memo(({ className, comment, ...props }: React.HTMLA
 	const [loading, setLoading] = React.useState(false);
 
 	const queryKey = React.useMemo(() => {
+		if (mainCommentId) {
+			return ["individual-comment", mainCommentId];
+		}
+
 		if (comment.parentId) {
 			return ["individual-comment-replies", comment.parentId];
 		}
-		return ["individual-comment", comment.id];
+
+		return ["individual-comment-replies", comment.id];
 	}, [comment]);
 
 	const { mutate } = useMutateCommentVote({
@@ -274,11 +280,26 @@ const CommentContent = React.memo(({ className, comment, ...props }: React.HTMLA
 						});
 					}
 
-					// Also ensure we see the updated counts in the main comments list
 					queryClient.invalidateQueries({
-						queryKey: ["individual-comment", comment.id],
-						exact: true,
+						queryKey: ["individual-comment"],
+						exact: false,
 					});
+
+					// queryClient.setQueryData(queryKey, (oldData: { postData: Post & { user: User }; commentData: CommentNode }) => {
+					// 	if (!oldData) return oldData;
+
+					// 	if ("postData" in oldData) {
+					// 		return {
+					// 			...oldData,
+					// 			postData: {
+					// 				...oldData.postData,
+					// 				commentsCount: oldData.postData.commentsCount + 1,
+					// 			},
+					// 		};
+					// 	}
+
+					// 	return oldData;
+					// });
 				}
 			})
 			.catch((error) => {
