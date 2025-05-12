@@ -132,11 +132,6 @@ export default function Index() {
 			});
 	};
 
-	React.useEffect(() => {
-		console.log("JSON.parse(loaderData.data.content)", JSON.parse(loaderData.data.content));
-		return () => {};
-	}, []);
-
 	return (
 		<div className="flex h-full w-full flex-col items-center justify-start max-md:w-screen">
 			<div className="flex w-full max-w-5xl flex-col gap-5 px-10 pt-8 max-sm:px-4">
