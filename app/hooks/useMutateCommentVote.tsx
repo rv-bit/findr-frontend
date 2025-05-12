@@ -1,19 +1,23 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "~/lib/axios.instance";
+import type { Comment } from "~/lib/types/shared";
 
 type VoteVariables = {
 	commentId: string;
 	type: "upvote" | "downvote";
 };
 
-const mutateComment = (comment: any, type: "upvote" | "downvote") => {
-	let hasUpvoted = comment.hasUpvoted || false;
-	let hasDownvoted = comment.hasDownvoted || false;
+const mutateComment = (comment: Comment, type: "upvote" | "downvote") => {
+	let newLikesCount = comment.likesCount;
+	let hasUpvoted = comment.upvoted || false;
+	let hasDownvoted = comment.downvoted || false;
 
 	if (type === "upvote") {
 		if (hasUpvoted) {
+			newLikesCount -= 1;
 			hasUpvoted = false;
 		} else {
+			newLikesCount += hasDownvoted ? 2 : 1;
 			hasUpvoted = true;
 			hasDownvoted = false;
 		}
@@ -21,8 +25,10 @@ const mutateComment = (comment: any, type: "upvote" | "downvote") => {
 
 	if (type === "downvote") {
 		if (hasDownvoted) {
+			newLikesCount += 1;
 			hasDownvoted = false;
 		} else {
+			newLikesCount -= hasUpvoted ? 2 : 1;
 			hasDownvoted = true;
 			hasUpvoted = false;
 		}
@@ -30,6 +36,7 @@ const mutateComment = (comment: any, type: "upvote" | "downvote") => {
 
 	return {
 		...comment,
+		likesCount: newLikesCount,
 		hasUpvoted,
 		hasDownvoted,
 	};
