@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 import { authClient } from "~/lib/auth-client";
 import queryClient from "~/lib/query-client";
@@ -203,16 +203,13 @@ export default function TopbarActions() {
 					</Button>
 				) : (
 					<React.Fragment>
-						<Button
-							onClick={async () => {
-								navigate(`/post/new/?type=text`);
-							}}
-							type="button"
-							className="flex h-9 items-center justify-center rounded-full bg-transparent px-4 text-black shadow-none hover:bg-sidebar-foreground/20 max-md:px-1 dark:bg-transparent dark:text-white dark:hover:bg-sidebar-accent [&_svg]:size-auto"
+						<Link
+							to={`/post/create/?type=text`}
+							className="flex h-9 items-center justify-center gap-1 rounded-full bg-transparent px-4 text-black shadow-none hover:bg-sidebar-foreground/20 max-md:px-1 dark:bg-transparent dark:text-white dark:hover:bg-sidebar-accent [&_svg]:size-auto"
 						>
 							<Plus size={28} />
 							<span className="block truncate text-sm capitalize max-md:hidden">Create</span>
-						</Button>
+						</Link>
 
 						<DropdownMenu open={open} onOpenChange={setOpen}>
 							<DropdownMenuTrigger asChild>

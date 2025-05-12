@@ -20,7 +20,6 @@ export const links: Route.LinksFunction = () => [
 
 const types: {
 	title: string;
-	url: string;
 	queryKey: string;
 	query: string;
 	icon?: LucideIcon;
@@ -28,20 +27,17 @@ const types: {
 }[] = [
 	{
 		title: "Text",
-		url: "/post/new/",
 		queryKey: "type",
 		query: "text",
 	},
 	{
 		title: "Images",
-		url: "/post/new/",
 		queryKey: "type",
 		query: "images",
 		disabled: true,
 	},
 	{
 		title: "Link",
-		url: "/post/new/",
 		queryKey: "type",
 		query: "link",
 		disabled: true,
@@ -79,11 +75,11 @@ export default function Index() {
 	};
 
 	const isActive = React.useMemo(
-		() => (url: string, queryKey: string, query: string) => {
+		() => (queryKey: string, query: string) => {
 			const isQueryMatch = searchParams.get(queryKey) === query;
-			return location.pathname === url && isQueryMatch;
+			return isQueryMatch;
 		},
-		[location, searchParams],
+		[searchParams],
 	);
 
 	React.useEffect(() => {
@@ -117,16 +113,13 @@ export default function Index() {
 								onClick={(e) => {
 									e.preventDefault();
 
-									navigate(action.url, {
-										replace: true,
-									});
 									setSearchParams({
 										[action.queryKey!]: action.query!,
 									});
 								}}
 								className={cn(
 									"group relative h-auto min-w-fit shrink-0 items-center justify-center rounded-none px-4 py-2 hover:no-underline",
-									isActive(action.url, action?.queryKey, action?.query)
+									isActive(action?.queryKey, action?.query)
 										? "border-b-2 border-black dark:border-white"
 										: "hover:border-b-2 hover:border-black/50 dark:hover:border-white/80",
 								)}
@@ -135,7 +128,7 @@ export default function Index() {
 								<h1
 									className={cn(
 										"inline-flex text-black",
-										isActive(action.url, action?.queryKey, action?.query)
+										isActive(action?.queryKey, action?.query)
 											? "text-black dark:text-white"
 											: "group-hover:text-black/50 dark:text-[#8BA2AE] dark:group-hover:text-white/80",
 									)}
