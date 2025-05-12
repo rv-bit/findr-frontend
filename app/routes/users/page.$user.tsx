@@ -6,9 +6,10 @@ import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import React from "react";
 import { useLoaderData, useSearchParams } from "react-router";
 
+import { authClient } from "~/lib/auth-client";
 import axiosInstance from "~/lib/axios.instance";
 
-import type { Comments, Post, User } from "~/lib/types/shared";
+import type { Comment, Post, User } from "~/lib/types/shared";
 
 import Loading from "~/icons/loading";
 
@@ -69,6 +70,7 @@ export function HydrateFallback() {
 export default function Index() {
 	const { user } = useLoaderData<typeof loader>();
 	const [searchParams, setSearchParams] = useSearchParams();
+	const { data: session } = authClient.useSession();
 
 	const currentType = searchParams.get("type");
 	const currentSortOption = searchParams.get("sort") || sortOptions[0].value;
@@ -133,7 +135,7 @@ export default function Index() {
 		}
 
 		// For overview, combine and mark posts and comments
-		const combinedItems: { type: "post" | "comment"; item: Post | Comments }[] = [];
+		const combinedItems: { type: "post" | "comment"; item: Post | Comment }[] = [];
 		data.pages.forEach((group) => {
 			if (group.data.posts && Array.isArray(group.data.posts)) {
 				group.data.posts.forEach((post: Post) => {
@@ -141,7 +143,7 @@ export default function Index() {
 				});
 			}
 			if (group.data.comments && Array.isArray(group.data.comments)) {
-				group.data.comments.forEach((comment: Comments) => {
+				group.data.comments.forEach((comment: Comment) => {
 					combinedItems.push({ type: "comment", item: comment });
 				});
 			}
@@ -242,7 +244,7 @@ export default function Index() {
 															{item.type === "post" ? (
 																<PostsCard className="my-1" data={item.item} user={user} />
 															) : (
-																<CommentsCard data={item.item} user={user} />
+																<CommentsCard comment={item.item} user={user} session={session} />
 															)}
 															<hr className="w-full border-t-0 border-b border-sidebar-border" />
 														</div>
@@ -253,7 +255,7 @@ export default function Index() {
 															{currentType === "posts" ? (
 																<PostsCard className="my-1" data={item} user={user} />
 															) : (
-																<CommentsCard data={item} user={user} />
+																<CommentsCard comment={item} user={user} session={session} />
 															)}
 															<hr className="w-full border-t-0 border-b border-sidebar-border" />
 														</div>

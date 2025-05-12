@@ -4,25 +4,15 @@ import { Link } from "react-router";
 
 import axiosInstance from "~/lib/axios.instance";
 
-import * as HoverCardPrimitive from "@radix-ui/react-hover-card";
+import type { User } from "~/lib/types/shared";
 
+import * as HoverCardPrimitive from "@radix-ui/react-hover-card";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/hover-card";
 
 import { Cake } from "lucide-react";
 
-type HoverUserResponse = {
-	username: string;
-	image: string | null;
-	about_description: string;
-
-	postsCount: number;
-	commentsCount: number;
-
-	createdAt: Date;
-};
-
-const fetchUserData = async (username: string): Promise<HoverUserResponse> => {
+const fetchUserData = async (username: string): Promise<User> => {
 	const response = await axiosInstance.get(`/api/v0/users/${username}`);
 
 	if (response.status !== 200) {
@@ -35,7 +25,7 @@ const fetchUserData = async (username: string): Promise<HoverUserResponse> => {
 export default function HoverCardUser({ username, ...props }: React.ComponentProps<typeof HoverCardPrimitive.Root> & { username: string }) {
 	const [isHovering, setIsHovering] = React.useState(false);
 
-	const { data, isLoading, error } = useQuery<HoverUserResponse>({
+	const { data, isLoading, error } = useQuery<User>({
 		queryKey: ["hoverUserData", username],
 		queryFn: () => fetchUserData(username),
 		enabled: isHovering,
