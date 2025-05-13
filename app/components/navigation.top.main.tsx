@@ -197,7 +197,7 @@ export default function TopbarActions() {
 					<React.Fragment>
 						<Link
 							to={`/post/create/?type=text`}
-							className="flex h-9 items-center justify-center gap-1 rounded-full bg-transparent px-4 text-black shadow-none hover:bg-sidebar-foreground/20 max-md:px-1 dark:bg-transparent dark:text-white dark:hover:bg-sidebar-accent [&_svg]:size-auto"
+							className="flex h-9 items-center justify-center gap-1 rounded-full bg-transparent px-4 py-5 text-black shadow-none hover:bg-sidebar-foreground/20 max-md:px-1 dark:bg-transparent dark:text-white dark:hover:bg-sidebar-accent [&_svg]:size-auto"
 						>
 							<Plus size={28} />
 							<span className="block truncate text-sm capitalize max-md:hidden">Create</span>
@@ -265,7 +265,7 @@ export default function TopbarActions() {
 														}}
 														className={cn(
 															dropdownMenuItemVariants(),
-															"group h-fit w-full px-3 py-2 text-left hover:cursor-pointer",
+															"group h-auto w-full px-3 py-2 text-left hover:cursor-pointer",
 														)}
 													>
 														<span className="flex w-full items-center justify-start gap-1 opacity-80 group-hover:opacity-100">
@@ -306,7 +306,7 @@ export default function TopbarActions() {
 											onClick={() => {
 												setOpen(false);
 											}}
-											className={cn(dropdownMenuItemVariants(), "group h-fit w-full px-3 py-2 text-left hover:cursor-pointer")}
+											className={cn(dropdownMenuItemVariants(), "group h-auto w-full px-3 py-2 text-left hover:cursor-pointer")}
 										>
 											<span className="flex w-full items-center justify-start gap-1 opacity-80 group-hover:opacity-100">
 												{item.icon && <item.icon />}
@@ -323,7 +323,7 @@ export default function TopbarActions() {
 														item.onClick();
 													}
 												}}
-												className="group w-full px-3 py-2 text-left hover:cursor-pointer"
+												className="group h-auto w-full px-3 py-2 text-left hover:cursor-pointer"
 											>
 												{item.component ? (
 													<item.component />

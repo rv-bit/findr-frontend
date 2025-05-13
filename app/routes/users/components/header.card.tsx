@@ -190,7 +190,7 @@ const HeaderCard = React.memo(
 						{session?.user.username === user.username && (
 							<Link
 								to={`/post/create/?type=text`}
-								className="flex h-9 w-fit min-w-fit items-center justify-center gap-1 rounded-full border border-black/50 bg-transparent px-4 text-black shadow-none dark:border-white/50 dark:bg-transparent dark:text-white dark:hover:border-white"
+								className="flex h-9 w-fit items-center justify-center gap-1 rounded-full border border-black/50 bg-transparent px-4 text-black shadow-none dark:border-white/50 dark:bg-transparent dark:text-white dark:hover:border-white"
 							>
 								<Plus size={22} />
 								<span className="text-xs capitalize">Create Post</span>
