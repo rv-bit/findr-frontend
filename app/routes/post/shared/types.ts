@@ -5,10 +5,14 @@ export type CommentNode = {
 	text: string;
 	postId: string;
 	parentId: string | null;
-	upvoted: boolean;
-	downvoted: boolean;
-	user: User;
 	createdAt: Date;
 	updatedAt: Date;
+
+	likesCount: number;
+
+	upvoted: boolean;
+	downvoted: boolean;
+
+	user: User;
 	replyCount: number;
 };
