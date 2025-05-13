@@ -311,9 +311,9 @@ const PostsCard = React.memo(
 					</ClientOnly>
 				</span>
 
-				<span className="relative mt-1 flex items-start justify-start gap-2">
+				<span className="mt-1 flex items-start justify-start gap-2">
 					<span
-						className={cn("flex w-fit items-center justify-between gap-1 rounded-3xl bg-[#E5EBEE] dark:bg-sidebar-accent", {
+						className={cn("relative flex w-fit items-center justify-between gap-1 rounded-3xl bg-[#E5EBEE] dark:bg-sidebar-accent", {
 							"bg-red-400/85 dark:bg-red-400/85": data.downvoted,
 							"bg-primary-400 dark:bg-primary-400": data.upvoted,
 						})}
@@ -365,7 +365,7 @@ const PostsCard = React.memo(
 
 					<Link
 						to={`/post/${data.id}`}
-						className="flex h-9 w-fit items-center justify-start gap-1 rounded-3xl bg-[#E5EBEE] px-3 py-2 text-black hover:bg-[#75858f]/20 dark:bg-sidebar-accent dark:text-white dark:hover:bg-[#333a3e] [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
+						className="relative flex h-9 w-fit items-center justify-start gap-1 rounded-3xl bg-[#E5EBEE] px-3 py-2 text-black hover:bg-[#75858f]/20 dark:bg-sidebar-accent dark:text-white dark:hover:bg-[#333a3e] [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
 					>
 						<MessageCircle />
 						<span className="text-sm text-black dark:text-white">{data.commentsCount}</span>
