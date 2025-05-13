@@ -123,11 +123,11 @@ export default function Index() {
 	}, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
 	return (
-		<main className="mx-auto flex w-full flex-col items-center justify-start overflow-hidden max-md:w-screen">
-			<div className="flex w-full max-w-[85rem] flex-col px-10 pt-5 max-sm:px-4">
-				<section className="flex w-full flex-col gap-2 border-b border-sidebar-border pb-5">
+		<main className="mx-auto flex w-full flex-col items-center justify-start overflow-hidden px-0 pt-3 lg:px-5">
+			<div className="flex w-full max-w-[85rem] flex-col">
+				<section className="flex w-full flex-col gap-2 border-b border-sidebar-border px-0 pb-3 lg:px-2">
 					<Select defaultValue={currentSortOption} onValueChange={setCurrentSortOption}>
-						<SelectTrigger className="min-h-5 w-fit min-w-6 gap-1 rounded-full border-0 pl-4 text-black shadow-none focus-visible:border-0 focus-visible:ring-0 data-[placeholder]:text-black dark:dark:bg-transparent dark:text-white dark:dark:hover:bg-sidebar-accent/60 dark:focus-visible:border-0 dark:focus-visible:ring-0 dark:data-[placeholder]:text-white">
+						<SelectTrigger className="min-h-5 w-fit min-w-6 gap-1 rounded-full border-0 py-5 pl-4 text-black shadow-none focus-visible:border-0 focus-visible:ring-0 data-[placeholder]:text-black dark:dark:bg-transparent dark:text-white dark:dark:hover:bg-sidebar-accent/60 dark:focus-visible:border-0 dark:focus-visible:ring-0 dark:data-[placeholder]:text-white">
 							<SelectValue placeholder="Sort by" />
 						</SelectTrigger>
 						<SelectContent className="w-20 rounded-sm border-0 p-0 shadow-none dark:bg-modal">
@@ -145,7 +145,7 @@ export default function Index() {
 					</Select>
 				</section>
 
-				<section id="content" className="flex h-full w-full flex-col gap-2">
+				<section id="content" className="flex h-full w-full flex-col gap-2 px-0 lg:px-2">
 					{status === "pending" ? (
 						<div className="my-20 flex w-full items-center justify-center">
 							<Loading className="size-24" />

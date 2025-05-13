@@ -203,9 +203,9 @@ export default function Index() {
 	}, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
 	return (
-		<main className="mx-auto flex w-full flex-col items-center justify-start overflow-hidden max-md:w-screen">
-			<div className="flex w-full max-w-[85rem] flex-col px-10 pt-5 max-sm:px-4">
-				<HeaderCard user={user} />
+		<main className="mx-auto flex w-screen flex-col items-center justify-start overflow-hidden px-0 pt-5 lg:w-full lg:px-10">
+			<div className="flex w-full max-w-[85rem] flex-col">
+				<HeaderCard user={user} session={session} className="px-5" />
 
 				<section id="content" className="flex h-full w-full flex-col gap-2">
 					{status === "pending" ? (

@@ -91,7 +91,7 @@ const CommentsCard = React.memo(({ className, comment, user, ...props }: React.C
 							to={`/post/${comment.postId}`}
 							className="group flex h-fit w-fit cursor-pointer items-center justify-start gap-1 p-0 hover:no-underline"
 						>
-							<h1 className="text-xs text-black/50 hover:text-primary-300 hover:underline dark:text-white/50 hover:dark:text-primary-300">
+							<h1 className="text-xs break-all text-black/50 hover:text-primary-300 hover:underline dark:text-white/50 hover:dark:text-primary-300">
 								{comment.post.title}
 							</h1>
 						</Link>
@@ -112,7 +112,7 @@ const CommentsCard = React.memo(({ className, comment, user, ...props }: React.C
 							</Link>
 						</HoverCardUser>
 
-						<span id="poster-info" className="flex text-xs text-black/50 dark:text-white/50">
+						<span id="poster-info" className="flex text-xs break-all text-black/50 dark:text-white/50">
 							{comment.repliedTo ? (
 								<span className="flex w-auto gap-1">
 									replied to{" "}
