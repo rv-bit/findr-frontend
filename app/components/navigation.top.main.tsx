@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link, useNavigate } from "react-router";
 
 import { authClient } from "~/lib/auth-client";
@@ -117,12 +117,12 @@ function SearchBar() {
 }
 
 export default function TopbarActions() {
-	const isTablet = useIsTablet();
-
 	const navigate = useNavigate();
-	const { data: sessionData, error, isPending } = authClient.useSession();
 
-	const [open, setOpen] = useState(false);
+	const isTablet = useIsTablet();
+	const { data: sessionData } = authClient.useSession();
+
+	const [open, setOpen] = React.useState(false);
 
 	const dropDownActions: DropDownActions[] = React.useMemo(
 		() => [
