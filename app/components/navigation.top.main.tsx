@@ -10,7 +10,7 @@ import { useIsTablet } from "~/hooks/useIsTablet";
 import { useTheme } from "~/providers/Theme";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
+import { Button, buttonVariants } from "~/components/ui/button";
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList, CommandSeparator } from "~/components/ui/command";
 import {
 	DropdownMenu,
@@ -189,7 +189,13 @@ export default function TopbarActions() {
 				{!sessionData?.user ? (
 					<Link
 						to="/auth"
-						className="h-10 rounded-full bg-primary-500/75 hover:bg-primary-500 dark:bg-primary-500/75 dark:text-white dark:hover:bg-primary-500"
+						className={cn(
+							buttonVariants({
+								variant: "default",
+								size: "default",
+							}),
+							"h-10 w-fit rounded-full bg-primary-500/75 hover:bg-primary-500 dark:bg-primary-500/75 dark:text-white dark:hover:bg-primary-500",
+						)}
 					>
 						<span className="truncate text-sm capitalize">Login</span>
 					</Link>
