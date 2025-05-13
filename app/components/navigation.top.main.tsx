@@ -17,6 +17,7 @@ import {
 	DropdownMenuContent,
 	DropdownMenuGroup,
 	DropdownMenuItem,
+	dropdownMenuItemVariants,
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
@@ -31,6 +32,7 @@ import LogoIcon from "~/icons/logo";
 
 interface DropDownActions {
 	title: string;
+	url?: string;
 	icon?: LucideIcon;
 	component?: React.FC;
 	items?: DropDownActions[];
@@ -232,7 +234,7 @@ export default function TopbarActions() {
 											setOpen(false);
 										}}
 										to={`/users/${sessionData?.user.username}`}
-										className="flex h-auto w-full items-center justify-center gap-2 px-3 text-left text-sm opacity-80 hover:no-underline hover:opacity-100"
+										className="flex h-auto w-full items-center justify-center gap-2 px-3 py-2 text-left text-sm opacity-80 hover:no-underline hover:opacity-100"
 									>
 										<Avatar className="h-8 w-8 rounded-full">
 											<AvatarImage loading="lazy" src={sessionData?.user.image ?? ""} alt={sessionData?.user.name} />
@@ -253,31 +255,64 @@ export default function TopbarActions() {
 								{dropDownActions.map((item) =>
 									item.items ? (
 										<DropdownMenuGroup key={item.title}>
-											{item.items?.map((action) => (
-												<DropdownMenuItem
-													key={action.title}
-													onClick={(e) => {
-														e.preventDefault();
-
-														if (action.onClick) {
-															action.onClick();
-														}
-													}}
-													className="group h-auto w-full px-3 py-2 text-left hover:cursor-pointer"
-												>
-													{action.component ? (
-														<action.component />
-													) : (
+											{item.items?.map((action) =>
+												action.url ? (
+													<Link
+														to={action.url}
+														key={action.title}
+														onClick={() => {
+															setOpen(false);
+														}}
+														className={cn(
+															dropdownMenuItemVariants(),
+															"group h-fit w-full px-3 py-2 text-left hover:cursor-pointer",
+														)}
+													>
 														<span className="flex w-full items-center justify-start gap-1 opacity-80 group-hover:opacity-100">
 															{action.icon && <action.icon />}
 															<h1>{action.title}</h1>
 														</span>
-													)}
-												</DropdownMenuItem>
-											))}
+													</Link>
+												) : (
+													<DropdownMenuItem
+														key={action.title}
+														onClick={(e) => {
+															e.preventDefault();
+
+															if (action.onClick) {
+																action.onClick();
+															}
+														}}
+														className="group h-auto w-full px-3 py-2 text-left hover:cursor-pointer"
+													>
+														{action.component ? (
+															<action.component />
+														) : (
+															<span className="flex w-full items-center justify-start gap-1 opacity-80 group-hover:opacity-100">
+																{action.icon && <action.icon />}
+																<h1>{action.title}</h1>
+															</span>
+														)}
+													</DropdownMenuItem>
+												),
+											)}
 
 											{dropDownActions.length - 1 !== dropDownActions.indexOf(item) && <DropdownMenuSeparator />}
 										</DropdownMenuGroup>
+									) : item.url ? (
+										<Link
+											to={item.url}
+											key={item.title}
+											onClick={() => {
+												setOpen(false);
+											}}
+											className={cn(dropdownMenuItemVariants(), "group h-fit w-full px-3 py-2 text-left hover:cursor-pointer")}
+										>
+											<span className="flex w-full items-center justify-start gap-1 opacity-80 group-hover:opacity-100">
+												{item.icon && <item.icon />}
+												<h1>{item.title}</h1>
+											</span>
+										</Link>
 									) : (
 										<DropdownMenuGroup key={item.title}>
 											<DropdownMenuItem

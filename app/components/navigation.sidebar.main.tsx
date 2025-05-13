@@ -1,14 +1,9 @@
 import React, { useRef, useState } from "react";
-import { Link, NavLink, useLocation, useNavigate, useSearchParams } from "react-router";
+import { NavLink, useLocation, useSearchParams } from "react-router";
 
 import { cn } from "~/lib/utils";
 
-import { type LucideIcon, ChevronDown, CircleHelp, Plus, Scale, UsersRound } from "lucide-react";
-import { type IconType } from "react-icons";
-
-import { GoHomeFill } from "react-icons/go";
-import { RiUserCommunityLine } from "react-icons/ri";
-
+import * as CollapsiblePrimitive from "@radix-ui/react-collapsible";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "~/components/ui/collapsible";
 
 import {
@@ -24,8 +19,13 @@ import {
 	SidebarMenuSubItem,
 	useSidebar,
 } from "~/components/ui/sidebar";
-
 import { Button } from "./ui/button";
+
+import { type LucideIcon, ChevronDown, CircleHelp, Plus, Scale, UsersRound } from "lucide-react";
+import { type IconType } from "react-icons";
+
+import { GoHomeFill } from "react-icons/go";
+import { RiUserCommunityLine } from "react-icons/ri";
 
 enum SearchQueries {
 	HOME = "home",
@@ -129,67 +129,11 @@ const actions: Actions[] = [
 	},
 ];
 
-function CollapsibleItem({ item, index }: { item: Actions; index: number }) {
-	const contentRef = useRef<HTMLUListElement | null>(null);
-	const [isOpen, setIsOpen] = useState(item.isActive);
-
-	return (
-		<React.Fragment>
-			<Collapsible asChild defaultOpen={item.isActive} className="group/collapsible">
-				<SidebarMenuItem>
-					<CollapsibleTrigger asChild>
-						<SidebarMenuButton
-							tooltip={item.title}
-							size={"lg"}
-							className="flex h-10 items-center justify-between"
-							onClick={() => setIsOpen(!isOpen)}
-						>
-							<div className="flex items-center gap-2">
-								{item.icon && <item.icon size={32} />}
-								<span className="text-xs tracking-wider uppercase dark:text-neutral-300">{item.title}</span>
-							</div>
-							<ChevronDown className={cn("transition-transform duration-200", isOpen ? "rotate-180" : "")} />
-						</SidebarMenuButton>
-					</CollapsibleTrigger>
-					<CollapsibleContent className="transition-opacity duration-300 data-[state=closed]:animate-accordion-up data-[state=closed]:opacity-0 data-[state=open]:animate-accordion-down data-[state=open]:opacity-100">
-						<SidebarMenuSub ref={contentRef}>
-							{item.items?.map((subItem, subIndex) => (
-								<SidebarMenuSubItem key={subIndex}>
-									<SidebarMenuSubButton asChild size="lg">
-										<Button
-											variant={"link"}
-											disabled={subItem.isDisabled}
-											className="h-auto w-full items-center justify-start pl-3 hover:no-underline"
-										>
-											{subItem.url ? (
-												<Link to={subItem.url} className="flex w-full items-center justify-start gap-2 p-0 [&_svg]:size-auto">
-													{subItem.icon && <subItem.icon size={25} />}
-													<span>{subItem.title}</span>
-												</Link>
-											) : (
-												<Button variant={"link"} className="w-full items-center justify-start gap-2 p-0 [&_svg]:size-auto">
-													{subItem.icon && <subItem.icon size={28} />}
-													<h1>{subItem.title}</h1>
-												</Button>
-											)}
-										</Button>
-									</SidebarMenuSubButton>
-								</SidebarMenuSubItem>
-							))}
-						</SidebarMenuSub>
-					</CollapsibleContent>
-				</SidebarMenuItem>
-			</Collapsible>
-			{index < actions.length - 1 && <hr className="my-3 w-100 border-sidebar-border"></hr>}
-		</React.Fragment>
-	);
-}
-
-export default function SidebarActions() {
-	const navigate = useNavigate();
+export default function SidebarActions({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const location = useLocation();
-	const [searchParams, setSearchParams] = useSearchParams();
+
 	const { isTablet, setOpenTablet } = useSidebar();
+	const [searchParams, setSearchParams] = useSearchParams();
 
 	const pathname =
 		location.pathname.endsWith("/") && location.pathname.lastIndexOf("/") !== 0
@@ -208,6 +152,7 @@ export default function SidebarActions() {
 									item.items?.map((action) => (
 										<SidebarMenuItem key={action.title}>
 											<NavLink
+												viewTransition
 												to={{
 													pathname: action.url ?? "/",
 													search: action.searchKey ? `?${action.searchKey}=${action.searchQuery}` : "",
@@ -220,12 +165,21 @@ export default function SidebarActions() {
 
 													if (isTablet) setOpenTablet(false);
 												}}
-												className={({ isActive, isPending }) => {
+												className={({}) => {
+													const isActive = action.searchQuery
+														? searchParams.get(action.searchKey ? action.searchKey : "feed")?.toLowerCase() ===
+															action.searchQuery.toLowerCase()
+															? true
+															: false
+														: action.url === pathname
+															? true
+															: false;
+
 													return cn("flex h-10 items-center gap-2 rounded-md px-4", {
 														"cursor-not-allowed opacity-50": action.isDisabled,
-														"bg-sidebar-foreground/5 hover:bg-sidebar-foreground/10 dark:bg-sidebar-accent/50 dark:hover:bg-sidebar-accent":
-															isActive || isPending,
-														"hover:bg-sidebar-foreground/5 dark:hover:bg-sidebar-accent/50": !isActive && !isPending,
+														"bg-sidebar-foreground/15 hover:bg-sidebar-foreground/15 dark:bg-sidebar-accent dark:hover:bg-sidebar-accent":
+															isActive,
+														"hover:bg-sidebar-foreground/5 dark:hover:bg-sidebar-accent/30": !isActive,
 													});
 												}}
 											>
@@ -255,7 +209,19 @@ export default function SidebarActions() {
 						<hr className="my-3 w-100 border-sidebar-border"></hr>
 						<SidebarMenu className="gap-0">
 							{actions.map((item, index) => {
-								return item.isCollapsible && <CollapsibleItem key={index} item={item} index={index} />;
+								return (
+									item.isCollapsible && (
+										<CollapsibleItem
+											key={index}
+											item={item}
+											index={index}
+											searchParams={searchParams}
+											pathname={pathname}
+											isTablet={isTablet}
+											setOpenTablet={setOpenTablet}
+										/>
+									)
+								);
 							})}
 						</SidebarMenu>
 					</SidebarGroupContent>
@@ -268,5 +234,103 @@ export default function SidebarActions() {
 				</div>
 			</SidebarContent>
 		</Sidebar>
+	);
+}
+
+type CollapsibleItemProps = React.ComponentProps<typeof CollapsiblePrimitive.Root> & {
+	item: Actions;
+	index: number;
+
+	searchParams: URLSearchParams;
+	pathname: string;
+	isTablet: boolean;
+	setOpenTablet: (open: boolean) => void;
+};
+
+function CollapsibleItem({ ...props }: CollapsibleItemProps) {
+	const contentRef = useRef<HTMLUListElement | null>(null);
+	const [isOpen, setIsOpen] = useState(props.item.isActive);
+
+	return (
+		<React.Fragment>
+			<Collapsible asChild defaultOpen={props.item.isActive} className="group/collapsible">
+				<SidebarMenuItem>
+					<CollapsibleTrigger asChild>
+						<SidebarMenuButton
+							tooltip={props.item.title}
+							size={"lg"}
+							className="flex h-10 items-center justify-between"
+							onClick={() => setIsOpen(!isOpen)}
+						>
+							<div className="flex items-center gap-2">
+								{props.item.icon && <props.item.icon size={32} />}
+								<span className="text-xs tracking-wider uppercase dark:text-neutral-300">{props.item.title}</span>
+							</div>
+							<ChevronDown className={cn("transition-transform duration-200", isOpen ? "rotate-180" : "")} />
+						</SidebarMenuButton>
+					</CollapsibleTrigger>
+					<CollapsibleContent className="transition-opacity duration-300 data-[state=closed]:animate-accordion-up data-[state=closed]:opacity-0 data-[state=open]:animate-accordion-down data-[state=open]:opacity-100">
+						<SidebarMenuSub ref={contentRef}>
+							{props.item.items?.map((subItem, subIndex) => (
+								<SidebarMenuSubItem key={subIndex}>
+									<SidebarMenuSubButton asChild size="lg">
+										<Button
+											variant={"link"}
+											disabled={subItem.isDisabled}
+											className="h-auto w-full items-center justify-start pl-3 hover:no-underline"
+										>
+											{subItem.url ? (
+												<NavLink
+													viewTransition
+													to={{
+														pathname: subItem.url ?? "/",
+														search: subItem.searchKey ? `?${subItem.searchKey}=${subItem.searchQuery}` : "",
+													}}
+													onClick={(e: React.MouseEvent) => {
+														if (subItem.isDisabled) {
+															e.preventDefault();
+															return;
+														}
+
+														if (props.isTablet) props.setOpenTablet(false);
+													}}
+													className={({}) => {
+														const isActive = subItem.searchQuery
+															? props.searchParams
+																	.get(subItem.searchKey ? subItem.searchKey : "feed")
+																	?.toLowerCase() === subItem.searchQuery.toLowerCase()
+																? true
+																: false
+															: subItem.url === props.pathname
+																? true
+																: false;
+
+														return cn("flex h-10 items-center justify-start gap-2 rounded-md px-4", {
+															"cursor-not-allowed opacity-50": subItem.isDisabled,
+															"bg-sidebar-foreground/15 hover:bg-sidebar-foreground/15 dark:bg-sidebar-accent dark:hover:bg-sidebar-accent":
+																isActive,
+															"hover:bg-sidebar-foreground/5 dark:hover:bg-sidebar-accent/30": !isActive,
+														});
+													}}
+												>
+													{subItem.icon && <subItem.icon size={25} />}
+													<span>{subItem.title}</span>
+												</NavLink>
+											) : (
+												<Button variant={"link"} className="w-full items-center justify-start gap-2 p-0 [&_svg]:size-auto">
+													{subItem.icon && <subItem.icon size={28} />}
+													<h1>{subItem.title}</h1>
+												</Button>
+											)}
+										</Button>
+									</SidebarMenuSubButton>
+								</SidebarMenuSubItem>
+							))}
+						</SidebarMenuSub>
+					</CollapsibleContent>
+				</SidebarMenuItem>
+			</Collapsible>
+			{props.index < actions.length - 1 && <hr className="my-3 w-100 border-sidebar-border"></hr>}
+		</React.Fragment>
 	);
 }
