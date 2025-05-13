@@ -31,7 +31,6 @@ import LogoIcon from "~/icons/logo";
 
 interface DropDownActions {
 	title: string;
-	url?: string;
 	icon?: LucideIcon;
 	component?: React.FC;
 	items?: DropDownActions[];
@@ -175,15 +174,9 @@ export default function TopbarActions() {
 					})}
 				/>
 
-				<Button
-					variant={"link"}
-					onClick={() => {
-						navigate("/");
-					}}
-					className="size-auto p-0 max-md:hidden [&_svg]:size-auto"
-				>
+				<Link to="/" className="size-auto p-0 max-md:hidden [&_svg]:size-auto">
 					<LogoIcon width="70" height="40" />
-				</Button>
+				</Link>
 			</section>
 
 			<section className="flex max-h-10 w-120 items-start justify-center gap-2">
@@ -192,15 +185,12 @@ export default function TopbarActions() {
 
 			<section className="flex items-center justify-end gap-2">
 				{!sessionData?.user ? (
-					<Button
-						onClick={async () => {
-							navigate("/auth");
-						}}
-						type="button"
+					<Link
+						to="/auth"
 						className="h-10 rounded-full bg-primary-500/75 hover:bg-primary-500 dark:bg-primary-500/75 dark:text-white dark:hover:bg-primary-500"
 					>
 						<span className="truncate text-sm capitalize">Login</span>
-					</Button>
+					</Link>
 				) : (
 					<React.Fragment>
 						<Link
@@ -236,13 +226,12 @@ export default function TopbarActions() {
 								sideOffset={4}
 							>
 								<DropdownMenuLabel className="p-0 font-normal">
-									<Button
+									<Link
 										onClick={() => {
-											const slug = sessionData?.user.username?.replace(/@/g, "");
-											navigate(`/users/${slug}`);
+											// also close the dropdown
 											setOpen(false);
 										}}
-										variant={"link"}
+										to={`/users/${sessionData?.user.username}`}
 										className="flex h-auto w-full items-center justify-center gap-2 px-3 text-left text-sm opacity-80 hover:no-underline hover:opacity-100"
 									>
 										<Avatar className="h-8 w-8 rounded-full">
@@ -258,7 +247,7 @@ export default function TopbarActions() {
 											<span className="truncate font-semibold">View Profile</span>
 											<span className="truncate text-xs">{sessionData?.user.username!}</span>
 										</div>
-									</Button>
+									</Link>
 								</DropdownMenuLabel>
 								<DropdownMenuSeparator />
 								{dropDownActions.map((item) =>
@@ -269,12 +258,6 @@ export default function TopbarActions() {
 													key={action.title}
 													onClick={(e) => {
 														e.preventDefault();
-
-														if (action.url) {
-															navigate(action.url);
-															setOpen(false);
-															return;
-														}
 
 														if (action.onClick) {
 															action.onClick();
@@ -300,12 +283,6 @@ export default function TopbarActions() {
 											<DropdownMenuItem
 												onClick={(e) => {
 													e.preventDefault();
-
-													if (item.url) {
-														navigate(item.url);
-														setOpen(false);
-														return;
-													}
 
 													if (item.onClick) {
 														item.onClick();

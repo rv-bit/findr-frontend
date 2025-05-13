@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Form, Link, useLocation, useNavigate, useSearchParams } from "react-router";
+import { Link, NavLink, useLocation, useNavigate, useSearchParams } from "react-router";
 
 import { cn } from "~/lib/utils";
 
@@ -207,46 +207,47 @@ export default function SidebarActions() {
 									!item.isCollapsible &&
 									item.items?.map((action) => (
 										<SidebarMenuItem key={action.title}>
-											<Form method="get" action={action.url} className="w-full">
-												<SidebarMenuButton
-													name={action.searchKey ?? ""}
-													value={action.searchQuery ?? ""}
-													size="lg"
-													isActive={
-														action.searchQuery
-															? searchParams.get("feed")?.toLowerCase() === action.searchQuery.toLowerCase()
-																? true
-																: false
-															: action.url === pathname
-																? true
-																: false
+											<NavLink
+												to={{
+													pathname: action.url ?? "/",
+													search: action.searchKey ? `?${action.searchKey}=${action.searchQuery}` : "",
+												}}
+												onClick={(e: React.MouseEvent) => {
+													if (action.isDisabled) {
+														e.preventDefault();
+														return;
 													}
-													onClick={(e) => {
-														if (isTablet) setOpenTablet(false);
-													}}
-													disabled={action.isDisabled}
-													className="flex h-10 items-center gap-2 px-4 hover:bg-sidebar-foreground/5 data-[active=true]:hover:bg-sidebar-foreground/10 dark:hover:bg-sidebar-accent/50 dark:data-[active=true]:hover:bg-sidebar-accent"
-												>
-													<div className="flex size-6 items-center justify-center">
-														{action.icon && (
-															<action.icon
-																size={action.iconSize}
-																className={
-																	(cn("h-full w-full transition-colors delay-75 duration-200 ease-in-out"),
-																	action.searchQuery
-																		? searchParams.get("feed")?.toLowerCase() === action.searchQuery.toLowerCase()
-																			? "fill-black dark:fill-white"
-																			: ""
-																		: action.url === pathname
-																			? "fill-black dark:fill-white"
-																			: "")
-																}
-															/>
-														)}
-													</div>
-													<span>{action.title}</span>
-												</SidebarMenuButton>
-											</Form>
+
+													if (isTablet) setOpenTablet(false);
+												}}
+												className={({ isActive, isPending }) => {
+													return cn("flex h-10 items-center gap-2 rounded-md px-4", {
+														"cursor-not-allowed opacity-50": action.isDisabled,
+														"bg-sidebar-foreground/5 hover:bg-sidebar-foreground/10 dark:bg-sidebar-accent/50 dark:hover:bg-sidebar-accent":
+															isActive || isPending,
+														"hover:bg-sidebar-foreground/5 dark:hover:bg-sidebar-accent/50": !isActive && !isPending,
+													});
+												}}
+											>
+												<div className="flex size-6 items-center justify-center">
+													{action.icon && (
+														<action.icon
+															size={action.iconSize}
+															className={
+																(cn("h-full w-full transition-colors delay-75 duration-200 ease-in-out"),
+																action.searchQuery
+																	? searchParams.get("feed")?.toLowerCase() === action.searchQuery.toLowerCase()
+																		? "fill-black dark:fill-white"
+																		: ""
+																	: action.url === pathname
+																		? "fill-black dark:fill-white"
+																		: "")
+															}
+														/>
+													)}
+												</div>
+												<span>{action.title}</span>
+											</NavLink>
 										</SidebarMenuItem>
 									)),
 							)}
