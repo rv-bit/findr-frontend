@@ -19,7 +19,7 @@ import {
 	SidebarMenuSubItem,
 	useSidebar,
 } from "~/components/ui/sidebar";
-import { Button } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 
 import { type LucideIcon, ChevronDown, CircleHelp, Plus, Scale, UsersRound } from "lucide-react";
 import { type IconType } from "react-icons";
@@ -273,56 +273,48 @@ function CollapsibleItem({ ...props }: CollapsibleItemProps) {
 						<SidebarMenuSub ref={contentRef}>
 							{props.item.items?.map((subItem, subIndex) => (
 								<SidebarMenuSubItem key={subIndex}>
-									<SidebarMenuSubButton asChild size="lg">
-										<Button
-											variant={"link"}
-											disabled={subItem.isDisabled}
-											className="h-auto w-full items-center justify-start pl-3 hover:no-underline"
-										>
-											{subItem.url ? (
-												<NavLink
-													viewTransition
-													to={{
-														pathname: subItem.url ?? "/",
-														search: subItem.searchKey ? `?${subItem.searchKey}=${subItem.searchQuery}` : "",
-													}}
-													onClick={(e: React.MouseEvent) => {
-														if (subItem.isDisabled) {
-															e.preventDefault();
-															return;
-														}
+									<SidebarMenuSubButton asChild>
+										{subItem.url ? (
+											<NavLink
+												viewTransition
+												to={{
+													pathname: subItem.url ?? "/",
+													search: subItem.searchKey ? `?${subItem.searchKey}=${subItem.searchQuery}` : "",
+												}}
+												onClick={(e: React.MouseEvent) => {
+													if (subItem.isDisabled) {
+														e.preventDefault();
+														return;
+													}
 
-														if (props.isTablet) props.setOpenTablet(false);
-													}}
-													className={({}) => {
-														const isActive = subItem.searchQuery
-															? props.searchParams
-																	.get(subItem.searchKey ? subItem.searchKey : "feed")
-																	?.toLowerCase() === subItem.searchQuery.toLowerCase()
-																? true
-																: false
-															: subItem.url === props.pathname
-																? true
-																: false;
-
-														return cn("flex h-10 items-center justify-start gap-2 rounded-md px-4", {
+													if (props.isTablet) props.setOpenTablet(false);
+												}}
+												className={({}) => {
+													return cn(
+														buttonVariants({
+															variant: "link",
+															size: "lg",
+														}),
+														"flex h-10 items-center justify-start gap-2 rounded-md px-4 hover:bg-sidebar-foreground/5 dark:hover:bg-sidebar-accent/30",
+														{
 															"cursor-not-allowed opacity-50": subItem.isDisabled,
-															"bg-sidebar-foreground/15 hover:bg-sidebar-foreground/15 dark:bg-sidebar-accent dark:hover:bg-sidebar-accent":
-																isActive,
-															"hover:bg-sidebar-foreground/5 dark:hover:bg-sidebar-accent/30": !isActive,
-														});
-													}}
-												>
-													{subItem.icon && <subItem.icon size={25} />}
-													<span>{subItem.title}</span>
-												</NavLink>
-											) : (
-												<Button variant={"link"} className="w-full items-center justify-start gap-2 p-0 [&_svg]:size-auto">
-													{subItem.icon && <subItem.icon size={28} />}
-													<h1>{subItem.title}</h1>
-												</Button>
-											)}
-										</Button>
+														},
+													);
+												}}
+											>
+												{subItem.icon && <subItem.icon size={25} />}
+												<span>{subItem.title}</span>
+											</NavLink>
+										) : (
+											<Button
+												disabled={subItem.isDisabled}
+												variant={"link"}
+												className="w-full items-center justify-start gap-2 p-0 [&_svg]:size-auto"
+											>
+												{subItem.icon && <subItem.icon size={28} />}
+												<h1>{subItem.title}</h1>
+											</Button>
+										)}
 									</SidebarMenuSubButton>
 								</SidebarMenuSubItem>
 							))}
