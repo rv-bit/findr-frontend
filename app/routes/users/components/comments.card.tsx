@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useNavigate, useSearchParams } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { toast } from "sonner";
 
 import { cn, formatTime } from "~/lib/utils";
@@ -26,7 +26,6 @@ type Props = {
 };
 
 const CommentsCard = React.memo(({ className, comment, user, ...props }: React.ComponentProps<"article"> & Props) => {
-	const navigate = useNavigate();
 	const [searchParams, setSearchParams] = useSearchParams();
 	const currentType = searchParams.get("type") ?? types[0].query;
 
