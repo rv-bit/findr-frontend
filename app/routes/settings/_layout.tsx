@@ -1,13 +1,13 @@
 import type { Route } from "./+types/_layout";
 
 import React from "react";
-import { Outlet, useLocation, useNavigate } from "react-router";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
 
 import { authClient } from "~/lib/auth-client";
 
 import { cn } from "~/lib/utils";
 
-import { Button } from "~/components/ui/button";
+import { buttonVariants } from "~/components/ui/button";
 
 import { ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
 import { type IconType } from "react-icons";
@@ -137,33 +137,45 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
 							className="no-scrollbar flex h-full w-full flex-nowrap items-start justify-start gap-2 overflow-x-auto overflow-y-visible"
 						>
 							{actions.map((action, index) => (
-								<Button
+								<NavLink
 									key={index}
-									variant={"link"}
-									disabled={action.disabled}
-									onClick={(e) => {
-										e.preventDefault();
-										navigate(typeof action.url === "string" ? action.url : action.url[1]);
+									to={{
+										pathname: typeof action.url === "string" ? action.url : action.url[1],
 									}}
-									className={cn(
-										"group relative h-auto min-w-fit shrink-0 items-center justify-center rounded-none px-4 py-2 hover:no-underline",
-										isActive(action.url)
-											? "border-b-2 border-black dark:border-white"
-											: "hover:border-b-2 hover:border-black/50 dark:hover:border-white/80",
-									)}
+									onClick={(e: React.MouseEvent) => {
+										if (action.disabled) {
+											e.preventDefault();
+											return;
+										}
+									}}
+									viewTransition
+									className={({}) => {
+										const active = isActive(action.url);
+
+										return cn(
+											buttonVariants({
+												variant: "link",
+												size: "default",
+											}),
+											"group relative h-auto min-w-fit shrink-0 items-center justify-center rounded-none px-4 py-2 hover:no-underline",
+											{
+												"border-b-2 border-black dark:border-white": active,
+												"hover:border-b-2 hover:border-black/50 dark:hover:border-white/80": !active,
+												"cursor-not-allowed opacity-50": action.disabled,
+											},
+										);
+									}}
 								>
 									{action.icon && <action.icon />}
 									<h1
-										className={cn(
-											"inline-flex text-black",
-											isActive(action.url)
-												? "text-black dark:text-white"
-												: "group-hover:text-black/50 dark:text-[#8BA2AE] dark:group-hover:text-white/80",
-										)}
+										className={cn("inline-flex text-black", {
+											"text-black dark:text-white": isActive(action.url),
+											"group-hover:text-black/50 dark:text-[#8BA2AE] dark:group-hover:text-white/80": !isActive(action.url),
+										})}
 									>
 										{action.title}
 									</h1>
-								</Button>
+								</NavLink>
 							))}
 						</nav>
 

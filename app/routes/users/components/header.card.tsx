@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useLocation, useNavigate, useSearchParams } from "react-router";
+import { Link, NavLink, useLocation, useSearchParams } from "react-router";
 
 import { cn } from "~/lib/utils";
 
@@ -7,11 +7,11 @@ import type { Session } from "~/lib/auth-client";
 import type { User } from "~/lib/types/shared";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
 
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 
+import { buttonVariants } from "~/components/ui/button";
 import { sortOptions, types } from "~/routes/users/shared/constants";
 
 const HeaderCard = React.memo(
@@ -24,7 +24,6 @@ const HeaderCard = React.memo(
 		user: User;
 	}) => {
 		const location = useLocation();
-		const navigate = useNavigate();
 
 		const [searchParams, setSearchParams] = useSearchParams();
 		const currentSortOption = searchParams.get("sort") || sortOptions[0].value;
@@ -63,6 +62,11 @@ const HeaderCard = React.memo(
 			},
 			[location, searchParams],
 		);
+
+		const isUserSession = React.useMemo(() => {
+			if (!session || !user) return false;
+			return session.user.username === user.username;
+		}, [session, user]);
 
 		React.useEffect(() => {
 			if (!navRef.current) return;
@@ -116,27 +120,33 @@ const HeaderCard = React.memo(
 							className="no-scrollbar flex h-full w-full flex-nowrap items-start justify-start gap-2 overflow-x-auto overflow-y-visible"
 						>
 							{types.map((action, index) => (
-								<Button
+								<NavLink
 									key={index}
-									variant={"link"}
-									disabled={action.disabled}
-									onClick={(e) => {
-										e.preventDefault();
-
-										navigate(action.url, {
-											replace: true,
-										});
-										setSearchParams((prev) => {
-											prev.set("type", action.query);
-											return prev;
-										});
+									to={{
+										pathname: `${action.url}/${user.username}`,
+										search: action?.queryKey ? `?${action?.queryKey}=${action.query}` : "",
 									}}
-									className={cn(
-										"group relative h-auto min-w-fit shrink-0 items-center justify-center rounded-full px-4 py-3 hover:no-underline",
-										isActive(action.url, action?.queryKey, action?.query)
-											? "bg-sidebar-foreground/50 dark:bg-sidebar-accent"
-											: "hover:bg-sidebar-accent-foreground/20 dark:hover:bg-sidebar-accent/50",
-									)}
+									onClick={(e: React.MouseEvent) => {
+										if (action.disabled) {
+											e.preventDefault();
+											return;
+										}
+									}}
+									viewTransition
+									className={({}) => {
+										const active = isActive(action.url, action.queryKey, action.query);
+
+										return cn(
+											buttonVariants({
+												variant: "link",
+												size: "default",
+											}),
+											"group relative h-auto min-w-fit shrink-0 items-center justify-center rounded-full px-4 py-2 hover:no-underline",
+											active
+												? "bg-sidebar-foreground/50 dark:bg-sidebar-accent"
+												: "hover:bg-sidebar-accent-foreground/20 dark:hover:bg-sidebar-accent/50",
+										);
+									}}
 								>
 									{action.icon && <action.icon />}
 									<h1
@@ -149,7 +159,7 @@ const HeaderCard = React.memo(
 									>
 										{action.title}
 									</h1>
-								</Button>
+								</NavLink>
 							))}
 						</nav>
 
@@ -187,7 +197,7 @@ const HeaderCard = React.memo(
 					</div>
 
 					<span className="flex items-center justify-start gap-2">
-						{session?.user.username === user.username && (
+						{isUserSession && (
 							<Link
 								to={`/post/create/?type=text`}
 								className="flex h-9 w-fit items-center justify-center gap-1 rounded-full border border-black/50 bg-transparent px-4 text-black shadow-none dark:border-white/50 dark:bg-transparent dark:text-white dark:hover:border-white"
