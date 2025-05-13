@@ -135,7 +135,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 	if (isRouteErrorResponse(error)) {
 		// 404 error page
 		return (
-			<main className="container mx-auto flex h-full w-full flex-col items-center justify-center gap-2">
+			<main className="container mx-auto flex min-h-svh w-full flex-col items-center justify-center gap-2">
 				<ErrorIcon width={300} height={300} />
 
 				<h1 className="text-center text-3xl text-balance text-black max-sm:text-lg dark:text-white">
