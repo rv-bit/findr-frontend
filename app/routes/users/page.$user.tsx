@@ -154,8 +154,8 @@ export default function Index() {
 
 	const virtualizer = useWindowVirtualizer({
 		count: flattenedItems.length,
-		estimateSize: () => 190,
-		paddingEnd: 20,
+		estimateSize: () => 250,
+		paddingEnd: currentType === "comments" ? 20 : 50,
 		overscan: 5,
 	});
 	const virtualItems = virtualizer.getVirtualItems();
