@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { toast } from "sonner";
 
 import { cn, formatTime } from "~/lib/utils";
@@ -26,6 +26,7 @@ type Props = {
 };
 
 const CommentsCard = React.memo(({ className, comment, user, ...props }: React.ComponentProps<"article"> & Props) => {
+	const navigate = useNavigate();
 	const [searchParams, setSearchParams] = useSearchParams();
 	const currentType = searchParams.get("type") ?? types[0].query;
 
@@ -34,23 +35,23 @@ const CommentsCard = React.memo(({ className, comment, user, ...props }: React.C
 	});
 
 	const handleUpvote = (e: React.MouseEvent) => {
+		e.preventDefault();
+
 		if (!props.session || !props.session.user) {
 			toast.error("You need to be logged in");
 			return;
 		}
-
-		e.preventDefault();
 
 		mutate({ commentId: comment.id, type: "upvote" });
 	};
 
 	const handleDownvote = (e: React.MouseEvent) => {
+		e.preventDefault();
+
 		if (!props.session || !props.session.user) {
 			toast.error("You need to be logged in");
 			return;
 		}
-
-		e.preventDefault();
 
 		mutate({ commentId: comment.id, type: "downvote" });
 	};
@@ -81,29 +82,25 @@ const CommentsCard = React.memo(({ className, comment, user, ...props }: React.C
 								</h1>
 							</span>
 							<span className="my-0 inline-block"> • </span>
-							<Link
-								onClick={(e) => {
-									e.stopPropagation();
-								}}
-								to={`/post/${comment.postId}`}
-								className="text-xs text-black/50 hover:text-primary-300 hover:underline dark:text-white/50 hover:dark:text-primary-300"
-							>
+							<h1 className="text-xs text-black/50 hover:text-primary-300 hover:underline dark:text-white/50 hover:dark:text-primary-300">
 								{comment.post.title}
-							</Link>
+							</h1>
 						</span>
 						<span className="ml-15 flex w-full items-center justify-start gap-1">
 							<HoverCardUser username={user.username}>
-								<Link
+								<Button
 									onClick={(e) => {
+										e.preventDefault();
 										e.stopPropagation();
+										navigate(`/users/${user.username}`);
 									}}
-									to={`/users/${user.username}`}
-									className="group flex w-fit cursor-pointer items-center justify-start gap-1"
+									variant={"link"}
+									className="group flex h-fit w-fit cursor-pointer items-center justify-start gap-1 p-0 hover:no-underline"
 								>
 									<h1 className="text-xs break-all text-black group-hover:text-primary-300 dark:text-white group-hover:dark:text-primary-300">
 										{user.username}
 									</h1>
-								</Link>
+								</Button>
 							</HoverCardUser>
 
 							<span id="poster-info" className="flex text-xs text-black/50 dark:text-white/50">
@@ -111,17 +108,19 @@ const CommentsCard = React.memo(({ className, comment, user, ...props }: React.C
 									<span className="flex w-auto gap-1">
 										replied to{" "}
 										<HoverCardUser username={comment.repliedTo}>
-											<Link
+											<Button
 												onClick={(e) => {
+													e.preventDefault();
 													e.stopPropagation();
+													navigate(`/users/${comment.repliedTo}`);
 												}}
-												to={`/users/${comment.repliedTo}`}
-												className="group flex w-fit cursor-pointer items-center justify-start gap-1"
+												variant={"link"}
+												className="group flex h-fit w-fit cursor-pointer items-center justify-start gap-1 p-0 hover:no-underline"
 											>
 												<h1 className="text-xs break-all text-black group-hover:text-primary-300 dark:text-white group-hover:dark:text-primary-300">
 													{comment.repliedTo}
 												</h1>
-											</Link>
+											</Button>
 										</HoverCardUser>
 									</span>
 								) : (
@@ -189,20 +188,10 @@ const CommentsCard = React.memo(({ className, comment, user, ...props }: React.C
 									</Button>
 								</span>
 
-								<Link
-									onClick={(e) => {
-										e.preventDefault();
-										if (!props.session || !props.session.user) {
-											toast.error("You need to be logged in");
-											return;
-										}
-									}}
-									to={`/comments/${comment.id}`}
-									className="flex h-8 w-fit items-center justify-center gap-1 rounded-3xl bg-transparent px-3 py-2 text-black shadow-none hover:bg-[#75858f]/20 dark:bg-transparent dark:text-white dark:hover:bg-[#333a3e] [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
-								>
+								<h1 className="flex h-8 w-fit items-center justify-center gap-1 rounded-3xl bg-transparent px-3 py-2 text-black shadow-none hover:bg-[#75858f]/20 dark:bg-transparent dark:text-white dark:hover:bg-[#333a3e] [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0">
 									<MessageCircle />
 									<span className="text-sm text-black dark:text-white">Reply</span>
-								</Link>
+								</h1>
 							</span>
 						</span>
 					</section>
