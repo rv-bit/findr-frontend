@@ -23,8 +23,6 @@ import LoadingBar from "react-top-loading-bar";
 import { useNonce } from "~/hooks/useNonce";
 import useRootLoader from "./hooks/useRootLoader";
 
-import { parseColorScheme } from "~/lib/theme/server";
-
 import Providers from "./providers";
 
 import * as APP_CONFIG from "~/config/app";
@@ -56,7 +54,7 @@ export const links: Route.LinksFunction = () => [
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const cookie = parse(request.headers.get("cookie") ?? "");
-	const cachedTheme = await parseColorScheme(request);
+	const cachedTheme = cookie[THEME_COOKIE_NAME] ?? null;
 	const cachedSidebar = cookie[SIDEBAR_COOKIE_NAME] ? cookie[SIDEBAR_COOKIE_NAME] === "true" : true;
 
 	return data({
@@ -67,6 +65,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	const { theme: cookieTheme } = useRootLoader();
+	console.log(cookieTheme);
 	const theme = cookieTheme ?? (typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
 
 	const nonce = useNonce();
