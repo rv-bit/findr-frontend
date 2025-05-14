@@ -1,7 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-
-export const THEME_COOKIE_NAME = "theme:state";
-const THEME_COOKIE_MAX_AGE = 60 * 60 * 24 * 7 * 365; // 1 year
+import { THEME_COOKIE_MAX_AGE, THEME_COOKIE_NAME } from "~/config/cookies";
 
 interface ThemeProvider {
 	theme: "dark" | "light";
