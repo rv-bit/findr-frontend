@@ -109,7 +109,7 @@ const actions: Actions[] = [
 				url: Routes.NEW_COMMUNITY,
 				icon: Plus,
 
-				isDisabled: false,
+				isDisabled: true,
 			},
 			// dynamically generated
 		],
@@ -299,7 +299,6 @@ function CollapsibleItem({ ...props }: CollapsibleItemProps) {
 													search: subItem.searchKey ? `?${subItem.searchKey}=${subItem.searchQuery}` : "",
 												}}
 												onClick={(e: React.MouseEvent) => {
-													console.log("subItem", subItem);
 													if (subItem.isDisabled) {
 														e.preventDefault();
 														return;
