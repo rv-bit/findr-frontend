@@ -66,7 +66,7 @@ const CommentsCard = React.memo(({ className, comment, user, ...props }: React.C
 				className,
 			)}
 		>
-			<Link to={`/comments/${comment.id}`} className="absolute inset-0" />
+			<Link viewTransition to={`/comments/${comment.id}`} className="absolute inset-0" />
 
 			<span className="flex h-full cursor-pointer flex-col items-start justify-start gap-2 overflow-hidden text-ellipsis">
 				<section id="comment-header" className="flex w-full flex-col items-center justify-start space-y-0.5 text-black dark:text-white">
@@ -83,10 +83,7 @@ const CommentsCard = React.memo(({ className, comment, user, ...props }: React.C
 						</span>
 						<span className="my-0 inline-block"> • </span>
 						<Link
-							onClick={(e) => {
-								e.preventDefault();
-								e.stopPropagation();
-							}}
+							viewTransition
 							to={`/post/${comment.postId}`}
 							className="group flex h-fit w-fit cursor-pointer items-center justify-start gap-1 p-0 hover:no-underline"
 						>
@@ -98,10 +95,7 @@ const CommentsCard = React.memo(({ className, comment, user, ...props }: React.C
 					<span className="relative ml-15 flex w-full items-center justify-start gap-1">
 						<HoverCardUser username={user.username}>
 							<Link
-								onClick={(e) => {
-									e.preventDefault();
-									e.stopPropagation();
-								}}
+								viewTransition
 								to={`/users/${user.username}`}
 								className="group flex h-fit w-fit cursor-pointer items-center justify-start gap-1 p-0 hover:no-underline"
 							>
@@ -117,10 +111,7 @@ const CommentsCard = React.memo(({ className, comment, user, ...props }: React.C
 									replied to{" "}
 									<HoverCardUser username={comment.repliedTo}>
 										<Link
-											onClick={(e) => {
-												e.preventDefault();
-												e.stopPropagation();
-											}}
+											viewTransition
 											to={`/users/${comment.repliedTo}`}
 											className="group flex h-fit w-fit cursor-pointer items-center justify-start gap-1 p-0 hover:no-underline"
 										>
@@ -196,6 +187,7 @@ const CommentsCard = React.memo(({ className, comment, user, ...props }: React.C
 							</span>
 
 							<Link
+								viewTransition
 								to={`/comments/${comment.id}`}
 								className="flex h-8 w-fit items-center justify-center gap-1 rounded-3xl bg-transparent px-3 py-2 text-black shadow-none hover:bg-[#75858f]/20 dark:bg-transparent dark:text-white dark:hover:bg-[#333a3e] [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
 							>

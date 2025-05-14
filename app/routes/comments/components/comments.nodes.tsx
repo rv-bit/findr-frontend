@@ -315,7 +315,11 @@ const CommentContent = React.memo(({ className, mainCommentId, comment, ...props
 				<span className="flex w-full flex-col justify-center gap-1">
 					<span className="flex items-center justify-start gap-1">
 						<HoverCardUser username={comment.user.username}>
-							<Link to={`/users/${comment.user.username}`} className="group flex w-fit cursor-pointer items-center justify-start gap-1">
+							<Link
+								viewTransition
+								to={`/users/${comment.user.username}`}
+								className="group flex w-fit cursor-pointer items-center justify-start gap-1"
+							>
 								<h1 className="text-sm break-all text-black group-hover:text-primary-300 dark:text-white group-hover:dark:text-primary-300">
 									{comment.user.username}
 								</h1>

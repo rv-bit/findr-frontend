@@ -199,6 +199,7 @@ const HeaderCard = React.memo(
 					<span className="flex items-center justify-start gap-2">
 						{isUserSession && (
 							<Link
+								viewTransition
 								to={`/post/create/?type=text`}
 								className="flex h-9 w-fit items-center justify-center gap-1 rounded-full border border-black/50 bg-transparent px-4 text-black shadow-none dark:border-white/50 dark:bg-transparent dark:text-white dark:hover:border-white"
 							>

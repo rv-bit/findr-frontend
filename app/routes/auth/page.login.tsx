@@ -1,4 +1,4 @@
-import type { Route } from "./+types/login";
+import type { Route } from "./+types/page.login";
 
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
@@ -88,6 +88,7 @@ export default function Login() {
 						<div className="text-center text-sm text-balance text-neutral-500 dark:text-neutral-400">
 							Don&apos;t have an account?
 							<Link
+								viewTransition
 								to={{
 									pathname: "/auth/onboard",
 								}}
@@ -127,6 +128,7 @@ export default function Login() {
 												</FormControl>
 												<div className="flex items-center justify-end">
 													<Link
+														viewTransition
 														to={{
 															pathname: "/auth/forgot-password",
 														}}
@@ -188,8 +190,15 @@ export default function Login() {
 					</div>
 				</div>
 				<div className="text-center text-xs text-balance text-neutral-500 dark:text-neutral-400 [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-neutral-900 dark:[&_a]:hover:text-neutral-50">
-					By clicking continue, you agree to our <Link to={{ pathname: "/legal" }}>Terms of Service</Link> and{" "}
-					<Link to={{ pathname: "/legal" }}>Privacy Policy</Link>.
+					By clicking continue, you agree to our{" "}
+					<Link viewTransition to={{ pathname: "/legal" }}>
+						Terms of Service
+					</Link>{" "}
+					and{" "}
+					<Link viewTransition to={{ pathname: "/legal" }}>
+						Privacy Policy
+					</Link>
+					.
 				</div>
 			</div>
 		</div>

@@ -176,7 +176,7 @@ export default function TopbarActions() {
 					})}
 				/>
 
-				<Link to="/" className="size-auto p-0 max-md:hidden [&_svg]:size-auto">
+				<Link viewTransition to="/" className="size-auto p-0 max-md:hidden [&_svg]:size-auto">
 					<LogoIcon width="70" height="40" />
 				</Link>
 			</section>
@@ -188,6 +188,7 @@ export default function TopbarActions() {
 			<section className="flex items-center justify-end gap-2">
 				{!sessionData?.user ? (
 					<Link
+						viewTransition
 						to="/auth"
 						className={cn(
 							buttonVariants({
@@ -202,6 +203,7 @@ export default function TopbarActions() {
 				) : (
 					<React.Fragment>
 						<Link
+							viewTransition
 							to={`/post/create/?type=text`}
 							className="flex h-9 items-center justify-center gap-1 rounded-full bg-transparent px-4 py-5 text-black shadow-none hover:bg-sidebar-foreground/20 max-md:px-1 dark:bg-transparent dark:text-white dark:hover:bg-sidebar-accent [&_svg]:size-auto"
 						>
@@ -235,11 +237,12 @@ export default function TopbarActions() {
 							>
 								<DropdownMenuLabel className="p-0 font-normal">
 									<Link
+										viewTransition
+										to={`/users/${sessionData?.user.username}`}
 										onClick={() => {
 											// also close the dropdown
 											setOpen(false);
 										}}
-										to={`/users/${sessionData?.user.username}`}
 										className="flex h-auto w-full items-center justify-center gap-2 px-3 py-2 text-left text-sm opacity-80 hover:no-underline hover:opacity-100"
 									>
 										<Avatar className="h-8 w-8 rounded-full">
@@ -264,6 +267,7 @@ export default function TopbarActions() {
 											{item.items?.map((action) =>
 												action.url ? (
 													<Link
+														viewTransition
 														to={action.url}
 														key={action.title}
 														onClick={() => {
@@ -307,6 +311,7 @@ export default function TopbarActions() {
 										</DropdownMenuGroup>
 									) : item.url ? (
 										<Link
+											viewTransition
 											to={item.url}
 											key={item.title}
 											onClick={() => {

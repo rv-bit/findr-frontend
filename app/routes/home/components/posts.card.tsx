@@ -67,9 +67,6 @@ const PostsCard = React.memo(
 		});
 
 		const handleUpvote = (e: React.MouseEvent) => {
-			e.stopPropagation();
-			e.preventDefault();
-
 			if (!session || !session.user) {
 				toast.error("You need to be logged in");
 				return;
@@ -79,9 +76,6 @@ const PostsCard = React.memo(
 		};
 
 		const handleDownvote = (e: React.MouseEvent) => {
-			e.stopPropagation();
-			e.preventDefault();
-
 			if (!session || !session.user) {
 				toast.error("You need to be logged in");
 				return;
@@ -172,17 +166,14 @@ const PostsCard = React.memo(
 					className,
 				)}
 			>
-				<Link to={`/post/${data.id}`} className="absolute inset-0" />
+				<Link viewTransition to={`/post/${data.id}`} className="absolute inset-0" />
 
 				<span className="flex items-center justify-between gap-1">
 					<section className="flex w-fit items-center justify-start gap-1">
 						<span className="relative flex items-center justify-center gap-2">
 							<HoverCardUser username={data.user.username}>
 								<Link
-									onClick={(e) => {
-										e.preventDefault();
-										e.stopPropagation();
-									}}
+									viewTransition
 									to={`/users/${data.user.username}`}
 									className="group flex h-fit w-fit cursor-pointer items-center justify-start gap-2 p-0 hover:no-underline"
 								>
@@ -206,9 +197,6 @@ const PostsCard = React.memo(
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<Button
-								onClick={(e) => {
-									e.stopPropagation();
-								}}
 								variant={"link"}
 								size="lg"
 								className="relative flex h-auto items-center justify-end rounded-full p-1 hover:bg-sidebar-foreground/20 hover:text-white focus-visible:border-0 focus-visible:ring-0 dark:hover:bg-sidebar-accent dark:focus-visible:border-0 dark:focus-visible:ring-0"
@@ -364,6 +352,7 @@ const PostsCard = React.memo(
 					</span>
 
 					<Link
+						viewTransition
 						to={`/post/${data.id}`}
 						className="relative flex h-9 w-fit items-center justify-start gap-1 rounded-3xl bg-[#E5EBEE] px-3 py-2 text-black hover:bg-[#75858f]/20 dark:bg-sidebar-accent dark:text-white dark:hover:bg-[#333a3e] [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0"
 					>

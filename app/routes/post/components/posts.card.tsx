@@ -186,6 +186,7 @@ export default function PostCard({
 								<h1 className="text-sm break-all text-black dark:text-white">{data.slug}</h1>
 								<HoverCardUser username={data.user.username}>
 									<Link
+										viewTransition
 										to={`/users/${data.user.username}`}
 										className="group flex w-fit cursor-pointer items-center justify-start gap-1"
 									>

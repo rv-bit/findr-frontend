@@ -124,6 +124,7 @@ export default function Index({ open, onOpenChange }: ModalProps) {
 											<FormItem>
 												<div className="flex items-center justify-end">
 													<Link
+														viewTransition
 														to={{
 															pathname: "/auth/forgot-password",
 														}}

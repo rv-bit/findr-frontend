@@ -64,7 +64,11 @@ export default function HoverCardUser({ username, ...props }: React.ComponentPro
 							</Avatar>
 							<div className="flex flex-col justify-start gap-1">
 								<span className="flex flex-col justify-start -space-y-2">
-									<Link to={`/users/${username}`} className="group flex cursor-pointer items-center justify-start gap-1">
+									<Link
+										viewTransition
+										to={`/users/${username}`}
+										className="group flex cursor-pointer items-center justify-start gap-1"
+									>
 										<h1 className="text-lg break-all text-black group-hover:text-primary-300 group-hover:underline dark:text-white group-hover:dark:text-primary-300">
 											{username}
 										</h1>
