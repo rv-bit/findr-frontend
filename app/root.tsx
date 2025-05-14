@@ -5,13 +5,14 @@ import type { Route } from "./+types/root";
 import { parse } from "cookie";
 import React from "react";
 import {
+	data,
 	isRouteErrorResponse,
+	Link,
 	Links,
 	Meta,
 	Outlet,
 	Scripts,
 	ScrollRestoration,
-	useLoaderData,
 	useNavigation,
 	type LoaderFunctionArgs,
 } from "react-router";
@@ -19,17 +20,22 @@ import {
 import type { LoadingBarRef } from "react-top-loading-bar";
 import LoadingBar from "react-top-loading-bar";
 
-import { THEME_COOKIE_NAME } from "~/providers/Theme";
+import { useNonce } from "~/hooks/useNonce";
+
+import { parseColorScheme } from "~/lib/theme/server";
+
 import Providers from "./providers";
 
 import { SIDEBAR_COOKIE_NAME } from "./components/ui/sidebar";
 
-import * as config from "~/config/app";
+import * as APP_CONFIG from "~/config/app";
+import { THEME_COOKIE_NAME } from "~/config/cookies";
 
 import ErrorIcon from "~/icons/error";
+import useRootLoader from "./hooks/useRootLoader";
 
 export function meta({}: Route.MetaArgs) {
-	return [{ title: config.APP_NAME }, { name: "description", content: config.APP_DESCRIPTION }];
+	return [{ title: APP_CONFIG.APP_NAME }, { name: "description", content: APP_CONFIG.APP_DESCRIPTION }];
 }
 
 export const links: Route.LinksFunction = () => [
@@ -50,21 +56,22 @@ export const links: Route.LinksFunction = () => [
 	{ rel: "stylesheet", href: stylesheet },
 ];
 
-export function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
 	const cookie = parse(request.headers.get("cookie") ?? "");
-	const cachedTheme = cookie[THEME_COOKIE_NAME] ?? null;
+	const cachedTheme = await parseColorScheme(request);
 	const cachedSidebar = cookie[SIDEBAR_COOKIE_NAME] ? cookie[SIDEBAR_COOKIE_NAME] === "true" : true;
 
-	return {
-		theme: cachedTheme,
-		sidebar: cachedSidebar,
-	};
+	return data({
+		theme: cachedTheme as "light" | "dark" | null,
+		sidebar: cachedSidebar as boolean,
+	});
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
-	const { theme: cookieTheme } = useLoaderData<typeof loader>();
+	const { theme: cookieTheme } = useRootLoader();
 	const theme = cookieTheme ?? (typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
 
+	const nonce = useNonce();
 	const navigation = useNavigation();
 	const loadingBarRef = React.useRef<LoadingBarRef>(null);
 
@@ -112,8 +119,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				>
 					{children}
 				</main>
-				<ScrollRestoration />
-				<Scripts />
+				<ScrollRestoration nonce={nonce} />
+				<Scripts nonce={nonce} />
 			</body>
 		</html>
 	);
@@ -141,11 +148,11 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 				<h1 className="text-center text-3xl text-balance text-black max-sm:text-lg dark:text-white">
 					{error.status === 404 ? "Oops! We couldn't find that page" : error.statusText || "Error"}
 				</h1>
-				<p className="text-md text-center text-balance max-sm:text-sm">
+				<p className="text-md text-center text-balance text-black max-sm:text-sm dark:text-white">
 					You can go back to the{" "}
-					<a className="font-bold text-primary-300 italic hover:underline dark:text-primary-300" href="/">
+					<Link viewTransition to={"/"} className="font-bold text-primary-300 italic hover:underline dark:text-primary-300">
 						home page
-					</a>{" "}
+					</Link>{" "}
 					or try again later.
 				</p>
 			</main>
