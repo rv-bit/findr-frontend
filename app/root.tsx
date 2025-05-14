@@ -21,18 +21,16 @@ import type { LoadingBarRef } from "react-top-loading-bar";
 import LoadingBar from "react-top-loading-bar";
 
 import { useNonce } from "~/hooks/useNonce";
+import useRootLoader from "./hooks/useRootLoader";
 
 import { parseColorScheme } from "~/lib/theme/server";
 
 import Providers from "./providers";
 
-import { SIDEBAR_COOKIE_NAME } from "./components/ui/sidebar";
-
 import * as APP_CONFIG from "~/config/app";
-import { THEME_COOKIE_NAME } from "~/config/cookies";
+import { SIDEBAR_COOKIE_NAME, THEME_COOKIE_NAME } from "~/config/cookies";
 
 import ErrorIcon from "~/icons/error";
-import useRootLoader from "./hooks/useRootLoader";
 
 export function meta({}: Route.MetaArgs) {
 	return [{ title: APP_CONFIG.APP_NAME }, { name: "description", content: APP_CONFIG.APP_DESCRIPTION }];
