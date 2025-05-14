@@ -65,7 +65,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	const { theme: cookieTheme } = useRootLoader();
-	console.log(cookieTheme);
 	const theme = cookieTheme ?? (typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
 
 	const nonce = useNonce();
