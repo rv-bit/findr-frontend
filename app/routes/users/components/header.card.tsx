@@ -68,7 +68,7 @@ const HeaderCard = React.memo(
 			return session.user.username === user.username;
 		}, [session, user]);
 
-		React.useEffect(() => {
+		React.useLayoutEffect(() => {
 			if (!navRef.current) return;
 			handleScrollAndResize();
 
@@ -81,7 +81,7 @@ const HeaderCard = React.memo(
 			};
 		}, [navRef]);
 
-		React.useEffect(() => {
+		React.useLayoutEffect(() => {
 			return () => {
 				if (navRef.current) {
 					navRef.current.scrollLeft = 0;

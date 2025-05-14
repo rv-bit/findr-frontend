@@ -3,7 +3,7 @@ import editor_stylesheet from "~/styles/form.default.mdx.css?url";
 import type { Route } from "./+types/page.create";
 
 import React, { Suspense } from "react";
-import { useLocation, useNavigate, useSearchParams } from "react-router";
+import { useSearchParams } from "react-router";
 
 import { cn } from "~/lib/utils";
 
@@ -50,8 +50,6 @@ export default function Index() {
 	const navGoRightRef = React.useRef<HTMLButtonElement>(null);
 	const navGoLeftRef = React.useRef<HTMLButtonElement>(null);
 
-	const location = useLocation();
-	const navigate = useNavigate();
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	const handleScrollAndResize = () => {
@@ -82,7 +80,7 @@ export default function Index() {
 		[searchParams],
 	);
 
-	React.useEffect(() => {
+	React.useLayoutEffect(() => {
 		if (!navRef.current) return;
 		handleScrollAndResize();
 

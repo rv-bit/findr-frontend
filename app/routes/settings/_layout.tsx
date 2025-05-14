@@ -1,7 +1,7 @@
 import type { Route } from "./+types/_layout";
 
 import React from "react";
-import { NavLink, Outlet, useLocation, useNavigate } from "react-router";
+import { NavLink, Outlet, useLocation } from "react-router";
 
 import { authClient } from "~/lib/auth-client";
 
@@ -84,7 +84,6 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
 	const navGoLeftRef = React.useRef<HTMLButtonElement>(null);
 
 	const location = useLocation();
-	const navigate = useNavigate();
 
 	const handleScrollAndResize = () => {
 		if (!navRef.current || !navGoRightRef.current || !navGoLeftRef.current) return;
@@ -106,7 +105,14 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
 		}
 	};
 
-	React.useEffect(() => {
+	const isActive = (url: string | string[]) => {
+		if (Array.isArray(url)) {
+			return url.some((u) => location.pathname === u); // Check for exact path match in array
+		}
+		return location.pathname === url; // Check for exact path match
+	};
+
+	React.useLayoutEffect(() => {
 		if (!navRef.current) return;
 		handleScrollAndResize();
 
@@ -118,13 +124,6 @@ export default function Layout({ loaderData }: Route.ComponentProps) {
 			window.removeEventListener("resize", handleScrollAndResize);
 		};
 	}, []);
-
-	const isActive = (url: string | string[]) => {
-		if (Array.isArray(url)) {
-			return url.some((u) => location.pathname === u); // Check for exact path match in array
-		}
-		return location.pathname === url; // Check for exact path match
-	};
 
 	return (
 		<React.Fragment>
