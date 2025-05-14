@@ -9,12 +9,12 @@ import queryClient, { idbPersister } from "./lib/query-client";
 
 import { ThemeProvider } from "~/providers/Theme";
 
-import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "~/components/ui/nav-sidebar";
+import { NavigationTopInset, NavigationTopProvider } from "~/components/ui/nav-top";
 import { Toaster } from "~/components/ui/sonner";
-import { Topbar, TopbarInset } from "~/components/ui/topbar";
 
 import SidebarActions from "~/components/navigation.sidebar.main";
-import TopbarActions from "~/components/navigation.top.main";
+import NavigationTopActions from "~/components/navigation.top.main";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -37,11 +37,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 			<AuthQueryProvider>
 				<ThemeProvider>
 					<SidebarProvider>
-						<Topbar>
-							<TopbarInset>
-								<TopbarActions />
-							</TopbarInset>
-						</Topbar>
+						<NavigationTopProvider>
+							<NavigationTopInset>
+								<NavigationTopActions />
+							</NavigationTopInset>
+						</NavigationTopProvider>
 						<SidebarActions />
 						<SidebarInset>
 							{children}

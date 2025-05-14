@@ -20,7 +20,7 @@ import {
 	SidebarMenuSubItem,
 	sidebarSubMenuButtonVariants,
 	useSidebar,
-} from "~/components/ui/sidebar";
+} from "~/components/ui/nav-sidebar";
 import { Button } from "./ui/button";
 
 import { type LucideIcon, ChevronDown, CircleHelp, Plus, Scale, UsersRound } from "lucide-react";

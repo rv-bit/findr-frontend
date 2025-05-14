@@ -23,7 +23,7 @@ import {
 	DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Label } from "~/components/ui/label";
-import { SidebarMenuButton, SidebarTrigger } from "~/components/ui/sidebar";
+import { SidebarMenuButton, SidebarTrigger } from "~/components/ui/nav-sidebar";
 import { Switch } from "~/components/ui/switch";
 
 import { type LucideIcon, LogOut, Moon, Plus, Settings, X } from "lucide-react";
@@ -116,7 +116,7 @@ function SearchBar() {
 	);
 }
 
-export default function TopbarActions() {
+export default function NavigationTopActions() {
 	const navigate = useNavigate();
 
 	const isTablet = useIsTablet();
