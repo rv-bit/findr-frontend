@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { NavLink, useLocation, useSearchParams } from "react-router";
+import { Link, NavLink, useLocation, useSearchParams } from "react-router";
 
 import { cn } from "~/lib/utils";
 
@@ -13,13 +13,15 @@ import {
 	SidebarGroupContent,
 	SidebarMenu,
 	SidebarMenuButton,
+	sidebarMenuButtonVariants,
 	SidebarMenuItem,
 	SidebarMenuSub,
 	SidebarMenuSubButton,
 	SidebarMenuSubItem,
+	sidebarSubMenuButtonVariants,
 	useSidebar,
 } from "~/components/ui/sidebar";
-import { Button, buttonVariants } from "./ui/button";
+import { Button } from "./ui/button";
 
 import { type LucideIcon, ChevronDown, CircleHelp, Plus, Scale, UsersRound } from "lucide-react";
 import { type IconType } from "react-icons";
@@ -106,6 +108,8 @@ const actions: Actions[] = [
 				title: "Create a Community",
 				url: Routes.NEW_COMMUNITY,
 				icon: Plus,
+
+				isDisabled: false,
 			},
 			// dynamically generated
 		],
@@ -119,11 +123,15 @@ const actions: Actions[] = [
 				title: "Help",
 				url: Routes.HELP,
 				icon: CircleHelp,
+
+				isDisabled: false,
 			},
 			{
 				title: "Privacy Policy",
 				url: Routes.LEGAL,
 				icon: Scale,
+
+				isDisabled: false,
 			},
 		],
 	},
@@ -175,12 +183,21 @@ export default function SidebarActions({ ...props }: React.ComponentProps<typeof
 															? true
 															: false;
 
-													return cn("flex h-10 items-center gap-2 rounded-md px-4", {
-														"cursor-not-allowed opacity-50": action.isDisabled,
-														"bg-sidebar-foreground/15 hover:bg-sidebar-foreground/15 dark:bg-sidebar-accent dark:hover:bg-sidebar-accent":
-															isActive,
-														"hover:bg-sidebar-foreground/5 dark:hover:bg-sidebar-accent/30": !isActive,
-													});
+													return cn(
+														sidebarMenuButtonVariants({
+															variant: "default",
+															size: "default",
+														}),
+														"flex h-10 items-center gap-2 rounded-md px-4",
+														{
+															"cursor-not-allowed opacity-50 hover:bg-transparent dark:hover:bg-transparent":
+																action.isDisabled,
+															"bg-sidebar-foreground/15 hover:bg-sidebar-foreground/15 dark:bg-sidebar-accent dark:hover:bg-sidebar-accent":
+																isActive && !action.isDisabled,
+															"hover:bg-sidebar-accent/40 dark:hover:bg-sidebar-accent/40":
+																!isActive && !action.isDisabled,
+														},
+													);
 												}}
 											>
 												<div className="flex size-6 items-center justify-center">
@@ -273,15 +290,16 @@ function CollapsibleItem({ ...props }: CollapsibleItemProps) {
 						<SidebarMenuSub ref={contentRef}>
 							{props.item.items?.map((subItem, subIndex) => (
 								<SidebarMenuSubItem key={subIndex}>
-									<SidebarMenuSubButton asChild>
+									<SidebarMenuSubButton asChild className="[&>svg]:size-auto">
 										{subItem.url ? (
-											<NavLink
+											<Link
 												viewTransition
 												to={{
 													pathname: subItem.url ?? "/",
 													search: subItem.searchKey ? `?${subItem.searchKey}=${subItem.searchQuery}` : "",
 												}}
 												onClick={(e: React.MouseEvent) => {
+													console.log("subItem", subItem);
 													if (subItem.isDisabled) {
 														e.preventDefault();
 														return;
@@ -289,29 +307,29 @@ function CollapsibleItem({ ...props }: CollapsibleItemProps) {
 
 													if (props.isTablet) props.setOpenTablet(false);
 												}}
-												className={({}) => {
-													return cn(
-														buttonVariants({
-															variant: "link",
-															size: "lg",
-														}),
-														"flex h-10 items-center justify-start gap-2 rounded-md px-4 hover:bg-sidebar-foreground/5 dark:hover:bg-sidebar-accent/30",
-														{
-															"cursor-not-allowed opacity-50": subItem.isDisabled,
-														},
-													);
-												}}
+												className={cn(
+													sidebarSubMenuButtonVariants({
+														variant: "default",
+														size: "default",
+													}),
+													"flex h-10 items-center justify-start gap-2 rounded-md px-4",
+													{
+														"cursor-not-allowed opacity-50 hover:bg-transparent dark:hover:bg-transparent":
+															subItem.isDisabled ? true : false,
+														"hover:bg-sidebar-accent/40 dark:hover:bg-sidebar-accent/40": !subItem.isDisabled,
+													},
+												)}
 											>
 												{subItem.icon && <subItem.icon size={25} />}
 												<span>{subItem.title}</span>
-											</NavLink>
+											</Link>
 										) : (
 											<Button
 												disabled={subItem.isDisabled}
 												variant={"link"}
 												className="w-full items-center justify-start gap-2 p-0 [&_svg]:size-auto"
 											>
-												{subItem.icon && <subItem.icon size={28} />}
+												{subItem.icon && <subItem.icon size={25} />}
 												<h1>{subItem.title}</h1>
 											</Button>
 										)}

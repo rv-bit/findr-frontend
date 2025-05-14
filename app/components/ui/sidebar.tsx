@@ -423,8 +423,31 @@ const SidebarMenuItem = React.forwardRef<HTMLLIElement, React.ComponentProps<"li
 ));
 SidebarMenuItem.displayName = "SidebarMenuItem";
 
-const sidebarMenuButtonVariants = cva(
+export const sidebarMenuButtonVariants = cva(
 	"peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 px-3 text-left text-sm ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+	{
+		variants: {
+			variant: {
+				default: "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+				outline:
+					"bg-white shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))] dark:bg-neutral-950",
+				link: "data-[state=open]:hover:text-none p-0 hover:bg-transparent hover:text-sidebar-accent-foreground focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-hidden data-[state=open]:hover:bg-none",
+			},
+			size: {
+				default: "h-8 text-sm",
+				sm: "h-7 text-xs",
+				lg: "text-md h-12 group-data-[collapsible=icon]:p-0!",
+			},
+		},
+		defaultVariants: {
+			variant: "default",
+			size: "default",
+		},
+	},
+);
+
+export const sidebarSubMenuButtonVariants = cva(
+	"peer/sub-menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 px-3 text-left text-sm ring-sidebar-ring outline-hidden transition-[width,height,padding] group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
 	{
 		variants: {
 			variant: {
@@ -581,10 +604,10 @@ const SidebarMenuSubButton = React.forwardRef<
 	HTMLAnchorElement,
 	React.ComponentProps<"a"> & {
 		asChild?: boolean;
-		size?: "sm" | "md" | "lg";
+		// size?: "sm" | "md" | "lg";
 		isActive?: boolean;
-	}
->(({ asChild = false, size = "md", isActive, className, ...props }, ref) => {
+	} & VariantProps<typeof sidebarSubMenuButtonVariants>
+>(({ asChild = false, size = "default", variant = "default", isActive, className, ...props }, ref) => {
 	const Comp = asChild ? Slot : "a";
 
 	return (
@@ -594,11 +617,9 @@ const SidebarMenuSubButton = React.forwardRef<
 			data-size={size}
 			data-active={isActive}
 			className={cn(
+				sidebarSubMenuButtonVariants({ variant, size }),
 				"flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-5 text-sidebar-foreground ring-sidebar-ring outline-hidden hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground",
 				"data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
-				size === "sm" && "text-xs",
-				size === "md" && "text-sm",
-				size === "lg" && "text-md h-10",
 				"group-data-[collapsible=icon]:hidden",
 				className,
 			)}
