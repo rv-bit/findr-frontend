@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import * as config from "~/config/tos";
 
 type SectionKey = keyof typeof config.tos;
@@ -7,7 +8,7 @@ export default function Legal() {
 	const [currentSection, setCurrentSection] = useState<SectionKey>("termsOfService");
 
 	return (
-		<div className="flex h-full w-full items-start justify-center px-7 pt-32 pb-5 max-xl:flex-col">
+		<div className="flex h-full w-full items-start justify-center px-7 pt-10 pb-5 max-xl:flex-col">
 			<section className="top-5 flex max-w-4xl flex-col items-start justify-start max-xl:mb-10 xl:sticky xl:mr-16">
 				<h1 className="mb-2 text-left text-xl font-semibold text-black dark:text-white">Legal</h1>
 				<button
