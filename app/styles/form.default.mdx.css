@@ -1,5 +1,5 @@
 @reference "tailwindcss";
-/* @config '../../tailwind.config.ts'; */
+@config '../../tailwind.config.ts';
 
 .bn-shadcn {
 	--background: transparent;
@@ -18,8 +18,8 @@
 	--accent-foreground: 222.2 47.4% 11.2%;
 	--destructive: 0 84.2% 60.2%;
 	--destructive-foreground: 210 40% 98%;
-	--border: 214.3 31.8% 91.4%;
-	--input: 214.3 31.8% 91.4%;
+	--border: var(--color-sidebar-border);
+	--input: var(--color-sidebar-border);
 	--ring: 222.2 84% 4.9%;
 	--radius: 0.5rem;
 }
@@ -41,13 +41,22 @@
 	--accent-foreground: 210 40% 98%;
 	--destructive: 0 62.8% 30.6%;
 	--destructive-foreground: 210 40% 98%;
-	--border: 217.2 32.6% 17.5%;
-	--input: 217.2 32.6% 17.5%;
+	--border: var(--color-sidebar-border);
+	--input: var(--color-sidebar-border);
 	--ring: 212.7 26.8% 83.9%;
 }
 
+.bn-container,
+.dark .bn-container {
+	@apply flex h-auto min-h-[250px] w-full flex-col-reverse justify-start overflow-hidden overflow-y-auto rounded-xl bg-transparent p-1.5 shadow-sm ring-2 md:text-sm [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:visible [&::-webkit-scrollbar-thumb]:rounded-lg;
+}
+
 .bn-container {
-	@apply flex h-auto min-h-[250px] w-full flex-col-reverse justify-start overflow-hidden overflow-y-auto rounded-xl bg-transparent shadow-sm ring ring-neutral-300 focus-within:ring-neutral-950 md:text-sm dark:ring-neutral-800/50 focus-within:dark:ring-neutral-800 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:visible [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500/50 [&::-webkit-scrollbar-track]:bg-gray-100 dark:[&::-webkit-scrollbar-track]:bg-transparent;
+	@apply ring-neutral-200 transition delay-75 duration-75 ease-in-out focus-within:ring-black/50 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-gray-100;
+}
+
+.dark.bn-container {
+	@apply ring-neutral-800 transition delay-75 duration-75 ease-in-out focus-within:ring-white/50 [&::-webkit-scrollbar-thumb]:bg-neutral-500/50 [&::-webkit-scrollbar-track]:bg-transparent;
 }
 
 .bn-shadcn * {
@@ -55,7 +64,7 @@
 }
 
 .bn-shadcn .bn-editor {
-	@apply h-auto min-h-[250px] w-full resize-y overflow-y-auto rounded-none px-2;
+	@apply mb-2 h-auto min-h-[250px] w-full resize-y overflow-y-auto rounded-none px-4;
 
 	background-color: hsl(var(--background));
 	color: hsl(var(--foreground));
@@ -93,7 +102,7 @@
 
 .bn-shadcn .bn-toolbar {
 	overflow-x: auto;
-	@apply min-h-fit w-full rounded-none border-0 shadow-none;
+	@apply flex min-h-fit w-full items-center justify-start gap-1 rounded-none border-0 pt-0 shadow-none;
 }
 
 .bn-shadcn .bn-comment-actions-wrapper {
@@ -109,4 +118,8 @@
 .bn-shadcn .bn-thread .bn-resolved-text {
 	font-size: 14px;
 	font-style: italic;
+}
+
+.bn-shadcn hr {
+	/* @apply mx-0 block h-5 w-10 border-5 border-solid border-sidebar; */
 }

@@ -2,7 +2,7 @@
 
 .bn-shadcn .bn-toolbar button,
 .dark .bn-shadcn .bn-toolbar button {
-	@apply min-h-10 min-w-10 rounded-full;
+	@apply flex size-9 items-center justify-center rounded-full;
 }
 
 .bn-shadcn .bn-toolbar button {
