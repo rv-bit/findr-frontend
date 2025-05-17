@@ -1,0 +1,13 @@
+@reference "tailwindcss";
+
+.bn-shadcn .bn-toolbar button,
+.dark .bn-shadcn .bn-toolbar button {
+	@apply min-h-10 min-w-10 rounded-full;
+}
+
+.bn-shadcn .bn-toolbar button {
+	@apply border-none bg-transparent p-0 hover:bg-neutral-200 hover:text-black focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50;
+}
+.dark .bn-shadcn .bn-toolbar button {
+	@apply border-none bg-transparent hover:bg-neutral-700 hover:text-white focus-visible:ring-offset-neutral-900 disabled:cursor-not-allowed disabled:opacity-50;
+}
