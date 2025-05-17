@@ -49,7 +49,7 @@ export function CodeButton() {
 
 	return (
 		<Components.FormattingToolbar.Button
-			mainTooltip={"Code"}
+			mainTooltip={"Code Block"}
 			onClick={() => {
 				editor.toggleStyles({
 					code: !editor.getActiveStyles().code,
