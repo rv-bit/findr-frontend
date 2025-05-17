@@ -1,4 +1,10 @@
-"use client";
+// organize-imports-ignore
+
+import "@blocknote/core/fonts/inter.css";
+import "@blocknote/shadcn/style.css";
+
+import "~/styles/form.default.mdx.css";
+
 import React from "react";
 import { useNavigate } from "react-router";
 
@@ -6,35 +12,33 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import {
-	BlockTypeSelect,
-	BoldItalicUnderlineToggles,
-	CodeToggle,
-	CreateLink,
-	headingsPlugin,
-	InsertThematicBreak,
-	linkDialogPlugin,
-	linkPlugin,
-	listsPlugin,
-	ListsToggle,
-	markdownShortcutPlugin,
-	MDXEditor,
-	quotePlugin,
-	StrikeThroughSupSubToggles,
-	thematicBreakPlugin,
-	toolbarPlugin,
-	UndoRedo,
-	type MDXEditorMethods,
-} from "@mdxeditor/editor";
+import { en } from "@blocknote/core/locales";
 
-import axiosInstance from "~/lib/axios.instance";
+import { codeBlock } from "@blocknote/code-block";
+import { CreateLinkButton, FormattingToolbar, useCreateBlockNote } from "@blocknote/react";
+import { BlockNoteView } from "@blocknote/shadcn";
+
+import { useTheme } from "~/providers/Theme";
 
 import type { AxiosError } from "axios";
+import axiosInstance from "~/lib/axios.instance";
+
+import { CodeBockButton } from "~/components/editor/editor.codeblock.button";
+import { HeadingButton } from "~/components/editor/editor.heading.button";
+import { QuoteButton } from "~/components/editor/editor.quote.button";
+import { BoldButton } from "~/components/editor/editor.bold.button";
+import { ItalicButton } from "~/components/editor/editor.italic.button";
+import { StrikeThroughButton } from "~/components/editor/editor.strikethrough.button";
+import { CodeButton } from "~/components/editor/editor.code.button";
 
 import { AlertDialogFooter } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
 import { Textarea } from "~/components/ui/textarea";
+
+import * as ButtonPrimitive from "~/components/ui/button";
+import { NumberedListButton } from "~/components/editor/editor.numbered.lists.button";
+import { BulletListButton } from "~/components/editor/editor.lists.button";
 
 const MAX_TITLE_LENGTH = 100;
 const newPostSchema = z.object({
@@ -43,8 +47,33 @@ const newPostSchema = z.object({
 });
 
 export default function ActionForm({ ...props }: React.ComponentPropsWithoutRef<"section">) {
+	const locale = en;
+
+	const { theme } = useTheme();
 	const navigate = useNavigate();
-	const contentRef = React.useRef<MDXEditorMethods>(null);
+
+	const editor = useCreateBlockNote({
+		codeBlock: {
+			...codeBlock,
+			indentLineWithTab: true,
+			defaultLanguage: "typescript",
+			supportedLanguages: {
+				typescript: {
+					name: "TypeScript",
+					aliases: ["ts"],
+				},
+			},
+		},
+		dictionary: {
+			...locale,
+			placeholders: {
+				...locale.placeholders,
+				emptyDocument: "",
+				default: "",
+				heading: "",
+			},
+		},
+	});
 
 	const [currentCharacterTitleCount, setCurrentCharacterTitleCount] = React.useState(0);
 	const [error, setError] = React.useState<string>();
@@ -65,7 +94,7 @@ export default function ActionForm({ ...props }: React.ComponentPropsWithoutRef<
 	const handleSubmit = (values: z.infer<typeof newPostSchema>) => {
 		setLoading(true);
 
-		const content = contentRef.current?.getMarkdown();
+		const content = values.content;
 		const slug = values.title.toLowerCase().trim().replace(/\s/g, "-");
 
 		if (!content) {
@@ -158,40 +187,37 @@ export default function ActionForm({ ...props }: React.ComponentPropsWithoutRef<
 								render={({ field }) => (
 									<FormItem>
 										<FormControl>
-											<MDXEditor
-												ref={contentRef}
-												markdown={field.value}
-												onChange={field.onChange}
-												plugins={[
-													quotePlugin(),
-													listsPlugin(),
-													headingsPlugin({
-														allowedHeadingLevels: [1, 2, 3],
-													}),
-													quotePlugin(),
-													thematicBreakPlugin(),
-													markdownShortcutPlugin(),
-													linkPlugin(),
-													linkDialogPlugin(),
-													toolbarPlugin({
-														toolbarContents: () => (
-															<>
-																<UndoRedo />
-																<BoldItalicUnderlineToggles />
-																<StrikeThroughSupSubToggles />
-																<CreateLink />
-																<BlockTypeSelect />
-																<div className="_toolbarGroupOfGroups_uazmk_217">
-																	<ListsToggle options={["bullet", "number"]} />
-																	<CodeToggle />
-																	<InsertThematicBreak />
-																</div>
-															</>
-														),
-													}),
-												]}
-												contentEditableClassName="px-3"
-											/>
+											<BlockNoteView
+												editor={editor}
+												formattingToolbar={false}
+												slashMenu={false}
+												sideMenu={false}
+												theme={theme ?? "dark"}
+												onChange={async (editor) => {
+													const changes = await editor.blocksToMarkdownLossy();
+													field.onChange(changes);
+												}}
+												shadCNComponents={{
+													Button: ButtonPrimitive,
+												}}
+											>
+												<FormattingToolbar>
+													<HeadingButton key={"headingStyleButton"} />
+													<QuoteButton key={"quoteStyleButton"} />
+
+													<BoldButton key={"boldStyleButton"} />
+													<ItalicButton key={"italicStyleButton"} />
+													<StrikeThroughButton key={"strikeStyleButton"} />
+
+													<CodeBockButton key={"codeBlock"} />
+													<CodeButton key={"codeStyleButton"} />
+
+													<NumberedListButton key={"numberedListButton"} />
+													<BulletListButton key={"bulletListButton"} />
+
+													<CreateLinkButton key={"createLinkButton"} />
+												</FormattingToolbar>
+											</BlockNoteView>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
