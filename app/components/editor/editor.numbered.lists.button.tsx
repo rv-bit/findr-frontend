@@ -1,13 +1,13 @@
 import "@blocknote/shadcn/style.css";
 
-import "~/styles/mdx.buttons.css"; // overwrite
+import "~/styles/editor.buttons.css"; // overwrite
 
 import { useBlockNoteEditor, useComponentsContext, useEditorContentOrSelectionChange } from "@blocknote/react";
 import { useState } from "react";
 
-import { PiQuotesBold } from "react-icons/pi";
+import { HiNumberedList } from "react-icons/hi2";
 
-export function QuoteButton() {
+export function NumberedListButton() {
 	const editor = useBlockNoteEditor();
 	const Components = useComponentsContext()!;
 
@@ -15,7 +15,7 @@ export function QuoteButton() {
 		editor
 			.getSelection()
 			?.blocks.map((id) => editor.getBlock(id))
-			.some((block) => block?.type === "quote") || false,
+			.some((block) => block?.type === "numberedListItem") || false,
 	);
 
 	useEditorContentOrSelectionChange(() => {
@@ -23,15 +23,17 @@ export function QuoteButton() {
 			editor
 				.getSelection()
 				?.blocks.map((id) => editor.getBlock(id))
-				.some((block) => block?.type === "quote") || false,
+				.some((block) => block?.type === "numberedListItem") || false,
 		);
+
+		console.log(editor.getSelection()?.blocks);
 	}, editor);
 
 	return (
 		<Components.FormattingToolbar.Button
-			mainTooltip={"Quote"}
+			mainTooltip={"Numbered List"}
 			onClick={() => {
-				const updateType = isSelected ? "paragraph" : "quote";
+				const updateType = isSelected ? "paragraph" : "numberedListItem";
 				editor.getSelection()?.blocks.forEach((id) => {
 					if (!editor.getBlock(id)) return;
 
@@ -41,9 +43,9 @@ export function QuoteButton() {
 								type: "paragraph",
 							});
 							break;
-						case "quote":
+						case "numberedListItem":
 							editor.updateBlock(id, {
-								type: "quote",
+								type: "numberedListItem",
 							});
 							break;
 						default:
@@ -52,9 +54,8 @@ export function QuoteButton() {
 				});
 			}}
 			isSelected={isSelected}
-			className="rounded-full dark:bg-red-500"
 		>
-			<PiQuotesBold size={17} />
+			<HiNumberedList size={17} />
 		</Components.FormattingToolbar.Button>
 	);
 }

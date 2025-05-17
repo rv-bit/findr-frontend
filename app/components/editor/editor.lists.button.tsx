@@ -1,13 +1,13 @@
 import "@blocknote/shadcn/style.css";
 
-import "~/styles/mdx.buttons.css"; // overwrite
+import "~/styles/editor.buttons.css"; // overwrite
 
 import { useBlockNoteEditor, useComponentsContext, useEditorContentOrSelectionChange } from "@blocknote/react";
 import { useState } from "react";
 
-import { IoCodeSlash } from "react-icons/io5";
+import { PiListBulletsBold } from "react-icons/pi";
 
-export function CodeBockButton() {
+export function BulletListButton() {
 	const editor = useBlockNoteEditor();
 	const Components = useComponentsContext()!;
 
@@ -15,7 +15,7 @@ export function CodeBockButton() {
 		editor
 			.getSelection()
 			?.blocks.map((id) => editor.getBlock(id))
-			.some((block) => block?.type === "codeBlock") || false,
+			.some((block) => block?.type === "bulletListItem") || false,
 	);
 
 	useEditorContentOrSelectionChange(() => {
@@ -23,7 +23,7 @@ export function CodeBockButton() {
 			editor
 				.getSelection()
 				?.blocks.map((id) => editor.getBlock(id))
-				.some((block) => block?.type === "codeBlock") || false,
+				.some((block) => block?.type === "bulletListItem") || false,
 		);
 
 		console.log(editor.getSelection()?.blocks);
@@ -31,9 +31,9 @@ export function CodeBockButton() {
 
 	return (
 		<Components.FormattingToolbar.Button
-			mainTooltip={"Code Block"}
+			mainTooltip={"Bullet List"}
 			onClick={() => {
-				const updateType = isSelected ? "paragraph" : "codeBlock";
+				const updateType = isSelected ? "paragraph" : "bulletListItem";
 				editor.getSelection()?.blocks.forEach((id) => {
 					if (!editor.getBlock(id)) return;
 
@@ -43,12 +43,9 @@ export function CodeBockButton() {
 								type: "paragraph",
 							});
 							break;
-						case "codeBlock":
+						case "bulletListItem":
 							editor.updateBlock(id, {
-								type: "codeBlock",
-								props: {
-									language: "typescript",
-								},
+								type: "bulletListItem",
 							});
 							break;
 						default:
@@ -57,9 +54,8 @@ export function CodeBockButton() {
 				});
 			}}
 			isSelected={isSelected}
-			className="rounded-full dark:bg-red-500"
 		>
-			<IoCodeSlash size={17} />
+			<PiListBulletsBold size={17} />
 		</Components.FormattingToolbar.Button>
 	);
 }

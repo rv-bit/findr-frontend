@@ -1,6 +1,6 @@
 import "@blocknote/shadcn/style.css";
 
-import "~/styles/mdx.buttons.css"; // overwrite
+import "~/styles/editor.buttons.css"; // overwrite
 
 import { useBlockNoteEditor, useComponentsContext, useEditorContentOrSelectionChange } from "@blocknote/react";
 import { useState } from "react";
@@ -55,7 +55,6 @@ export function HeadingButton() {
 				});
 			}}
 			isSelected={isSelected}
-			className="rounded-full dark:bg-red-500"
 		>
 			<TbTextSize size={17} />
 		</Components.FormattingToolbar.Button>
