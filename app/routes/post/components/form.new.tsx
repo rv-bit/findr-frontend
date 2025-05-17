@@ -15,7 +15,7 @@ import { z } from "zod";
 import { en } from "@blocknote/core/locales";
 
 import { codeBlock } from "@blocknote/code-block";
-import { CreateLinkButton, FormattingToolbar, useCreateBlockNote } from "@blocknote/react";
+import { FormattingToolbar, useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/shadcn";
 
 import { useTheme } from "~/providers/Theme";
@@ -23,22 +23,26 @@ import { useTheme } from "~/providers/Theme";
 import type { AxiosError } from "axios";
 import axiosInstance from "~/lib/axios.instance";
 
-import { CodeBockButton } from "~/components/editor/editor.codeblock.button";
-import { HeadingButton } from "~/components/editor/editor.heading.button";
-import { QuoteButton } from "~/components/editor/editor.quote.button";
-import { BoldButton } from "~/components/editor/editor.bold.button";
-import { ItalicButton } from "~/components/editor/editor.italic.button";
-import { StrikeThroughButton } from "~/components/editor/editor.strikethrough.button";
-import { CodeButton } from "~/components/editor/editor.code.button";
+import {
+	BoldButton,
+	BulletListButton,
+	CodeBockButton,
+	CodeButton,
+	HeadingButton,
+	ItalicButton,
+	NumberedListButton,
+	QuoteButton,
+	StrikeThroughButton,
+} from "~/components/editor/editor.buttons";
+import { CreateLinkButton } from "~/components/editor/editor.create.link.button";
 
 import { AlertDialogFooter } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
-import { Textarea } from "~/components/ui/textarea";
 
 import * as ButtonPrimitive from "~/components/ui/button";
-import { NumberedListButton } from "~/components/editor/editor.numbered.lists.button";
-import { BulletListButton } from "~/components/editor/editor.lists.button";
+import TextareaLabel from "~/components/ui/textarea-label";
+import { Separator } from "~/components/ui/separator";
 
 const MAX_TITLE_LENGTH = 100;
 const newPostSchema = z.object({
@@ -68,9 +72,13 @@ export default function ActionForm({ ...props }: React.ComponentPropsWithoutRef<
 			...locale,
 			placeholders: {
 				...locale.placeholders,
-				emptyDocument: "",
+				emptyDocument: "Body Text (optional)",
 				default: "",
 				heading: "",
+				heading_2: "",
+				heading_3: "",
+				numberedListItem: "",
+				bulletListItem: "",
 			},
 		},
 	});
@@ -162,11 +170,11 @@ export default function ActionForm({ ...props }: React.ComponentPropsWithoutRef<
 									render={({ field }) => (
 										<FormItem>
 											<FormControl>
-												<Textarea
+												<TextareaLabel
 													{...field}
-													placeholder="Title"
+													required
 													maxLength={MAX_TITLE_LENGTH}
-													className="resize-none rounded-xl text-black dark:text-white"
+													className="h-auto min-h-2 resize-none overflow-hidden rounded-xl border-2 text-black focus-visible:ring-2 focus-visible:ring-primary-400 dark:text-white dark:focus-visible:ring-primary-400"
 												/>
 											</FormControl>
 											<FormMessage />
@@ -202,20 +210,28 @@ export default function ActionForm({ ...props }: React.ComponentPropsWithoutRef<
 												}}
 											>
 												<FormattingToolbar>
-													<HeadingButton key={"headingStyleButton"} />
-													<QuoteButton key={"quoteStyleButton"} />
+													<span className="flex items-center justify-start">
+														<BoldButton key={"boldStyleButton"} />
+														<ItalicButton key={"italicStyleButton"} />
+														<StrikeThroughButton key={"strikeStyleButton"} />
+														<HeadingButton key={"headingStyleButton"} />
+													</span>
 
-													<BoldButton key={"boldStyleButton"} />
-													<ItalicButton key={"italicStyleButton"} />
-													<StrikeThroughButton key={"strikeStyleButton"} />
+													<Separator className="h-6 w-[2.5px] rounded-full bg-sidebar-accent-foreground/10 dark:bg-sidebar-accent-foreground/10" />
 
-													<CodeBockButton key={"codeBlock"} />
-													<CodeButton key={"codeStyleButton"} />
+													<span className="flex items-center justify-start">
+														<CreateLinkButton key={"createLinkButton"} />
+														<BulletListButton key={"bulletListButton"} />
+														<NumberedListButton key={"numberedListButton"} />
+													</span>
 
-													<NumberedListButton key={"numberedListButton"} />
-													<BulletListButton key={"bulletListButton"} />
+													<Separator className="h-6 w-[2.5px] rounded-full bg-sidebar-accent-foreground/10 dark:bg-sidebar-accent-foreground/10" />
 
-													<CreateLinkButton key={"createLinkButton"} />
+													<span className="flex items-center justify-start">
+														<QuoteButton key={"quoteStyleButton"} />
+														<CodeBockButton key={"codeBlock"} />
+														<CodeButton key={"codeStyleButton"} />
+													</span>
 												</FormattingToolbar>
 											</BlockNoteView>
 										</FormControl>
