@@ -80,8 +80,6 @@ export function CodeBockButton() {
 				?.blocks.map((id) => editor.getBlock(id))
 				.some((block) => block?.type === "codeBlock") || false,
 		);
-
-		console.log(editor.getSelection()?.blocks);
 	}, editor);
 
 	return (
@@ -89,7 +87,7 @@ export function CodeBockButton() {
 			mainTooltip={"Code"}
 			onClick={() => {
 				const updateType = isSelected ? "paragraph" : "codeBlock";
-				editor.getSelection()?.blocks.forEach((id) => {
+				editor.getSelection()?.blocks.map((id) => {
 					if (!editor.getBlock(id)) return;
 
 					switch (updateType) {
@@ -215,8 +213,6 @@ export function BulletListButton() {
 				?.blocks.map((id) => editor.getBlock(id))
 				.some((block) => block?.type === "bulletListItem") || false,
 		);
-
-		console.log(editor.getSelection()?.blocks);
 	}, editor);
 
 	return (
@@ -268,8 +264,6 @@ export function NumberedListButton() {
 				?.blocks.map((id) => editor.getBlock(id))
 				.some((block) => block?.type === "numberedListItem") || false,
 		);
-
-		console.log(editor.getSelection()?.blocks);
 	}, editor);
 
 	return (
@@ -321,8 +315,6 @@ export function QuoteButton() {
 				?.blocks.map((id) => editor.getBlock(id))
 				.some((block) => block?.type === "quote") || false,
 		);
-
-		console.log(editor.getSelection()?.blocks);
 	}, editor);
 
 	return (
