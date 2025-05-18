@@ -42,6 +42,7 @@ import { Separator } from "~/components/ui/separator";
 import TextareaLabel from "~/components/ui/textarea-label";
 
 import * as ButtonPrimitive from "~/components/ui/button";
+import * as TooltipPrimitive from "~/components/ui/tooltip";
 
 const MAX_TITLE_LENGTH = 100;
 const newPostSchema = z.object({
@@ -226,6 +227,7 @@ export default function ActionForm({ ...props }: React.ComponentPropsWithoutRef<
 												}}
 												shadCNComponents={{
 													Button: ButtonPrimitive,
+													Tooltip: TooltipPrimitive,
 												}}
 											>
 												<FormattingToolbar>

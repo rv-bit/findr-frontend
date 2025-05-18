@@ -1,4 +1,9 @@
-"use client";
+// organize-imports-ignore
+
+import "@blocknote/core/fonts/inter.css";
+import "@blocknote/shadcn/style.css";
+
+import "~/styles/form.default.mdx.css";
 
 import React from "react";
 import { useNavigate } from "react-router";
@@ -7,18 +12,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import {
-	BasicTextStyleButton,
-	BlockTypeSelect,
-	ColorStyleButton,
-	CreateLinkButton,
-	FileCaptionButton,
-	FileReplaceButton,
-	FormattingToolbar,
-	NestBlockButton,
-	UnnestBlockButton,
-	useCreateBlockNote,
-} from "@blocknote/react";
+import { en } from "@blocknote/core/locales";
+
+import { codeBlock } from "@blocknote/code-block";
+import { FormattingToolbar, useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/shadcn";
 
 import { useTheme } from "~/providers/Theme";
@@ -28,9 +25,25 @@ import type { Post, User } from "~/lib/types/shared";
 
 import axiosInstance from "~/lib/axios.instance";
 
+import {
+	BoldButton,
+	BulletListButton,
+	CodeBockButton,
+	HeadingButton,
+	ItalicButton,
+	NumberedListButton,
+	QuoteButton,
+	StrikeThroughButton,
+} from "~/components/editor/editor.buttons";
+import { CreateLinkButton } from "~/components/editor/editor.create.link.button";
+
 import { AlertDialogFooter } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
+import { Separator } from "~/components/ui/separator";
+
+import * as ButtonPrimitive from "~/components/ui/button";
+import * as TooltipPrimitive from "~/components/ui/tooltip";
 
 const newPostSchema = z.object({
 	content: z.string().nonempty("Content is required"),
@@ -41,10 +54,57 @@ export default function ActionForm({
 }: React.ComponentPropsWithoutRef<"section"> & {
 	data: Post & { user: User };
 }) {
+	const locale = en;
+
 	const { theme } = useTheme();
 	const navigate = useNavigate();
 
-	const editor = useCreateBlockNote({});
+	const editor = useCreateBlockNote({
+		codeBlock: {
+			...codeBlock,
+			indentLineWithTab: true,
+			defaultLanguage: "typescript",
+			supportedLanguages: {
+				text: {
+					name: "Plain Text",
+					aliases: ["txt"],
+				},
+				typescript: {
+					name: "TypeScript",
+					aliases: ["ts"],
+				},
+				javascript: {
+					name: "JavaScript",
+					aliases: ["js"],
+				},
+				json: {
+					name: "JSON",
+					aliases: ["json"],
+				},
+				html: {
+					name: "HTML",
+					aliases: ["html"],
+				},
+				css: {
+					name: "CSS",
+					aliases: ["css"],
+				},
+			},
+		},
+		dictionary: {
+			...locale,
+			placeholders: {
+				...locale.placeholders,
+				emptyDocument: "Body Text (optional)",
+				default: "",
+				heading: "",
+				heading_2: "",
+				heading_3: "",
+				numberedListItem: "",
+				bulletListItem: "",
+			},
+		},
+	});
 
 	const [error, setError] = React.useState<string>();
 	const [loading, setLoading] = React.useState(false);
@@ -83,6 +143,8 @@ export default function ActionForm({
 				},
 			)
 			.then((response) => {
+				console.log("response", response);
+
 				setLoading(false);
 				navigate("/");
 			})
@@ -128,25 +190,33 @@ export default function ActionForm({
 													const changes = await editor.blocksToMarkdownLossy();
 													field.onChange(changes);
 												}}
+												shadCNComponents={{
+													Button: ButtonPrimitive,
+													Tooltip: TooltipPrimitive,
+												}}
 											>
 												<FormattingToolbar>
-													<BlockTypeSelect key={"blockTypeSelect"} />
+													<span className="flex items-center justify-start">
+														<BoldButton key={"boldStyleButton"} />
+														<ItalicButton key={"italicStyleButton"} />
+														<StrikeThroughButton key={"strikeStyleButton"} />
+														<HeadingButton key={"headingStyleButton"} />
+													</span>
 
-													<FileCaptionButton key={"fileCaptionButton"} />
-													<FileReplaceButton key={"replaceFileButton"} />
+													<Separator className="h-6 w-[2.5px] rounded-full bg-sidebar-accent-foreground/10 dark:bg-sidebar-accent-foreground/10" />
 
-													<BasicTextStyleButton basicTextStyle={"bold"} key={"boldStyleButton"} />
-													<BasicTextStyleButton basicTextStyle={"italic"} key={"italicStyleButton"} />
-													<BasicTextStyleButton basicTextStyle={"underline"} key={"underlineStyleButton"} />
-													<BasicTextStyleButton basicTextStyle={"strike"} key={"strikeStyleButton"} />
+													<span className="flex items-center justify-start">
+														<CreateLinkButton key={"createLinkButton"} />
+														<BulletListButton key={"bulletListButton"} />
+														<NumberedListButton key={"numberedListButton"} />
+													</span>
 
-													<BasicTextStyleButton key={"codeStyleButton"} basicTextStyle={"code"} />
-													<ColorStyleButton key={"colorStyleButton"} />
+													<Separator className="h-6 w-[2.5px] rounded-full bg-sidebar-accent-foreground/10 dark:bg-sidebar-accent-foreground/10" />
 
-													<NestBlockButton key={"nestBlockButton"} />
-													<UnnestBlockButton key={"unnestBlockButton"} />
-
-													<CreateLinkButton key={"createLinkButton"} />
+													<span className="flex items-center justify-start">
+														<QuoteButton key={"quoteStyleButton"} />
+														<CodeBockButton key={"codeBlock"} />
+													</span>
 												</FormattingToolbar>
 											</BlockNoteView>
 										</FormControl>
