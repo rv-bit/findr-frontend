@@ -1,8 +1,9 @@
 import "@blocknote/shadcn/style.css";
 import "~/styles/editor.buttons.css"; // overwrite
 
+import type { BlockNoteEditor } from "@blocknote/core";
 import { useBlockNoteEditor, useComponentsContext, useEditorContentOrSelectionChange } from "@blocknote/react";
-import { useState } from "react";
+import React, { useState } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -22,19 +23,17 @@ import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 
-import type { BlockNoteEditor } from "@blocknote/core";
-import React from "react";
 import { PiLink } from "react-icons/pi";
 
 export function CreateLinkButton() {
 	const editor = useBlockNoteEditor();
 	const Components = useComponentsContext()!;
-	const [open, setOpen] = useState(false);
 
-	const [isSelected, setIsSelected] = useState<boolean>(editor.getActiveStyles().bold || false);
+	const [open, setOpen] = useState(false);
+	const [isSelected, setIsSelected] = useState<boolean>(editor.getSelectedLinkUrl() ? true : false);
 
 	useEditorContentOrSelectionChange(() => {
-		setIsSelected(editor.getActiveStyles().bold || false);
+		setIsSelected(editor.getSelectedLinkUrl() ? true : false);
 	}, editor);
 
 	return (
@@ -49,15 +48,13 @@ export function CreateLinkButton() {
 				<PiLink size={17} />
 			</Components.FormattingToolbar.Button>
 
-			{open && (
-				<LinkModal
-					editor={editor}
-					open={open}
-					onOpenChange={(open) => {
-						setOpen(open);
-					}}
-				/>
-			)}
+			<LinkModal
+				editor={editor}
+				open={open}
+				onOpenChange={(open) => {
+					setOpen(open);
+				}}
+			/>
 		</>
 	);
 }
