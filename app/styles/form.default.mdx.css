@@ -121,5 +121,30 @@
 }
 
 .bn-shadcn hr {
-	/* @apply mx-0 block h-5 w-10 border-5 border-solid border-sidebar; */
+}
+
+.bn-block-content[data-content-type="codeBlock"] {
+	@apply bg-neutral-800;
+}
+
+.dark .bn-block-content[data-content-type="codeBlock"] {
+	@apply bg-neutral-950;
+}
+
+.bn-block-content[data-content-type="codeBlock"] > div,
+.dark .bn-block-content[data-content-type="codeBlock"] > div {
+	@apply py-1.5;
+}
+
+.bn-block-content[data-content-type="codeBlock"] > div > select,
+.dark .bn-block-content[data-content-type="codeBlock"] > div > select {
+	@apply flex w-fit items-center justify-between rounded-md border px-1 pt-1.5 text-sm whitespace-nowrap text-white opacity-100 shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px];
+}
+
+.bn-block-content[data-content-type="codeBlock"] > div > select {
+	@apply border-none bg-transparent hover:bg-transparent focus-visible:border-neutral-950 focus-visible:ring-neutral-950/50;
+}
+
+.dark .bn-block-content[data-content-type="codeBlock"] > div > select {
+	@apply border-none bg-transparent hover:bg-transparent focus-visible:border-neutral-300 focus-visible:ring-neutral-300/500;
 }
