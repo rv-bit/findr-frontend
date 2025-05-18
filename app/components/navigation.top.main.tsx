@@ -205,10 +205,10 @@ export default function NavigationTopActions() {
 						<Link
 							viewTransition
 							to={`/post/create/?type=text`}
-							className="flex h-9 items-center justify-center gap-1 rounded-full bg-transparent px-4 py-5 text-black shadow-none hover:bg-sidebar-foreground/20 max-md:px-1 dark:bg-transparent dark:text-white dark:hover:bg-sidebar-accent [&_svg]:size-auto"
+							className="flex h-9 items-center justify-center gap-1 rounded-full bg-transparent px-1 text-black shadow-none hover:bg-sidebar-foreground/20 sm:px-4 sm:py-5 dark:bg-transparent dark:text-white dark:hover:bg-sidebar-accent [&_svg]:size-auto"
 						>
-							<Plus size={28} />
-							<span className="block truncate text-sm capitalize max-md:hidden">Create</span>
+							<Plus size={25} />
+							<span className="hidden truncate text-sm capitalize sm:block">Create</span>
 						</Link>
 
 						<DropdownMenu open={open} onOpenChange={setOpen}>
