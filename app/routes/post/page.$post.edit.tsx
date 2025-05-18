@@ -1,7 +1,3 @@
-import core_editor_fonts from "@blocknote/core/fonts/inter.css?url";
-import core_editor_stylesheet from "@blocknote/shadcn/style.css?url";
-import edited_editor_stylesheet from "~/styles/form.default.mdx.css?url";
-
 import type { Route } from "./+types/page.$post.edit";
 
 import { useLoaderData } from "react-router";
@@ -11,13 +7,6 @@ import axiosInstance from "~/lib/axios.instance";
 import type { Post, User } from "~/lib/types/shared";
 
 import ActionForm from "./components/form.edit";
-
-export const links: Route.LinksFunction = () => [
-	{ rel: "stylesheet", href: core_editor_fonts },
-	{ rel: "stylesheet", href: core_editor_stylesheet },
-
-	{ rel: "stylesheet", href: edited_editor_stylesheet }, // override styles
-];
 
 export async function loader({ params }: Route.LoaderArgs) {
 	const { postId } = params;
