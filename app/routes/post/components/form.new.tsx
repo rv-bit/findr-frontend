@@ -27,7 +27,6 @@ import {
 	BoldButton,
 	BulletListButton,
 	CodeBockButton,
-	CodeButton,
 	HeadingButton,
 	ItalicButton,
 	NumberedListButton,
@@ -39,10 +38,10 @@ import { CreateLinkButton } from "~/components/editor/editor.create.link.button"
 import { AlertDialogFooter } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
+import { Separator } from "~/components/ui/separator";
+import TextareaLabel from "~/components/ui/textarea-label";
 
 import * as ButtonPrimitive from "~/components/ui/button";
-import TextareaLabel from "~/components/ui/textarea-label";
-import { Separator } from "~/components/ui/separator";
 
 const MAX_TITLE_LENGTH = 100;
 const newPostSchema = z.object({
@@ -62,9 +61,29 @@ export default function ActionForm({ ...props }: React.ComponentPropsWithoutRef<
 			indentLineWithTab: true,
 			defaultLanguage: "typescript",
 			supportedLanguages: {
+				text: {
+					name: "Plain Text",
+					aliases: ["txt"],
+				},
 				typescript: {
 					name: "TypeScript",
 					aliases: ["ts"],
+				},
+				javascript: {
+					name: "JavaScript",
+					aliases: ["js"],
+				},
+				json: {
+					name: "JSON",
+					aliases: ["json"],
+				},
+				html: {
+					name: "HTML",
+					aliases: ["html"],
+				},
+				css: {
+					name: "CSS",
+					aliases: ["css"],
 				},
 			},
 		},
@@ -230,7 +249,6 @@ export default function ActionForm({ ...props }: React.ComponentPropsWithoutRef<
 													<span className="flex items-center justify-start">
 														<QuoteButton key={"quoteStyleButton"} />
 														<CodeBockButton key={"codeBlock"} />
-														<CodeButton key={"codeStyleButton"} />
 													</span>
 												</FormattingToolbar>
 											</BlockNoteView>

@@ -10,7 +10,7 @@ import { HiNumberedList } from "react-icons/hi2";
 import { IoCodeSlash } from "react-icons/io5";
 import { MdOutlineFormatBold } from "react-icons/md";
 import { PiListBulletsBold, PiQuotesBold } from "react-icons/pi";
-import { TbSourceCode, TbTextSize } from "react-icons/tb";
+import { TbTextSize } from "react-icons/tb";
 
 export function BoldButton() {
 	const editor = useBlockNoteEditor();
@@ -33,31 +33,6 @@ export function BoldButton() {
 			isSelected={isSelected}
 		>
 			<MdOutlineFormatBold size={17} />
-		</Components.FormattingToolbar.Button>
-	);
-}
-
-export function CodeButton() {
-	const editor = useBlockNoteEditor();
-	const Components = useComponentsContext()!;
-
-	const [isSelected, setIsSelected] = useState<boolean>(editor.getActiveStyles().code || false);
-
-	useEditorContentOrSelectionChange(() => {
-		setIsSelected(editor.getActiveStyles().code || false);
-	}, editor);
-
-	return (
-		<Components.FormattingToolbar.Button
-			mainTooltip={"Code Block"}
-			onClick={() => {
-				editor.toggleStyles({
-					code: !editor.getActiveStyles().code,
-				});
-			}}
-			isSelected={isSelected}
-		>
-			<TbSourceCode size={17} />
 		</Components.FormattingToolbar.Button>
 	);
 }
