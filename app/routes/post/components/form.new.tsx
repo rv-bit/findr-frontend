@@ -13,10 +13,10 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { en } from "@blocknote/core/locales";
-
-import { codeBlock } from "@blocknote/code-block";
 import { FormattingToolbar, useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/shadcn";
+
+import { codeBlockOptions } from "~/lib/editor/options";
 
 import { useTheme } from "~/providers/Theme";
 
@@ -58,35 +58,7 @@ export default function ActionForm({ ...props }: React.ComponentPropsWithoutRef<
 
 	const editor = useCreateBlockNote({
 		codeBlock: {
-			...codeBlock,
-			indentLineWithTab: true,
-			defaultLanguage: "typescript",
-			supportedLanguages: {
-				text: {
-					name: "Plain Text",
-					aliases: ["txt"],
-				},
-				typescript: {
-					name: "TypeScript",
-					aliases: ["ts"],
-				},
-				javascript: {
-					name: "JavaScript",
-					aliases: ["js"],
-				},
-				json: {
-					name: "JSON",
-					aliases: ["json"],
-				},
-				html: {
-					name: "HTML",
-					aliases: ["html"],
-				},
-				css: {
-					name: "CSS",
-					aliases: ["css"],
-				},
-			},
+			...codeBlockOptions,
 		},
 		dictionary: {
 			...locale,
