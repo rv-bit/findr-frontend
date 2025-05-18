@@ -1,18 +1,17 @@
+import "@blocknote/core/fonts/inter.css";
+import "@blocknote/shadcn/style.css";
+
+import "~/styles/card.post.mdx.css";
+
 import React from "react";
 import { Link, useNavigate } from "react-router";
-import { ClientOnly } from "remix-utils/client-only";
 import { toast } from "sonner";
 
-import {
-	headingsPlugin,
-	linkDialogPlugin,
-	linkPlugin,
-	listsPlugin,
-	markdownShortcutPlugin,
-	MDXEditor,
-	quotePlugin,
-	thematicBreakPlugin,
-} from "@mdxeditor/editor";
+import { en } from "@blocknote/core/locales";
+import { useCreateBlockNote } from "@blocknote/react";
+import { BlockNoteView } from "@blocknote/shadcn";
+
+import { codeBlockOptions } from "~/lib/editor/options";
 
 import { cn, formatTime } from "~/lib/utils";
 
@@ -61,6 +60,27 @@ export default function PostCard({
 	onCommentIconClick: () => void;
 	onBackButtonClick: () => void;
 }) {
+	const locale = en;
+
+	const blocknoteEditor = useCreateBlockNote({
+		codeBlock: {
+			...codeBlockOptions,
+		},
+		dictionary: {
+			...locale,
+			placeholders: {
+				...locale.placeholders,
+				emptyDocument: "Body Text (optional)",
+				default: "",
+				heading: "",
+				heading_2: "",
+				heading_3: "",
+				numberedListItem: "",
+				bulletListItem: "",
+			},
+		},
+	});
+
 	const navigate = useNavigate();
 	const { mutate } = useMutatePostVote({
 		queryKey: ["post", data.id],
@@ -158,6 +178,14 @@ export default function PostCard({
 		],
 		[data, editable, session],
 	);
+
+	React.useEffect(() => {
+		async function loadInitialHTML() {
+			const blocks = await blocknoteEditor.tryParseMarkdownToBlocks(JSON.parse(data.content));
+			blocknoteEditor.replaceBlocks(blocknoteEditor.document, blocks);
+		}
+		loadInitialHTML();
+	}, [blocknoteEditor]);
 
 	return (
 		<article className={cn("relative flex h-auto flex-col justify-between gap-6", className)}>
@@ -279,7 +307,7 @@ export default function PostCard({
 
 				<span className="flex h-full flex-col items-start justify-start gap-1 overflow-hidden text-ellipsis">
 					<h1 className="w-full text-lg font-bold break-all text-black dark:text-white">{data.title}</h1>
-					<ClientOnly>
+					{/* <ClientOnly>
 						{() => (
 							<MDXEditor
 								markdown={JSON.parse(data.content)}
@@ -300,7 +328,25 @@ export default function PostCard({
 								readOnly={true}
 							/>
 						)}
-					</ClientOnly>
+					</ClientOnly> */}
+
+					{/* <ClientOnly> */}
+					{/* {() => { */}
+					{/* // const blocknoteEditor = useCreateBlockNote(); */}
+					{/* // await blocknoteEditor.tryParseMarkdownToBlocks(JSON.parse(data.content)); */}
+
+					{/* return ( */}
+					<BlockNoteView
+						content={JSON.parse(data.content)}
+						editor={blocknoteEditor}
+						formattingToolbar={false}
+						slashMenu={false}
+						sideMenu={false}
+						editable={false}
+					/>
+					{/* ); */}
+					{/* }} */}
+					{/* </ClientOnly> */}
 				</span>
 			</div>
 
