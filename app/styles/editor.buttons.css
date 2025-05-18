@@ -1,13 +1,13 @@
 @reference "tailwindcss";
 
-.bn-shadcn .bn-toolbar button,
-.dark .bn-shadcn .bn-toolbar button {
+.bn-shadcn .bn-formatting-toolbar button,
+.dark .bn-shadcn .bn-formatting-toolbar button {
 	@apply flex size-9 items-center justify-center rounded-full;
 }
 
-.bn-shadcn .bn-toolbar button {
+.bn-shadcn .bn-formatting-toolbar button {
 	@apply border-none bg-transparent p-0 hover:bg-neutral-300 hover:text-black focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=on]:bg-neutral-400/70;
 }
-.dark .bn-shadcn .bn-toolbar button {
+.dark .bn-shadcn .bn-formatting-toolbar button {
 	@apply border-none bg-transparent hover:bg-neutral-700/70 hover:text-white focus-visible:ring-offset-neutral-900 disabled:cursor-not-allowed disabled:opacity-50 data-[state=on]:bg-white/20;
 }

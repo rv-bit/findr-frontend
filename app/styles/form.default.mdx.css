@@ -1,12 +1,11 @@
 @reference "tailwindcss";
-@config '../../tailwind.config.ts';
 
 .bn-shadcn {
 	--background: transparent;
 	--foreground: 222.2 84% 4.9%;
 	--card: 0 0% 100%;
 	--card-foreground: 222.2 84% 4.9%;
-	--popover: transparent;
+	--popover: var(--color-sidebar-border);
 	--popover-foreground: 222.2 84% 4.9%;
 	--primary: 222.2 47.4% 11.2%;
 	--primary-foreground: 210 40% 98%;
@@ -54,7 +53,6 @@
 .bn-container {
 	@apply ring-neutral-200 transition delay-75 duration-75 ease-in-out focus-within:ring-black/50 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-gray-100;
 }
-
 .dark.bn-container {
 	@apply ring-neutral-800 transition delay-75 duration-75 ease-in-out focus-within:ring-white/50 [&::-webkit-scrollbar-thumb]:bg-neutral-500/50 [&::-webkit-scrollbar-track]:bg-transparent;
 }
@@ -62,59 +60,87 @@
 .bn-shadcn * {
 	border-color: hsl(var(--border));
 }
-
 .bn-shadcn .bn-editor {
-	@apply mb-2 h-auto min-h-[250px] w-full resize-y overflow-y-auto rounded-none px-4;
+	height: auto;
+	width: 100%;
+	min-height: 250px;
+	resize: vertical;
+	overflow-y: auto;
+
+	border-radius: 0;
+
+	margin-bottom: calc(var(--spacing, 0.25rem) * 2);
+	padding-inline: calc(var(--spacing, 0.25rem) * 4);
 
 	background-color: hsl(var(--background));
 	color: hsl(var(--foreground));
 }
-
 .bn-shadcn .bn-editor a {
 	color: revert;
 	-webkit-text-decoration: revert;
 	text-decoration: revert;
 }
-
 .bn-shadcn .bn-editor:focus-visible {
 	outline: none;
 }
-
 .bn-shadcn .bn-select {
 	max-height: var(--radix-select-content-available-height);
 }
-
 .bn-shadcn .bn-menu-dropdown {
 	max-height: var(--radix-dropdown-menu-content-available-height);
 }
-
 .bn-shadcn .bn-color-picker-dropdown {
 	overflow: auto;
 }
-
 .bn-shadcn .bn-extend-button-add-remove-columns {
 	cursor: col-resize;
 }
-
 .bn-shadcn .bn-extend-button-add-remove-rows {
 	cursor: row-resize;
 }
-
 .bn-shadcn .bn-toolbar {
 	overflow-x: auto;
-	@apply flex min-h-fit w-full items-center justify-start gap-1 rounded-none border-0 pt-0 shadow-none;
+	width: 100%;
+	min-height: fit-content;
+
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+
+	gap: calc(var(--spacing, 0.25rem) * 1);
+
+	border: 0;
+	border-radius: 0;
+	padding-top: calc(var(--spacing, 0.25rem) * 0);
+
+	--tw-shadow: 0 0 #0000;
+	box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+.bn-shadcn .bn-link-toolbar {
+	padding: 0;
+}
+
+.bn-shadcn .bn-toolbar button,
+.dark .bn-shadcn .bn-toolbar button {
+	@apply flex size-auto h-9 items-center justify-center rounded-md;
+}
+
+.bn-shadcn .bn-toolbar button {
+	@apply border-none bg-neutral-300 hover:text-black focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[state=on]:bg-neutral-400/70;
+}
+.dark .bn-shadcn .bn-toolbar button {
+	@apply border-none bg-neutral-700 hover:text-white focus-visible:ring-offset-neutral-900 disabled:cursor-not-allowed disabled:opacity-50 data-[state=on]:bg-white/20;
 }
 
 .bn-shadcn .bn-comment-actions-wrapper {
 	display: flex;
 	justify-content: flex-end;
 }
-
 .bn-shadcn .bn-table-cell-handle {
 	padding: 0 4px;
 	height: 12px;
 }
-
 .bn-shadcn .bn-thread .bn-resolved-text {
 	font-size: 14px;
 	font-style: italic;
