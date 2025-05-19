@@ -1,3 +1,6 @@
+import core_editor_stylesheet from "@blocknote/shadcn/style.css?url";
+import modified_editor_stylesheet from "~/styles/card.post.mdx.css?url";
+
 import type { Route } from "./+types/page.$post";
 
 import { useQuery } from "@tanstack/react-query";
@@ -13,6 +16,11 @@ import type { Post, User } from "~/lib/types/shared";
 
 import CommentSection from "./components/comments.section";
 import PostCard from "./components/posts.card";
+
+export const links: Route.LinksFunction = () => [
+	{ rel: "stylesheet", href: core_editor_stylesheet },
+	{ rel: "stylesheet", href: modified_editor_stylesheet }, // override styles
+];
 
 export function meta({ data, params }: Route.MetaArgs) {
 	const slug = data ? data.slug : params.postId;

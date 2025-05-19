@@ -1,3 +1,9 @@
+import core_editor_stylesheet from "@blocknote/shadcn/style.css?url";
+import modified_editor_buttons_stylesheet from "~/styles/editor.buttons.css?url";
+import modified_editor_stylesheet from "~/styles/form.default.mdx.css?url";
+
+import type { Route } from "./+types/page.create";
+
 import React from "react";
 import { useSearchParams } from "react-router";
 import { ClientOnly } from "remix-utils/client-only";
@@ -9,6 +15,12 @@ import { Button } from "~/components/ui/button";
 import { ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
 
 import ActionForm from "./components/form.new";
+
+export const links: Route.LinksFunction = () => [
+	{ rel: "stylesheet", href: core_editor_stylesheet },
+	{ rel: "stylesheet", href: modified_editor_stylesheet }, // override styles
+	{ rel: "stylesheet", href: modified_editor_buttons_stylesheet }, // override styles
+];
 
 const types: {
 	title: string;

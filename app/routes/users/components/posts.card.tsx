@@ -1,18 +1,12 @@
 import React from "react";
-import { Link, useNavigate, useSearchParams } from "react-router";
-import { ClientOnly } from "remix-utils/client-only";
+import { Link, useSearchParams } from "react-router";
 import { toast } from "sonner";
 
-import {
-	headingsPlugin,
-	linkDialogPlugin,
-	linkPlugin,
-	listsPlugin,
-	markdownShortcutPlugin,
-	MDXEditor,
-	quotePlugin,
-	thematicBreakPlugin,
-} from "@mdxeditor/editor";
+import { en } from "@blocknote/core/locales";
+import { useCreateBlockNote } from "@blocknote/react";
+import { BlockNoteView } from "@blocknote/shadcn";
+
+import { codeBlockOptions } from "~/config/editor.options";
 
 import { authClient } from "~/lib/auth-client";
 import { cn, formatTime } from "~/lib/utils";
@@ -56,7 +50,27 @@ const PostsCard = React.memo(
 		data: Post;
 		user: User;
 	}) => {
-		const navigate = useNavigate();
+		const locale = en;
+
+		const blocknoteEditor = useCreateBlockNote({
+			codeBlock: {
+				...codeBlockOptions,
+			},
+			dictionary: {
+				...locale,
+				placeholders: {
+					...locale.placeholders,
+					emptyDocument: "Body Text (optional)",
+					default: "",
+					heading: "",
+					heading_2: "",
+					heading_3: "",
+					numberedListItem: "",
+					bulletListItem: "",
+				},
+			},
+		});
+
 		const [searchParams, setSearchParams] = useSearchParams();
 
 		const { data: session } = authClient.useSession();
@@ -152,6 +166,14 @@ const PostsCard = React.memo(
 			],
 			[data, editable, session],
 		);
+
+		React.useEffect(() => {
+			async function loadInitialHTML() {
+				const blocks = await blocknoteEditor.tryParseMarkdownToBlocks(JSON.parse(data.content));
+				blocknoteEditor.replaceBlocks(blocknoteEditor.document, blocks);
+			}
+			loadInitialHTML();
+		}, [blocknoteEditor]);
 
 		return (
 			<article
@@ -267,30 +289,9 @@ const PostsCard = React.memo(
 					</DropdownMenu>
 				</span>
 
-				<span className="flex h-full flex-col items-start justify-start -space-y-0.5 overflow-hidden text-ellipsis">
-					<h1 className="w-full text-lg font-bold break-all text-black dark:text-white">{data.title}</h1>
-					<ClientOnly>
-						{() => (
-							<MDXEditor
-								markdown={JSON.parse(data.content)}
-								plugins={[
-									quotePlugin(),
-									listsPlugin(),
-									headingsPlugin({
-										allowedHeadingLevels: [1, 2, 3],
-									}),
-									quotePlugin(),
-									thematicBreakPlugin(),
-									markdownShortcutPlugin(),
-									linkPlugin(),
-									linkDialogPlugin(),
-								]}
-								className="w-full overflow-hidden text-ellipsis"
-								contentEditableClassName="text-ellipsis text-sm line-clamp-10 text-gray-500 dark:text-gray-400 w-full"
-								readOnly={true}
-							/>
-						)}
-					</ClientOnly>
+				<span className="flex max-h-40 flex-col items-start justify-start -space-y-0.5 overflow-hidden text-ellipsis">
+					<h1 className="w-full text-xl font-bold break-all text-black dark:text-white">{data.title}</h1>
+					<BlockNoteView editor={blocknoteEditor} formattingToolbar={false} slashMenu={false} sideMenu={false} editable={false} />
 				</span>
 
 				<span className="mt-1 flex items-start justify-start gap-2">
