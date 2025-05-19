@@ -289,9 +289,11 @@ const PostsCard = React.memo(
 					</DropdownMenu>
 				</span>
 
-				<span className="flex max-h-40 flex-col items-start justify-start -space-y-0.5 overflow-hidden text-ellipsis">
+				<span className="flex flex-col items-start justify-start -space-y-0.5">
 					<h1 className="w-full text-xl font-bold break-all text-black dark:text-white">{data.title}</h1>
-					<BlockNoteView editor={blocknoteEditor} formattingToolbar={false} slashMenu={false} sideMenu={false} editable={false} />
+					<Link viewTransition to={`/post/${data.id}`} className="w-full">
+						<BlockNoteView editor={blocknoteEditor} formattingToolbar={false} slashMenu={false} sideMenu={false} editable={false} />
+					</Link>
 				</span>
 
 				<span className="mt-1 flex items-start justify-start gap-2">
