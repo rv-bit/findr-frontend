@@ -72,6 +72,7 @@ export function HydrateFallback() {
 
 export default function Index() {
 	const { user } = useLoaderData<typeof loader>();
+
 	const [searchParams, setSearchParams] = useSearchParams();
 	const { data: session } = authClient.useSession();
 
@@ -85,7 +86,7 @@ export default function Index() {
 			const { data } = await axiosInstance.get(`/api/v0/users/getData/${user.username}?page=${page}&type=${currentType}`);
 			return data;
 		},
-		[user],
+		[user, currentType],
 	);
 
 	const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
