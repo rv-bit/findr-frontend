@@ -157,11 +157,14 @@
 .bn-shadcn hr {
 }
 
-.bn-block-outer {
-	@apply my-4 p-0 first:mt-0 last:mb-0;
-}
 .bn-block-content {
-	padding: 0;
+	padding-block: calc(var(--spacing, 0.25rem) * 1);
+}
+.bn-block-outer:first-child {
+	padding-top: calc(var(--spacing, 0.25rem) * 0);
+}
+.bn-block-outer:last-child {
+	padding-bottom: calc(var(--spacing, 0.25rem) * 0);
 }
 
 .bn-block-content[data-content-type="codeBlock"] {
