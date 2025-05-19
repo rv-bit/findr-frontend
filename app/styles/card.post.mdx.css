@@ -47,7 +47,23 @@
 
 .bn-container,
 .dark .bn-container {
-	@apply flex h-auto w-full flex-col-reverse justify-start overflow-hidden overflow-y-auto rounded-none border-0 bg-transparent p-0 shadow-sm ring-0 md:text-sm;
+	height: auto;
+	width: 100%;
+
+	display: flex;
+	justify-content: flex-start;
+	align-items: flex-start;
+
+	gap: calc(var(--spacing, 0.25rem) * 1);
+
+	border: 0;
+	border-radius: 0;
+	padding: calc(var(--spacing, 0.25rem) * 0);
+
+	--tw-shadow: 0 0 #0000;
+	box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+
+	word-break: break-all;
 }
 
 .bn-container {
