@@ -47,7 +47,7 @@
 
 .bn-container,
 .dark .bn-container {
-	@apply flex h-auto min-h-[250px] w-full flex-col-reverse justify-start overflow-hidden overflow-y-auto rounded-none border-0 bg-transparent p-0 shadow-sm ring-0 md:text-sm;
+	@apply flex h-auto w-full flex-col-reverse justify-start overflow-hidden overflow-y-auto rounded-none border-0 bg-transparent p-0 shadow-sm ring-0 md:text-sm;
 }
 
 .bn-container {
@@ -63,7 +63,6 @@
 .bn-shadcn .bn-editor {
 	height: auto;
 	width: 100%;
-	min-height: 250px;
 	resize: none;
 	overflow-y: auto;
 
@@ -140,6 +139,13 @@
 }
 
 .bn-shadcn hr {
+}
+
+.bn-block-outer {
+	@apply p0 my-4 first:mt-0 last:mb-0;
+}
+.bn-block-content {
+	padding: 0;
 }
 
 .bn-block-content[data-content-type="codeBlock"] {
