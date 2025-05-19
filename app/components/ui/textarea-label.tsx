@@ -4,10 +4,10 @@ import { Textarea } from "./textarea";
 
 export default function TextareaLabel({ className, ...props }: React.ComponentProps<"textarea">) {
 	return (
-		<div className="group relative flex h-auto w-full flex-col">
+		<div className="group relative w-full">
 			<label
 				htmlFor={props.id}
-				className="text-muted-foreground group-focus-within:text-foreground has-[+input:not(:placeholder-shown)]:text-foreground absolute top-1/2 left-2 block origin-top -translate-y-1/2 cursor-text px-1 text-sm transition-all group-focus-within:pointer-events-none group-focus-within:top-4 group-focus-within:left-2 group-focus-within:cursor-default group-focus-within:text-xs group-focus-within:font-medium has-[+input:not(:placeholder-shown)]:pointer-events-none has-[+input:not(:placeholder-shown)]:top-4 has-[+input:not(:placeholder-shown)]:left-2 has-[+input:not(:placeholder-shown)]:cursor-default has-[+input:not(:placeholder-shown)]:text-xs has-[+input:not(:placeholder-shown)]:font-medium"
+				className="text-muted-foreground group-focus-within:text-foreground has-[+textarea:not(:placeholder-shown)]:text-foreground absolute top-1/2 left-2 block origin-top -translate-y-1/2 cursor-text px-1 transition-all group-focus-within:pointer-events-none group-focus-within:top-4 group-focus-within:left-2 group-focus-within:cursor-default group-focus-within:text-sm group-focus-within:font-medium has-[+textarea:not(:placeholder-shown)]:pointer-events-none has-[+textarea:not(:placeholder-shown)]:top-5 has-[+textarea:not(:placeholder-shown)]:left-2 has-[+textarea:not(:placeholder-shown)]:cursor-default has-[+textarea:not(:placeholder-shown)]:font-medium"
 			>
 				<span
 					className={cn("relative text-black capitalize dark:text-white", {
@@ -17,7 +17,7 @@ export default function TextareaLabel({ className, ...props }: React.ComponentPr
 					{props.name}
 				</span>
 			</label>
-			<Textarea id={props.id} className={cn("py-0 group-focus-within:pt-5.5", className)} placeholder="" {...props} />
+			<Textarea id={props.id} className={cn("py-0 pt-6", className)} placeholder="" {...props} />
 		</div>
 	);
 }
