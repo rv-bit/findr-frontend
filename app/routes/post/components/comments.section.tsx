@@ -1,7 +1,7 @@
 import type { AxiosError } from "axios";
 
 import React from "react";
-import { useSearchParams } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { toast } from "sonner";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,6 +33,7 @@ type CommentSectionProps = React.ComponentProps<"section"> & {
 };
 
 const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps>(({ className, data, session, ...props }, commentTextAreaRef) => {
+	const navigate = useNavigate();
 	const [searchParams, setSearchParams] = useSearchParams();
 
 	const [currentSortOption, setCurrentSortOption] = React.useState(sortOptions[0].value);
@@ -93,6 +94,7 @@ const CommentSection = React.forwardRef<HTMLTextAreaElement, CommentSectionProps
 
 	const handleOpenCommentButton = () => {
 		if (!session || !session.user) {
+			navigate("/auth");
 			return;
 		}
 
