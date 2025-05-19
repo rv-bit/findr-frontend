@@ -1,16 +1,10 @@
 import type { Config } from "tailwindcss";
 const plugin = require("tailwindcss/plugin");
-const { fontFamily } = require("tailwindcss/defaultTheme");
 
 export default {
-	darkMode: "selector",
 	content: ["./app/**/**/*.{js,jsx,ts,tsx}"],
 	theme: {
 		extend: {
-			fontFamily: {
-				sans: ['"Segoe UI"', "Roboto", "sans-serif", ...fontFamily.sans],
-				"bricolage-grotesque": ["Bricolage Grotesque", "sans-serif"],
-			},
 			borderRadius: {
 				lg: "var(--radius)",
 				md: "calc(var(--radius) - 2px)",
@@ -76,12 +70,10 @@ export default {
 			addVariant("current", "&.active");
 		}),
 
-		// @ts-ignore
-		function ({ matchVariant }) {
+		function ({ matchVariant }: any) {
 			matchVariant(
 				"has",
-				// @ts-ignore
-				(value) => {
+				(value: any) => {
 					return `&:has(${value})`;
 				},
 				{

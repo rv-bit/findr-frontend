@@ -1,6 +1,7 @@
 import { reactRouter } from "@react-router/dev/vite";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
+import { reactRouterDevTools } from "react-router-devtools";
 import babel from "vite-plugin-babel";
 import tsconfigPaths from "vite-tsconfig-paths";
 
@@ -11,12 +12,9 @@ const devConfig = {
 		port: 3000,
 		cors: true,
 	},
-};
 
-const config = process.env.NODE_ENV === "development" ? devConfig : {};
-
-export default defineConfig({
 	plugins: [
+		reactRouterDevTools(),
 		reactRouter(),
 		tsconfigPaths(),
 		babel({
@@ -35,6 +33,32 @@ export default defineConfig({
 			"~": path.resolve(__dirname, "./app"),
 		},
 	},
+};
 
+const prodConfig = {
+	plugins: [
+		reactRouter(),
+		tsconfigPaths(),
+		babel({
+			filter: /\.[jt]sx?$/,
+			babelConfig: {
+				presets: ["@babel/preset-typescript"], // if you use TypeScript
+				plugins: [["babel-plugin-react-compiler"]],
+			},
+		}),
+		// @ts-ignore
+		tailwindcss(),
+	],
+	resolve: {
+		alias: {
+			"react-dom/server": "react-dom/server.node",
+			"~": path.resolve(__dirname, "./app"),
+		},
+	},
+};
+
+const config = process.env.NODE_ENV === "development" ? devConfig : prodConfig;
+
+export default defineConfig({
 	...config,
 });

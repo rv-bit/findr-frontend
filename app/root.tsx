@@ -1,30 +1,37 @@
-import { useEffect, useRef } from "react";
-import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration, useNavigation } from "react-router";
-
-import type { Route } from "./+types/root";
 import stylesheet from "./app.css?url";
 
-import { AuthQueryProvider } from "@daveyplate/better-auth-tanstack";
-import { QueryClientProvider } from "@tanstack/react-query";
+import type { Route } from "./+types/root";
+
+import { parse } from "cookie";
+import React from "react";
+import {
+	data,
+	isRouteErrorResponse,
+	Link,
+	Links,
+	Meta,
+	Outlet,
+	Scripts,
+	ScrollRestoration,
+	useNavigation,
+	type LoaderFunctionArgs,
+} from "react-router";
 
 import type { LoadingBarRef } from "react-top-loading-bar";
 import LoadingBar from "react-top-loading-bar";
 
-import { queryClient } from "./lib/query/query-client";
+import { useNonce } from "~/hooks/useNonce";
+import useRootLoader from "./hooks/useRootLoader";
 
-import { ThemeProvider } from "~/providers/Theme";
+import Providers from "./providers";
 
-import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
-import { Toaster } from "~/components/ui/sonner";
-import { Topbar, TopbarInset, TopbarProvider } from "~/components/ui/topbar";
-
-import SidebarActions from "~/components/sidebar-main";
-import TopbarActions from "./components/topbar-actions";
+import * as APP_CONFIG from "~/config/app";
+import { SIDEBAR_COOKIE_NAME, THEME_COOKIE_NAME } from "~/config/cookies";
 
 import ErrorIcon from "~/icons/error";
 
 export function meta({}: Route.MetaArgs) {
-	return [{ title: "New React Router App" }, { name: "description", content: "Welcome to React Router!" }];
+	return [{ title: APP_CONFIG.APP_NAME }, { name: "description", content: APP_CONFIG.APP_DESCRIPTION }];
 }
 
 export const links: Route.LinksFunction = () => [
@@ -45,11 +52,26 @@ export const links: Route.LinksFunction = () => [
 	{ rel: "stylesheet", href: stylesheet },
 ];
 
-export function Layout({ children }: { children: React.ReactNode }) {
-	const navigation = useNavigation();
-	const loadingBarRef = useRef<LoadingBarRef>(null);
+export async function loader({ request }: LoaderFunctionArgs) {
+	const cookie = parse(request.headers.get("cookie") ?? "");
+	const cachedTheme = cookie[THEME_COOKIE_NAME] ?? null;
+	const cachedSidebar = cookie[SIDEBAR_COOKIE_NAME] ? cookie[SIDEBAR_COOKIE_NAME] === "true" : true;
 
-	useEffect(() => {
+	return data({
+		theme: cachedTheme as "light" | "dark" | null,
+		sidebar: cachedSidebar as boolean,
+	});
+}
+
+export function Layout({ children }: { children: React.ReactNode }) {
+	const { theme: cookieTheme } = useRootLoader();
+	const theme = cookieTheme ?? (typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+
+	const nonce = useNonce();
+	const navigation = useNavigation();
+	const loadingBarRef = React.useRef<LoadingBarRef>(null);
+
+	React.useEffect(() => {
 		if (navigation.state === "loading" || navigation.state === "submitting") {
 			loadingBarRef.current?.continuousStart();
 		}
@@ -60,55 +82,52 @@ export function Layout({ children }: { children: React.ReactNode }) {
 	}, [navigation.state]);
 
 	return (
-		<html lang="en">
+		<html lang="en" className={theme} suppressHydrationWarning>
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
-				<script crossOrigin="anonymous" src="//unpkg.com/react-scan/dist/auto.global.js" />
+
 				<Meta />
 				<Links />
+
+				{/* To avoid FOUC aka Flash of Unstyled Content */}
+				<script
+					dangerouslySetInnerHTML={{
+						__html: `
+							(function() {
+								const cookieMatch = document.cookie.match(new RegExp("(^| )${THEME_COOKIE_NAME}=([^;]+)"))
+								const cachedTheme = cookieMatch ? (cookieMatch[2]) : 'light'
+
+								document.documentElement.classList.toggle('dark', cachedTheme === 'dark' || (!(document.cookie.match(new RegExp("(^| )${THEME_COOKIE_NAME}=([^;]+)"))) && window.matchMedia('(prefers-color-scheme: dark)').matches))
+							})();
+						`,
+					}}
+				/>
 			</head>
 			<body>
 				<LoadingBar ref={loadingBarRef} color="#5060dd" shadow={false} transitionTime={100} waitingTime={300} />
-
-				<QueryClientProvider client={queryClient}>
-					<AuthQueryProvider>
-						<ThemeProvider>
-							<TopbarProvider>
-								<SidebarProvider>
-									<Topbar>
-										<TopbarInset>
-											<TopbarActions />
-										</TopbarInset>
-									</Topbar>
-									<SidebarActions />
-									<SidebarInset>
-										<main
-											style={{
-												height: "100%",
-												width: "100%",
-												flex: "1 1 0%",
-												overflowY: "auto",
-											}}
-										>
-											{children}
-										</main>
-										<Toaster />
-									</SidebarInset>
-								</SidebarProvider>
-							</TopbarProvider>
-						</ThemeProvider>
-					</AuthQueryProvider>
-				</QueryClientProvider>
-				<ScrollRestoration />
-				<Scripts />
+				<main
+					style={{
+						minHeight: "100svh",
+						height: "100%",
+						width: "100%",
+					}}
+				>
+					{children}
+				</main>
+				<ScrollRestoration nonce={nonce} />
+				<Scripts nonce={nonce} />
 			</body>
 		</html>
 	);
 }
 
 export default function App() {
-	return <Outlet />;
+	return (
+		<Providers>
+			<Outlet />
+		</Providers>
+	);
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
@@ -119,17 +138,17 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 	if (isRouteErrorResponse(error)) {
 		// 404 error page
 		return (
-			<main className="h-full w-full container mx-auto flex flex-col justify-center items-center gap-2">
+			<main className="container mx-auto flex min-h-svh w-full flex-col items-center justify-center gap-2">
 				<ErrorIcon width={300} height={300} />
 
-				<h1 className="max-sm:text-lg text-balance text-center text-3xl text-black dark:text-white">
+				<h1 className="text-center text-3xl text-balance text-black max-sm:text-lg dark:text-white">
 					{error.status === 404 ? "Oops! We couldn't find that page" : error.statusText || "Error"}
 				</h1>
-				<p className="max-sm:text-sm text-md text-balance text-center">
+				<p className="text-md text-center text-balance text-black max-sm:text-sm dark:text-white">
 					You can go back to the{" "}
-					<a className="hover:underline font-bold italic" href="/">
+					<Link viewTransition to={"/"} className="font-bold text-primary-300 italic hover:underline dark:text-primary-300">
 						home page
-					</a>{" "}
+					</Link>{" "}
 					or try again later.
 				</p>
 			</main>
@@ -142,13 +161,13 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 	}
 
 	return (
-		<main className="h-full w-full container mx-auto flex justify-center items-center">
-			<p>{details}</p>
+		<main className="container mx-auto flex h-full w-full flex-wrap items-center justify-center">
+			<p className="text-center text-balance text-black max-sm:text-lg dark:text-white">{details}</p>
 
 			{stack && (
 				<>
 					<h1>{message}</h1>
-					<pre className="w-full overflow-x-auto p-4">
+					<pre className="w-full overflow-x-auto p-4 text-center text-balance text-black max-sm:text-lg dark:text-white">
 						<code>{stack}</code>
 					</pre>
 				</>
