@@ -69,6 +69,7 @@ const PostsCard = React.memo(
 					bulletListItem: "",
 				},
 			},
+			trailingBlock: false,
 		});
 
 		const navigate = useNavigate();

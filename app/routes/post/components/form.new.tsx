@@ -66,6 +66,7 @@ export default function ActionForm({ ...props }: React.ComponentPropsWithoutRef<
 				bulletListItem: "",
 			},
 		},
+		trailingBlock: false,
 	});
 
 	const [currentCharacterTitleCount, setCurrentCharacterTitleCount] = React.useState(0);

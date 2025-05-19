@@ -78,6 +78,7 @@ export default function PostCard({
 				bulletListItem: "",
 			},
 		},
+		trailingBlock: false,
 	});
 
 	const navigate = useNavigate();
