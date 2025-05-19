@@ -4,11 +4,14 @@ import modified_editor_stylesheet from "~/styles/form.default.mdx.css?url";
 
 import type { Route } from "./+types/page.$post.edit";
 
-import { useLoaderData } from "react-router";
+import React from "react";
+import { useLoaderData, useNavigate } from "react-router";
 import { ClientOnly } from "remix-utils/client-only";
 
 import axiosInstance from "~/lib/axios.instance";
 import type { Post, User } from "~/lib/types/shared";
+
+import { authClient } from "~/lib/auth-client";
 
 import ActionForm from "./components/form.edit";
 
@@ -40,7 +43,18 @@ export async function loader({ params }: Route.LoaderArgs) {
 }
 
 export default function Index() {
+	const navigate = useNavigate();
 	const loaderData = useLoaderData<typeof loader>();
+
+	const { data: session } = authClient.useSession();
+
+	React.useEffect(() => {
+		if (session && session.user) {
+			if (session.user.username !== loaderData.data.user.username) {
+				navigate(`/post/${loaderData.data.id}`);
+			}
+		}
+	}, [session, loaderData]);
 
 	return (
 		<div className="flex h-full w-full flex-col items-center justify-start max-md:w-screen">
