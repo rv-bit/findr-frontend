@@ -1,4 +1,6 @@
-import editor_stylesheet from "~/styles/card.posts.unfiltered.mdx.css?url";
+import core_editor_stylesheet from "@blocknote/shadcn/style.css?url";
+import modified_editor_stylesheet from "~/styles/card.post.unfiltered.mdx.css?url";
+
 import type { Route } from "./+types/page";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -17,7 +19,8 @@ import Loading from "~/icons/loading";
 import PostsCard from "./components/posts.card";
 
 export const links: Route.LinksFunction = () => [
-	{ rel: "stylesheet", href: editor_stylesheet }, // override styles
+	{ rel: "stylesheet", href: core_editor_stylesheet },
+	{ rel: "stylesheet", href: modified_editor_stylesheet }, // override styles
 ];
 
 export function meta({ location }: Route.MetaArgs) {
