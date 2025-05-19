@@ -1,3 +1,4 @@
+import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -31,7 +32,7 @@ interface WarningComponentProps {
 	children?: React.ReactNode;
 }
 
-export default function WarningComponent(props: WarningComponentProps) {
+export default function WarningComponent({ ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Root> & WarningComponentProps) {
 	return (
 		<AlertDialog open={props.open} onOpenChange={props.onChangeState}>
 			<AlertDialogTrigger asChild onClick={(e) => {}} className="mb-2">

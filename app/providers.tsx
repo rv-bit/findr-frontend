@@ -5,16 +5,16 @@ import { toast } from "sonner";
 import { AuthQueryProvider } from "@daveyplate/better-auth-tanstack";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 
-import queryClient, { idbPersister } from "./lib/query/query-client";
+import queryClient, { idbPersister } from "./lib/query-client";
 
 import { ThemeProvider } from "~/providers/Theme";
 
-import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "~/components/ui/nav-sidebar";
+import { NavigationTopInset, NavigationTopProvider } from "~/components/ui/nav-top";
 import { Toaster } from "~/components/ui/sonner";
-import { Topbar, TopbarInset, TopbarProvider } from "~/components/ui/topbar";
 
 import SidebarActions from "~/components/navigation.sidebar.main";
-import TopbarActions from "~/components/navigation.top.main";
+import NavigationTopActions from "~/components/navigation.top.main";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -36,20 +36,18 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 		<PersistQueryClientProvider client={queryClient} persistOptions={{ persister: idbPersister }}>
 			<AuthQueryProvider>
 				<ThemeProvider>
-					<TopbarProvider>
-						<SidebarProvider>
-							<Topbar>
-								<TopbarInset>
-									<TopbarActions />
-								</TopbarInset>
-							</Topbar>
-							<SidebarActions />
-							<SidebarInset>
-								{children}
-								<Toaster />
-							</SidebarInset>
-						</SidebarProvider>
-					</TopbarProvider>
+					<SidebarProvider>
+						<NavigationTopProvider>
+							<NavigationTopInset>
+								<NavigationTopActions />
+							</NavigationTopInset>
+						</NavigationTopProvider>
+						<SidebarActions />
+						<SidebarInset>
+							{children}
+							<Toaster />
+						</SidebarInset>
+					</SidebarProvider>
 				</ThemeProvider>
 			</AuthQueryProvider>
 		</PersistQueryClientProvider>

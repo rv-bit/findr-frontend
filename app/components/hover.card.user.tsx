@@ -2,27 +2,17 @@ import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import { Link } from "react-router";
 
-import axiosInstance from "~/lib/axios-instance";
+import axiosInstance from "~/lib/axios.instance";
+
+import type { User } from "~/lib/types/shared";
 
 import * as HoverCardPrimitive from "@radix-ui/react-hover-card";
-
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "~/components/ui/hover-card";
 
 import { Cake } from "lucide-react";
 
-type HoverUserResponse = {
-	username: string;
-	image: string | null;
-	about_description: string;
-
-	postsCount: number;
-	commentsCount: number;
-
-	createdAt: Date;
-};
-
-const fetchUserData = async (username: string): Promise<HoverUserResponse> => {
+const fetchUserData = async (username: string): Promise<User> => {
 	const response = await axiosInstance.get(`/api/v0/users/${username}`);
 
 	if (response.status !== 200) {
@@ -35,7 +25,7 @@ const fetchUserData = async (username: string): Promise<HoverUserResponse> => {
 export default function HoverCardUser({ username, ...props }: React.ComponentProps<typeof HoverCardPrimitive.Root> & { username: string }) {
 	const [isHovering, setIsHovering] = React.useState(false);
 
-	const { data, isLoading, error } = useQuery<HoverUserResponse>({
+	const { data, isLoading, error } = useQuery<User>({
 		queryKey: ["hoverUserData", username],
 		queryFn: () => fetchUserData(username),
 		enabled: isHovering,
@@ -50,7 +40,7 @@ export default function HoverCardUser({ username, ...props }: React.ComponentPro
 	};
 
 	return (
-		<HoverCard closeDelay={0}>
+		<HoverCard>
 			<HoverCardTrigger asChild onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
 				{props.children}
 			</HoverCardTrigger>
@@ -64,11 +54,7 @@ export default function HoverCardUser({ username, ...props }: React.ComponentPro
 					<>
 						<div className="flex w-full items-center justify-start gap-2">
 							<Avatar className="size-12 rounded-full">
-								<AvatarImage
-									loading="lazy"
-									src={`${data.image?.startsWith("http") ? data.image : `${import.meta.env.VITE_CLOUD_FRONT_URL}/${data.image}`}`}
-									alt={username}
-								/>
+								<AvatarImage loading="lazy" src={data.image ?? ""} alt={username} />
 								<AvatarFallback className="rounded-lg bg-sidebar-foreground/50 text-[0.75rem]">
 									{username
 										?.split(" ")
@@ -78,7 +64,11 @@ export default function HoverCardUser({ username, ...props }: React.ComponentPro
 							</Avatar>
 							<div className="flex flex-col justify-start gap-1">
 								<span className="flex flex-col justify-start -space-y-2">
-									<Link to={`/users/${username}`} className="group flex cursor-pointer items-center justify-start gap-1">
+									<Link
+										viewTransition
+										to={`/users/${username}`}
+										className="group flex cursor-pointer items-center justify-start gap-1"
+									>
 										<h1 className="text-lg break-all text-black group-hover:text-primary-300 group-hover:underline dark:text-white group-hover:dark:text-primary-300">
 											{username}
 										</h1>

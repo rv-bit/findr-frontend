@@ -1,28 +1,29 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router";
+import React from "react";
+import { Link, useNavigate } from "react-router";
 
-import { authClient } from "~/lib/auth";
-import queryClient from "~/lib/query/query-client";
+import { authClient } from "~/lib/auth-client";
+import queryClient from "~/lib/query-client";
 
 import { cn } from "~/lib/utils";
 
-import { useIsTablet } from "~/hooks/use-tablet";
+import { useIsTablet } from "~/hooks/useIsTablet";
 import { useTheme } from "~/providers/Theme";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
+import { Button, buttonVariants } from "~/components/ui/button";
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList, CommandSeparator } from "~/components/ui/command";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuGroup,
 	DropdownMenuItem,
+	dropdownMenuItemVariants,
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Label } from "~/components/ui/label";
-import { SidebarMenuButton, SidebarTrigger } from "~/components/ui/sidebar";
+import { SidebarMenuButton, SidebarTrigger } from "~/components/ui/nav-sidebar";
 import { Switch } from "~/components/ui/switch";
 
 import { type LucideIcon, LogOut, Moon, Plus, Settings, X } from "lucide-react";
@@ -115,13 +116,13 @@ function SearchBar() {
 	);
 }
 
-export default function TopbarActions() {
-	const isTablet = useIsTablet();
-
+export default function NavigationTopActions() {
 	const navigate = useNavigate();
-	const { data: sessionData, error, isPending } = authClient.useSession();
 
-	const [open, setOpen] = useState(false);
+	const isTablet = useIsTablet();
+	const { data: sessionData } = authClient.useSession();
+
+	const [open, setOpen] = React.useState(false);
 
 	const dropDownActions: DropDownActions[] = React.useMemo(
 		() => [
@@ -175,15 +176,9 @@ export default function TopbarActions() {
 					})}
 				/>
 
-				<Button
-					variant={"link"}
-					onClick={() => {
-						navigate("/");
-					}}
-					className="size-auto p-0 max-md:hidden [&_svg]:size-auto"
-				>
+				<Link viewTransition to="/" className="size-auto p-0 max-md:hidden [&_svg]:size-auto">
 					<LogoIcon width="70" height="40" />
-				</Button>
+				</Link>
 			</section>
 
 			<section className="flex max-h-10 w-120 items-start justify-center gap-2">
@@ -192,27 +187,29 @@ export default function TopbarActions() {
 
 			<section className="flex items-center justify-end gap-2">
 				{!sessionData?.user ? (
-					<Button
-						onClick={async () => {
-							navigate("/auth");
-						}}
-						type="button"
-						className="h-10 rounded-full bg-primary-500/75 hover:bg-primary-500 dark:bg-primary-500/75 dark:text-white dark:hover:bg-primary-500"
+					<Link
+						viewTransition
+						to="/auth"
+						className={cn(
+							buttonVariants({
+								variant: "default",
+								size: "default",
+							}),
+							"h-10 w-fit rounded-full bg-primary-500/75 hover:bg-primary-500 dark:bg-primary-500/75 dark:text-white dark:hover:bg-primary-500",
+						)}
 					>
 						<span className="truncate text-sm capitalize">Login</span>
-					</Button>
+					</Link>
 				) : (
 					<React.Fragment>
-						<Button
-							onClick={async () => {
-								navigate(`/post/new/?type=text`);
-							}}
-							type="button"
-							className="flex h-9 items-center justify-center rounded-full bg-transparent px-4 text-black shadow-none hover:bg-sidebar-foreground/20 max-md:px-1 dark:bg-transparent dark:text-white dark:hover:bg-sidebar-accent [&_svg]:size-auto"
+						<Link
+							viewTransition
+							to={`/post/create/?type=text`}
+							className="flex h-9 items-center justify-center gap-1 rounded-full bg-transparent px-1 text-black shadow-none hover:bg-sidebar-foreground/20 sm:px-4 sm:py-5 dark:bg-transparent dark:text-white dark:hover:bg-sidebar-accent [&_svg]:size-auto"
 						>
-							<Plus size={28} />
-							<span className="block truncate text-sm capitalize max-md:hidden">Create</span>
-						</Button>
+							<Plus size={25} />
+							<span className="hidden truncate text-sm capitalize sm:block">Create</span>
+						</Link>
 
 						<DropdownMenu open={open} onOpenChange={setOpen}>
 							<DropdownMenuTrigger asChild>
@@ -222,13 +219,7 @@ export default function TopbarActions() {
 									className="h-auto rounded-full p-1 hover:bg-sidebar-foreground/20 hover:text-white dark:hover:bg-sidebar-accent"
 								>
 									<Avatar className="h-8 w-8 rounded-full">
-										{!isPending && (
-											<AvatarImage
-												loading="lazy"
-												src={`${sessionData?.user.image?.startsWith("http") ? sessionData?.user.image : `${import.meta.env.VITE_CLOUD_FRONT_URL}/${sessionData?.user.image}`}`}
-												alt={sessionData?.user.name}
-											/>
-										)}
+										<AvatarImage loading="lazy" src={sessionData?.user.image ?? ""} alt={sessionData?.user.name} />
 										<AvatarFallback className="rounded-lg bg-sidebar-foreground/50">
 											{sessionData?.user.name
 												?.split(" ")
@@ -245,23 +236,17 @@ export default function TopbarActions() {
 								sideOffset={4}
 							>
 								<DropdownMenuLabel className="p-0 font-normal">
-									<Button
+									<Link
+										viewTransition
+										to={`/users/${sessionData?.user.username}`}
 										onClick={() => {
-											const slug = sessionData?.user.username?.replace(/@/g, "");
-											navigate(`/users/${slug}`);
+											// also close the dropdown
 											setOpen(false);
 										}}
-										variant={"link"}
-										className="flex h-auto w-full items-center justify-center gap-2 px-3 text-left text-sm opacity-80 hover:no-underline hover:opacity-100"
+										className="flex h-auto w-full items-center justify-center gap-2 px-3 py-2 text-left text-sm opacity-80 hover:no-underline hover:opacity-100"
 									>
 										<Avatar className="h-8 w-8 rounded-full">
-											{!isPending && (
-												<AvatarImage
-													loading="lazy"
-													src={`${sessionData?.user.image?.startsWith("http") ? sessionData?.user.image : `${import.meta.env.VITE_CLOUD_FRONT_URL}/${sessionData?.user.image}`}`}
-													alt={sessionData?.user.name}
-												/>
-											)}
+											<AvatarImage loading="lazy" src={sessionData?.user.image ?? ""} alt={sessionData?.user.name} />
 											<AvatarFallback className="rounded-full">
 												{sessionData?.user.name
 													?.split(" ")
@@ -273,60 +258,83 @@ export default function TopbarActions() {
 											<span className="truncate font-semibold">View Profile</span>
 											<span className="truncate text-xs">{sessionData?.user.username!}</span>
 										</div>
-									</Button>
+									</Link>
 								</DropdownMenuLabel>
 								<DropdownMenuSeparator />
 								{dropDownActions.map((item) =>
 									item.items ? (
 										<DropdownMenuGroup key={item.title}>
-											{item.items?.map((action) => (
-												<DropdownMenuItem
-													key={action.title}
-													onClick={(e) => {
-														e.preventDefault();
-
-														if (action.url) {
-															navigate(action.url);
+											{item.items?.map((action) =>
+												action.url ? (
+													<Link
+														viewTransition
+														to={action.url}
+														key={action.title}
+														onClick={() => {
 															setOpen(false);
-															return;
-														}
-
-														if (action.onClick) {
-															action.onClick();
-														}
-													}}
-													className="group h-auto w-full px-3 py-2 text-left hover:cursor-pointer"
-												>
-													{action.component ? (
-														<action.component />
-													) : (
+														}}
+														className={cn(
+															dropdownMenuItemVariants(),
+															"group h-auto w-full px-3 py-2 text-left hover:cursor-pointer",
+														)}
+													>
 														<span className="flex w-full items-center justify-start gap-1 opacity-80 group-hover:opacity-100">
 															{action.icon && <action.icon />}
 															<h1>{action.title}</h1>
 														</span>
-													)}
-												</DropdownMenuItem>
-											))}
+													</Link>
+												) : (
+													<DropdownMenuItem
+														key={action.title}
+														onClick={(e) => {
+															e.preventDefault();
+
+															if (action.onClick) {
+																action.onClick();
+															}
+														}}
+														className="group h-auto w-full px-3 py-2 text-left hover:cursor-pointer"
+													>
+														{action.component ? (
+															<action.component />
+														) : (
+															<span className="flex w-full items-center justify-start gap-1 opacity-80 group-hover:opacity-100">
+																{action.icon && <action.icon />}
+																<h1>{action.title}</h1>
+															</span>
+														)}
+													</DropdownMenuItem>
+												),
+											)}
 
 											{dropDownActions.length - 1 !== dropDownActions.indexOf(item) && <DropdownMenuSeparator />}
 										</DropdownMenuGroup>
+									) : item.url ? (
+										<Link
+											viewTransition
+											to={item.url}
+											key={item.title}
+											onClick={() => {
+												setOpen(false);
+											}}
+											className={cn(dropdownMenuItemVariants(), "group h-auto w-full px-3 py-2 text-left hover:cursor-pointer")}
+										>
+											<span className="flex w-full items-center justify-start gap-1 opacity-80 group-hover:opacity-100">
+												{item.icon && <item.icon />}
+												<h1>{item.title}</h1>
+											</span>
+										</Link>
 									) : (
 										<DropdownMenuGroup key={item.title}>
 											<DropdownMenuItem
 												onClick={(e) => {
 													e.preventDefault();
 
-													if (item.url) {
-														navigate(item.url);
-														setOpen(false);
-														return;
-													}
-
 													if (item.onClick) {
 														item.onClick();
 													}
 												}}
-												className="group w-full px-3 py-2 text-left hover:cursor-pointer"
+												className="group h-auto w-full px-3 py-2 text-left hover:cursor-pointer"
 											>
 												{item.component ? (
 													<item.component />

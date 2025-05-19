@@ -3,20 +3,29 @@ export type User = {
 	image: string | null | undefined;
 	about_description: string | null | undefined;
 
-	postsCount: number;
-	commentsCount: number;
+	postsCount?: number;
+	commentsCount?: number;
 
 	createdAt: Date;
 };
 
-export type Comments = {
-	id: number;
+export type Comment = {
+	id: string;
 	postId: string | null;
 	text: string | null;
 	createdAt: Date;
 	updatedAt: Date;
 
-	postTitle?: string | null;
+	likesCount: number;
+
+	upvoted: boolean;
+	downvoted: boolean;
+
+	post: {
+		slug: string;
+		title: string;
+	};
+	repliedTo?: string | null;
 };
 
 export type Post = {

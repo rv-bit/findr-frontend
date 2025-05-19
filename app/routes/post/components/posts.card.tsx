@@ -1,15 +1,19 @@
-import { codeBlockPlugin, headingsPlugin, listsPlugin, markdownShortcutPlugin, MDXEditor, quotePlugin, thematicBreakPlugin } from "@mdxeditor/editor";
 import React from "react";
 import { Link, useNavigate } from "react-router";
-import { ClientOnly } from "remix-utils/client-only";
 import { toast } from "sonner";
+
+import { en } from "@blocknote/core/locales";
+import { useCreateBlockNote } from "@blocknote/react";
+import { BlockNoteView } from "@blocknote/shadcn";
+
+import { codeBlockOptions } from "~/config/editor.options";
 
 import { cn, formatTime } from "~/lib/utils";
 
-import axiosInstance from "~/lib/axios-instance";
-import queryClient from "~/lib/query/query-client";
+import axiosInstance from "~/lib/axios.instance";
+import queryClient from "~/lib/query-client";
 
-import type { Session } from "~/lib/auth";
+import type { Session } from "~/lib/auth-client";
 import type { Post, User } from "~/lib/types/shared";
 
 import { useMutatePostVote } from "~/hooks/useMutatePostVote";
@@ -51,6 +55,28 @@ export default function PostCard({
 	onCommentIconClick: () => void;
 	onBackButtonClick: () => void;
 }) {
+	const locale = en;
+
+	const blocknoteEditor = useCreateBlockNote({
+		codeBlock: {
+			...codeBlockOptions,
+		},
+		dictionary: {
+			...locale,
+			placeholders: {
+				...locale.placeholders,
+				emptyDocument: "Body Text (optional)",
+				default: "",
+				heading: "",
+				heading_2: "",
+				heading_3: "",
+				numberedListItem: "",
+				bulletListItem: "",
+			},
+		},
+		trailingBlock: false,
+	});
+
 	const navigate = useNavigate();
 	const { mutate } = useMutatePostVote({
 		queryKey: ["post", data.id],
@@ -149,6 +175,14 @@ export default function PostCard({
 		[data, editable, session],
 	);
 
+	React.useEffect(() => {
+		async function loadInitialHTML() {
+			const blocks = await blocknoteEditor.tryParseMarkdownToBlocks(JSON.parse(data.content));
+			blocknoteEditor.replaceBlocks(blocknoteEditor.document, blocks);
+		}
+		loadInitialHTML();
+	}, [blocknoteEditor]);
+
 	return (
 		<article className={cn("relative flex h-auto flex-col justify-between gap-6", className)}>
 			<div className="flex flex-col justify-between gap-1">
@@ -163,11 +197,7 @@ export default function PostCard({
 						</Button>
 						<span className="flex items-center justify-start gap-2">
 							<Avatar className="size-9 rounded-full">
-								<AvatarImage
-									loading="lazy"
-									src={`${data.user.image?.startsWith("http") ? data.user.image : `${import.meta.env.VITE_CLOUD_FRONT_URL}/${data.user.image}`}`}
-									alt={data.user.username}
-								/>
+								<AvatarImage loading="lazy" src={data.user.image ?? ""} alt={data.user.username} />
 								<AvatarFallback className="rounded-lg bg-sidebar-foreground/50 text-[0.75rem]">
 									{data.user.username
 										?.split(" ")
@@ -180,6 +210,7 @@ export default function PostCard({
 								<h1 className="text-sm break-all text-black dark:text-white">{data.slug}</h1>
 								<HoverCardUser username={data.user.username}>
 									<Link
+										viewTransition
 										to={`/users/${data.user.username}`}
 										className="group flex w-fit cursor-pointer items-center justify-start gap-1"
 									>
@@ -271,28 +302,8 @@ export default function PostCard({
 				</span>
 
 				<span className="flex h-full flex-col items-start justify-start gap-1 overflow-hidden text-ellipsis">
-					<h1 className="w-full text-lg font-bold break-all text-black dark:text-white">{data.title}</h1>
-					<ClientOnly>
-						{() => (
-							<MDXEditor
-								markdown={data.content}
-								plugins={[
-									quotePlugin(),
-									listsPlugin(),
-									codeBlockPlugin(),
-									headingsPlugin({
-										allowedHeadingLevels: [1, 2, 3],
-									}),
-									quotePlugin(),
-									thematicBreakPlugin(),
-									markdownShortcutPlugin(),
-								]}
-								className="w-full overflow-hidden text-ellipsis"
-								contentEditableClassName="text-ellipsis text-gray-500 dark:text-gray-400 w-full"
-								readOnly={true}
-							/>
-						)}
-					</ClientOnly>
+					<h1 className="w-full text-xl font-bold break-all text-black dark:text-white">{data.title}</h1>
+					<BlockNoteView editor={blocknoteEditor} formattingToolbar={false} slashMenu={false} sideMenu={false} editable={false} />
 				</span>
 			</div>
 

@@ -1,15 +1,17 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axiosInstance from "~/lib/axios-instance";
+import axiosInstance from "~/lib/axios.instance";
+
+import type { Post } from "~/lib/types/shared";
 
 type VoteVariables = {
 	postId: string;
 	type: "upvote" | "downvote";
 };
 
-const mutatePost = (post: any, type: "upvote" | "downvote") => {
+const mutatePost = (post: Post, type: "upvote" | "downvote") => {
 	let newLikesCount = post.likesCount;
-	let hasUpvoted = post.hasUpvoted || false;
-	let hasDownvoted = post.hasDownvoted || false;
+	let hasUpvoted = post.upvoted || false;
+	let hasDownvoted = post.downvoted || false;
 
 	if (type === "upvote") {
 		if (hasUpvoted) {
@@ -60,6 +62,17 @@ export const useMutatePostVote = ({ queryKey }: { queryKey: (string | undefined)
 			queryClient.setQueryData(queryKey, (oldData: any) => {
 				if (!oldData) return oldData;
 
+				// Logic for handling individual comment post data
+				if ("postData" in oldData) {
+					if (oldData.postData.id === postId) {
+						return {
+							...oldData,
+							postData: mutatePost(oldData.postData, type),
+						};
+					}
+				}
+
+				// Logic for handling paginated post data
 				if (oldData.pages) {
 					return {
 						...oldData,
