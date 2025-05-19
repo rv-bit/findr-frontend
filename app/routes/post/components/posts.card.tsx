@@ -1,8 +1,3 @@
-import "@blocknote/core/fonts/inter.css";
-import "@blocknote/shadcn/style.css";
-
-import "~/styles/card.post.mdx.css";
-
 import React from "react";
 import { Link, useNavigate } from "react-router";
 import { toast } from "sonner";
@@ -11,7 +6,7 @@ import { en } from "@blocknote/core/locales";
 import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/shadcn";
 
-import { codeBlockOptions } from "~/lib/editor/options";
+import { codeBlockOptions } from "~/config/editor.options";
 
 import { cn, formatTime } from "~/lib/utils";
 
@@ -306,47 +301,8 @@ export default function PostCard({
 				</span>
 
 				<span className="flex h-full flex-col items-start justify-start gap-1 overflow-hidden text-ellipsis">
-					<h1 className="w-full text-lg font-bold break-all text-black dark:text-white">{data.title}</h1>
-					{/* <ClientOnly>
-						{() => (
-							<MDXEditor
-								markdown={JSON.parse(data.content)}
-								plugins={[
-									quotePlugin(),
-									listsPlugin(),
-									headingsPlugin({
-										allowedHeadingLevels: [1, 2, 3],
-									}),
-									quotePlugin(),
-									thematicBreakPlugin(),
-									markdownShortcutPlugin(),
-									linkPlugin(),
-									linkDialogPlugin(),
-								]}
-								className="w-full overflow-hidden text-ellipsis"
-								contentEditableClassName="text-ellipsis text-gray-500 dark:text-gray-400 w-full"
-								readOnly={true}
-							/>
-						)}
-					</ClientOnly> */}
-
-					{/* <ClientOnly> */}
-					{/* {() => { */}
-					{/* // const blocknoteEditor = useCreateBlockNote(); */}
-					{/* // await blocknoteEditor.tryParseMarkdownToBlocks(JSON.parse(data.content)); */}
-
-					{/* return ( */}
-					<BlockNoteView
-						content={JSON.parse(data.content)}
-						editor={blocknoteEditor}
-						formattingToolbar={false}
-						slashMenu={false}
-						sideMenu={false}
-						editable={false}
-					/>
-					{/* ); */}
-					{/* }} */}
-					{/* </ClientOnly> */}
+					<h1 className="w-full text-xl font-bold break-all text-black dark:text-white">{data.title}</h1>
+					<BlockNoteView editor={blocknoteEditor} formattingToolbar={false} slashMenu={false} sideMenu={false} editable={false} />
 				</span>
 			</div>
 

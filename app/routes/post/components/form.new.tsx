@@ -1,10 +1,3 @@
-// organize-imports-ignore
-
-import "@blocknote/core/fonts/inter.css";
-import "@blocknote/shadcn/style.css";
-
-import "~/styles/form.default.mdx.css";
-
 import React from "react";
 import { useNavigate } from "react-router";
 
@@ -16,7 +9,7 @@ import { en } from "@blocknote/core/locales";
 import { FormattingToolbar, useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/shadcn";
 
-import { codeBlockOptions } from "~/lib/editor/options";
+import { codeBlockOptions } from "~/config/editor.options";
 
 import { useTheme } from "~/providers/Theme";
 

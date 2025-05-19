@@ -1,10 +1,3 @@
-// organize-imports-ignore
-
-import "@blocknote/core/fonts/inter.css";
-import "@blocknote/shadcn/style.css";
-
-import "~/styles/form.default.mdx.css";
-
 import React from "react";
 import { useNavigate } from "react-router";
 
@@ -143,8 +136,6 @@ export default function ActionForm({
 				},
 			)
 			.then((response) => {
-				console.log("response", response);
-
 				setLoading(false);
 				navigate("/");
 			})
