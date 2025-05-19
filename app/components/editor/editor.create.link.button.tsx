@@ -1,6 +1,3 @@
-import "@blocknote/shadcn/style.css";
-import "~/styles/editor.buttons.css"; // overwrite
-
 import type { BlockNoteEditor } from "@blocknote/core";
 import { useBlockNoteEditor, useComponentsContext, useEditorContentOrSelectionChange } from "@blocknote/react";
 import React, { useState } from "react";
