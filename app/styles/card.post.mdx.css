@@ -142,7 +142,7 @@
 }
 
 .bn-block-outer {
-	@apply p0 my-4 first:mt-0 last:mb-0;
+	@apply my-4 p-0 first:mt-0 last:mb-0;
 }
 .bn-block-content {
 	padding: 0;
