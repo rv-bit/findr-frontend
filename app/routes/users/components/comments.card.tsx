@@ -69,8 +69,8 @@ const CommentsCard = React.memo(({ className, comment, user, ...props }: React.C
 			<Link viewTransition to={`/comments/${comment.id}`} className="absolute inset-0" />
 
 			<span className="flex h-full cursor-pointer flex-col items-start justify-start gap-2 overflow-hidden text-ellipsis">
-				<section id="comment-header" className="flex w-full flex-col items-center justify-start space-y-0.5 text-black dark:text-white">
-					<span className="relative flex w-full items-center justify-start gap-1">
+				<section id="comment-header" className="flex w-full flex-col items-start justify-start space-y-0.5 text-black dark:text-white">
+					<span className="relative flex w-fit items-center justify-start gap-1">
 						<span className="flex w-fit items-center justify-start gap-2">
 							<Avatar className="size-5 rounded-full">
 								{/* <AvatarImage loading="lazy" src={data.user.image ?? ""} alt={data.user.username} /> */}
@@ -92,7 +92,7 @@ const CommentsCard = React.memo(({ className, comment, user, ...props }: React.C
 							</h1>
 						</Link>
 					</span>
-					<span className="relative ml-15 flex w-full items-center justify-start gap-1">
+					<span className="relative ml-7.5 flex w-fit items-center justify-start gap-1">
 						<HoverCardUser username={user.username}>
 							<Link
 								viewTransition
