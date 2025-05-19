@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, NavLink, useLocation, useSearchParams } from "react-router";
+import { ClientOnly } from "remix-utils/client-only";
 
 import { cn } from "~/lib/utils";
 
@@ -197,16 +198,20 @@ const HeaderCard = React.memo(
 					</div>
 
 					<span className="flex items-center justify-start gap-2">
-						{isUserSession && (
-							<Link
-								viewTransition
-								to={`/post/create/?type=text`}
-								className="flex h-9 w-fit items-center justify-center gap-1 rounded-full border border-black/50 bg-transparent px-4 text-black shadow-none dark:border-white/50 dark:bg-transparent dark:text-white dark:hover:border-white"
-							>
-								<Plus size={22} />
-								<span className="text-xs capitalize">Create Post</span>
-							</Link>
-						)}
+						<ClientOnly>
+							{() =>
+								isUserSession && (
+									<Link
+										viewTransition
+										to={`/post/create/?type=text`}
+										className="flex h-9 w-fit items-center justify-center gap-1 rounded-full border border-black/50 bg-transparent px-4 text-black shadow-none dark:border-white/50 dark:bg-transparent dark:text-white dark:hover:border-white"
+									>
+										<Plus size={22} />
+										<span className="text-xs capitalize">Create Post</span>
+									</Link>
+								)
+							}
+						</ClientOnly>
 
 						<Select
 							defaultValue={currentSortOption}
