@@ -1,4 +1,6 @@
-import editor_stylesheet from "~/styles/card.post.mdx.css?url";
+import core_editor_stylesheet from "@blocknote/shadcn/style.css?url";
+import modified_editor_stylesheet from "~/styles/card.post.mdx.css?url";
+
 import type { Route } from "./+types/page.$comment";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -18,7 +20,8 @@ import Comment from "./components/comments.nodes";
 import PostCard from "./components/posts.card";
 
 export const links: Route.LinksFunction = () => [
-	{ rel: "stylesheet", href: editor_stylesheet }, // override styles
+	{ rel: "stylesheet", href: core_editor_stylesheet },
+	{ rel: "stylesheet", href: modified_editor_stylesheet }, // override styles
 ];
 
 export function meta({ data, params }: Route.MetaArgs) {

@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { en } from "@blocknote/core/locales";
+
 import { FormattingToolbar, useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/shadcn";
 
@@ -14,6 +15,8 @@ import { codeBlockOptions } from "~/config/editor.options";
 import { useTheme } from "~/providers/Theme";
 
 import type { AxiosError } from "axios";
+import type { Post, User } from "~/lib/types/shared";
+
 import axiosInstance from "~/lib/axios.instance";
 
 import {
@@ -32,18 +35,19 @@ import { AlertDialogFooter } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
 import { Separator } from "~/components/ui/separator";
-import TextareaLabel from "~/components/ui/textarea-label";
 
 import * as ButtonPrimitive from "~/components/ui/button";
 import * as TooltipPrimitive from "~/components/ui/tooltip";
 
-const MAX_TITLE_LENGTH = 100;
 const newPostSchema = z.object({
-	title: z.string().nonempty("Title is required").max(MAX_TITLE_LENGTH),
 	content: z.string().nonempty("Content is required"),
 });
 
-export default function ActionForm({ ...props }: React.ComponentPropsWithoutRef<"section">) {
+export default function ActionForm({
+	...props
+}: React.ComponentPropsWithoutRef<"section"> & {
+	data: Post & { user: User };
+}) {
 	const locale = en;
 
 	const { theme } = useTheme();
@@ -57,7 +61,7 @@ export default function ActionForm({ ...props }: React.ComponentPropsWithoutRef<
 			...locale,
 			placeholders: {
 				...locale.placeholders,
-				emptyDocument: "Body Text (optional)",
+				emptyDocument: "Body Text (required)",
 				default: "",
 				heading: "",
 				heading_2: "",
@@ -69,7 +73,6 @@ export default function ActionForm({ ...props }: React.ComponentPropsWithoutRef<
 		trailingBlock: false,
 	});
 
-	const [currentCharacterTitleCount, setCurrentCharacterTitleCount] = React.useState(0);
 	const [error, setError] = React.useState<string>();
 	const [loading, setLoading] = React.useState(false);
 
@@ -77,8 +80,7 @@ export default function ActionForm({ ...props }: React.ComponentPropsWithoutRef<
 		mode: "onChange",
 		resolver: zodResolver(newPostSchema),
 		defaultValues: {
-			title: "",
-			content: "",
+			content: JSON.parse(props.data.content),
 		},
 	});
 
@@ -89,8 +91,6 @@ export default function ActionForm({ ...props }: React.ComponentPropsWithoutRef<
 		setLoading(true);
 
 		const content = values.content;
-		const slug = values.title.toLowerCase().trim().replace(/\s/g, "-");
-
 		if (!content) {
 			setLoading(false);
 			return;
@@ -98,10 +98,9 @@ export default function ActionForm({ ...props }: React.ComponentPropsWithoutRef<
 
 		axiosInstance
 			.post(
-				"/api/v0/post/insert",
+				`/api/v0/post/edit/${props.data.id}`,
 				{
 					...values,
-					slug,
 					content: JSON.stringify(content),
 				},
 				{
@@ -123,58 +122,23 @@ export default function ActionForm({ ...props }: React.ComponentPropsWithoutRef<
 	};
 
 	React.useEffect(() => {
-		newPostForm.setValue("title", "");
-		setCurrentCharacterTitleCount(0);
-
-		return () => {
-			newPostForm.reset();
-		};
-	}, []);
-
-	React.useEffect(() => {
-		const { unsubscribe } = newPostForm.watch((value) => {
-			const newDescription = newPostForm.watch("title");
-			setCurrentCharacterTitleCount(newDescription.length);
-		});
-
-		return () => unsubscribe();
-	}, [newPostForm.watch, newPostForm.trigger]);
+		async function loadInitialHTML() {
+			const blocks = await editor.tryParseMarkdownToBlocks(JSON.parse(props.data.content));
+			editor.replaceBlocks(editor.document, blocks);
+		}
+		loadInitialHTML();
+	}, [editor]);
 
 	return (
-		<section className="flex w-full flex-col gap-5">
+		<section className="flex w-full flex-col gap-2">
+			<h1 className="text-xl">{props.data.title}</h1>
 			<Form {...newPostForm}>
-				<form className="w-full" onSubmit={newPostForm.handleSubmit(handleSubmit)}>
+				<form className="w-full text-black dark:text-white" onSubmit={newPostForm.handleSubmit(handleSubmit)}>
 					<div className="flex flex-col gap-4">
 						<div className="flex flex-col gap-2">
 							<div className="text-sm text-red-500 dark:text-red-400">{error}</div>
 						</div>
 						<div className="flex flex-col gap-7">
-							<div className="flex flex-col gap-2">
-								<FormField
-									control={newPostForm.control}
-									name="title"
-									render={({ field }) => (
-										<FormItem>
-											<FormControl>
-												<TextareaLabel
-													{...field}
-													required
-													maxLength={MAX_TITLE_LENGTH}
-													className="h-auto min-h-2 resize-none overflow-hidden rounded-xl border-2 text-black focus-visible:ring-2 focus-visible:ring-primary-400 dark:text-white dark:focus-visible:ring-primary-400"
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-
-								<span className="w-full text-right text-sm text-gray-500 dark:text-gray-400">
-									<span className="text-gray-500 dark:text-gray-400">{currentCharacterTitleCount}</span>
-									<span className="text-gray-500 dark:text-gray-400">/</span>
-									<span className="text-gray-500 dark:text-gray-400">{MAX_TITLE_LENGTH}</span>
-								</span>
-							</div>
-
 							<FormField
 								control={newPostForm.control}
 								name="content"

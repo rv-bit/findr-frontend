@@ -1,9 +1,12 @@
-import default_editor_stylesheet from "@mdxeditor/editor/style.css?url";
-import editor_stylesheet from "~/styles/form.default.mdx.css?url";
+import core_editor_stylesheet from "@blocknote/shadcn/style.css?url";
+import modified_editor_buttons_stylesheet from "~/styles/editor.buttons.css?url";
+import modified_editor_stylesheet from "~/styles/form.default.mdx.css?url";
+
 import type { Route } from "./+types/page.create";
 
-import React, { Suspense } from "react";
+import React from "react";
 import { useSearchParams } from "react-router";
+import { ClientOnly } from "remix-utils/client-only";
 
 import { cn } from "~/lib/utils";
 
@@ -11,11 +14,12 @@ import { Button } from "~/components/ui/button";
 
 import { ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
 
-const ActionForm = React.lazy(() => import("./components/form.new"));
+import ActionForm from "./components/form.new";
 
 export const links: Route.LinksFunction = () => [
-	{ rel: "stylesheet", href: default_editor_stylesheet }, // default styles
-	{ rel: "stylesheet", href: editor_stylesheet }, // override styles
+	{ rel: "stylesheet", href: core_editor_stylesheet },
+	{ rel: "stylesheet", href: modified_editor_stylesheet }, // override styles
+	{ rel: "stylesheet", href: modified_editor_buttons_stylesheet }, // override styles
 ];
 
 const types: {
@@ -95,7 +99,7 @@ export default function Index() {
 
 	return (
 		<div className="flex h-full w-full flex-col items-center justify-start max-md:w-screen">
-			<div className="flex w-full max-w-5xl flex-col gap-5 px-10 pt-8 max-sm:px-4">
+			<div className="flex w-full max-w-4xl flex-col gap-5 px-10 pt-8 max-sm:px-4">
 				<h1 className="mb-2 text-3xl font-semibold text-black capitalize dark:text-white">Create Post</h1>
 
 				<section className="relative w-full">
@@ -166,9 +170,7 @@ export default function Index() {
 					</div>
 				</section>
 
-				<Suspense fallback={<div className="flex h-full w-full items-center justify-center">Loading...</div>}>
-					<ActionForm />
-				</Suspense>
+				<ClientOnly>{() => <ActionForm />}</ClientOnly>
 			</div>
 		</div>
 	);
