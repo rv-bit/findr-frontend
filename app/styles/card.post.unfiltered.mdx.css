@@ -50,9 +50,7 @@
 	height: auto;
 	width: 100%;
 
-	max-height: 200px;
-	overflow: hidden;
-	text-overflow: ellipsis;
+	max-height: 100px;
 
 	display: flex;
 	justify-content: flex-start;
@@ -81,8 +79,10 @@
 .bn-shadcn .bn-editor {
 	height: auto;
 	width: 100%;
+	max-height: 100px;
+
 	resize: none;
-	overflow-y: auto;
+	overflow: hidden;
 
 	border-radius: 0;
 
@@ -90,11 +90,6 @@
 	padding-inline: 0;
 
 	background-color: hsl(var(--background));
-}
-
-.bn-shadcn .bn-editor,
-.dark .bn-shadcn .bn-editor {
-	@apply line-clamp-10 w-full text-sm text-ellipsis;
 }
 
 .bn-shadcn .bn-editor {
@@ -163,6 +158,12 @@
 }
 
 .bn-shadcn hr {
+}
+
+.bn-block-content {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
 }
 
 .bn-block-content {
