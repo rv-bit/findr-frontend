@@ -5,7 +5,7 @@ import type { Route } from "./+types/page.$post";
 
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
-import { useLocation, useNavigate } from "react-router";
+import { useLocation, useNavigate, useNavigationType } from "react-router";
 
 import axiosInstance from "~/lib/axios.instance";
 import queryClient from "~/lib/query-client";
@@ -64,6 +64,7 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
 export default function Index({ loaderData, params }: Route.ComponentProps) {
 	const { data: session } = authClient.useSession();
 
+	const navigateType = useNavigationType();
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -114,6 +115,12 @@ export default function Index({ loaderData, params }: Route.ComponentProps) {
 							session={session}
 							onCommentIconClick={handleOnCommentIconClick}
 							onBackButtonClick={() => {
+								if (navigateType === "POP") {
+									// this means its maybe from a blank new tab, PUSH would be if a user has come from a link
+									navigate("/");
+									return;
+								}
+
 								navigate(-1);
 							}}
 							className="w-full"
