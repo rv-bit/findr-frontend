@@ -28,7 +28,15 @@ export const links: Route.LinksFunction = () => [
 
 export function meta({ params }: Route.MetaArgs) {
 	const username = params.username;
-	return [{ title: `u/${username}` }, { name: "description", content: `Findr ${username} User Profile` }];
+	return [
+		{
+			title: `Check out ${username}'s profile on Findr`,
+		},
+		{
+			name: "description",
+			content: `Explore ${username}'s profile on Findr. Discover their posts, comments, and more.`,
+		},
+	];
 }
 
 export async function loader({ params }: Route.LoaderArgs) {
