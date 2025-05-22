@@ -31,14 +31,7 @@ import { SIDEBAR_COOKIE_NAME, THEME_COOKIE_NAME } from "~/config/cookies";
 import ErrorIcon from "~/icons/error";
 
 export function meta({}: Route.MetaArgs) {
-	return [
-		{ title: APP_CONFIG.APP_NAME },
-		{ name: "description", content: APP_CONFIG.APP_DESCRIPTION },
-		{ property: "og:title", content: APP_CONFIG.APP_NAME },
-		{ property: "og:description", content: APP_CONFIG.APP_DESCRIPTION },
-		{ property: "og:type", content: "website" },
-		{ property: "og:url", content: APP_CONFIG.APP_URL },
-	];
+	return [{ title: APP_CONFIG.APP_NAME }, { name: "description", content: APP_CONFIG.APP_DESCRIPTION }];
 }
 
 export const links: Route.LinksFunction = () => [
@@ -96,6 +89,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 				<Meta />
 				<Links />
+
+				<meta name="og:title" content={APP_CONFIG.APP_NAME} />
+				<meta name="og:description" content={APP_CONFIG.APP_DESCRIPTION} />
+				<meta name="og:type" content="website" />
+				<meta name="og:url" content={APP_CONFIG.APP_URL} />
 
 				{/* To avoid FOUC aka Flash of Unstyled Content */}
 				<script
