@@ -31,7 +31,14 @@ import { SIDEBAR_COOKIE_NAME, THEME_COOKIE_NAME } from "~/config/cookies";
 import ErrorIcon from "~/icons/error";
 
 export function meta({}: Route.MetaArgs) {
-	return [{ title: APP_CONFIG.APP_NAME }, { name: "description", content: APP_CONFIG.APP_DESCRIPTION }];
+	return [
+		{ title: APP_CONFIG.APP_NAME },
+		{ name: "description", content: APP_CONFIG.APP_DESCRIPTION },
+		{ property: "og:title", content: APP_CONFIG.APP_NAME },
+		{ property: "og:description", content: APP_CONFIG.APP_DESCRIPTION },
+		{ property: "og:type", content: "website" },
+		{ property: "og:url", content: APP_CONFIG.APP_URL },
+	];
 }
 
 export const links: Route.LinksFunction = () => [
