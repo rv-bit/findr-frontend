@@ -37,3 +37,8 @@ cd findr-frontend
 
 # Install dependencies
 npm install # or yarn install
+
+### ENV Example
+```bash
+VITE_API_URL=
+VITE_AUTH_API_URL=
