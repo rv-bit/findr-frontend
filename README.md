@@ -1,7 +1,7 @@
 > [!WARNING]
 > This project is using the beta version of [React Compiler](https://react.dev/learn/react-compiler), use at your own risk, as currently unstable.
 
-# Findr
+# Findr Frontend
 
 > **Share your thoughts, connect with communities, and discover new ideas with a feature-rich blogging platform.**
 
