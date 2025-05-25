@@ -23,8 +23,7 @@ Findr is a modern blogging platform inspired by the dynamic nature of Reddit, de
 
 ### Prerequisites
 
-- Node.js (v18 or higher)
-- npm, pnpm, yarn or bun (choose which one fits your stack better)
+- [Bun](https://bun.sh/)
 
 ### Installation
 
