@@ -40,5 +40,5 @@ npm install # or yarn install
 
 ### ENV Example
 ```bash
-VITE_API_URL=
-VITE_AUTH_API_URL=
+VITE_API_URL= // URL that server is running on
+VITE_AUTH_API_URL= // URL that server is running on with a /auth at the end
