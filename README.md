@@ -37,6 +37,7 @@ cd findr-frontend
 
 # Install dependencies
 npm install # or yarn install
+```
 
 ### ENV Example
 ```bash
