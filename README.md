@@ -1,6 +1,3 @@
-> [!WARNING]
-> This project is using the beta version of [React Compiler](https://react.dev/learn/react-compiler), use at your own risk, as currently unstable.
-
 # Findr Frontend
 
 > **Share your thoughts, connect with communities, and discover new ideas with a feature-rich blogging platform.**
@@ -17,9 +14,10 @@ Findr is a modern blogging platform inspired by the dynamic nature of Reddit, de
 
 ## Stack
 - **React 19 (new compiler)**
-- **React Router V7**
-- **Tailwind CSS**
-- **ShadCN UI**
+- **[React Router V7](https://reactrouter.com/)**
+- **[Tailwind](https://tailwindcss.com/)**
+- **[Better Auth](https://www.better-auth.com/)**
+- **[ShadCN](https://ui.shadcn.com/)**
 
 ### Prerequisites
 
